@@ -91,8 +91,10 @@ public class Setup implements CommandExecutor {
                     plugin.getConfig().set("npcs.shop", list);
                     sender.sendMessage("§a已添加一个商店NPC位置");
                 } else if (type.equals("upgrade")) {
-                    plugin.getConfig().set("npcs.upgrade", loc.serialize());
-                    sender.sendMessage("§a已设置一个升级NPC位置");
+                    List<Map<?, ?>> list = plugin.getConfig().getMapList("npcs.upgrade");
+                    list.add(loc.serialize());
+                    plugin.getConfig().set("npcs.upgrade", list);
+                    sender.sendMessage("§a已添加一个升级NPC位置");
                 } else {
                     sender.sendMessage("§c无效的NPC类型！可用类型: shop, upgrade");
                 }
