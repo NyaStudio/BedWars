@@ -99,16 +99,15 @@ public class Setup implements CommandExecutor {
             }
 
             case "setspawner" -> {
-                if (args.length < 2) {
-                    sender.sendMessage("§c用法: /bw setspawner <type> [x] [y] [z] [yaw] [pitch]");
+                if (args.length < 1) {
+                    sender.sendMessage("§c用法: /bw setspawner [x] [y] [z] [yaw] [pitch]");
                     return true;
                 }
-                String type = args[1].toLowerCase();
-                Location loc = getLocationFromArgs(p, args, 2);
-                List<Map<?, ?>> list = plugin.getConfig().getMapList("spawners." + type);
+                Location loc = getLocationFromArgs(p, args, 1);
+                List<Map<?, ?>> list = plugin.getConfig().getMapList("spawners");
                 list.add(loc.serialize());
-                plugin.getConfig().set("spawners." + type, list);
-                sender.sendMessage("§a已添加一个 §e" + type + " §a资源生成点");
+                plugin.getConfig().set("spawners", list);
+                sender.sendMessage("§a已添加一个资源生成点");
             }
 
             case "saveconfig" -> {
@@ -155,7 +154,7 @@ public class Setup implements CommandExecutor {
                 §e/bw setbed <team> [x] [y] [z] §7- 设置队伍床位置
                 §e/bw setspawn <team> [x] [y] [z] [yaw] [pitch] §7- 设置队伍出生点
                 §e/bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] §7- 设置商店/升级NPC
-                §e/bw setspawner <type> [x] [y] [z] [yaw] [pitch] §7- 设置资源生成点
+                §e/bw setspawner [x] [y] [z] [yaw] [pitch] §7- 设置资源生成点
                 §e/bw saveconfig §7- 保存配置文件
                 §e/bw reload §7- 重新加载配置文件
                 """);
