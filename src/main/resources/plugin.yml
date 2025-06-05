@@ -4,12 +4,12 @@ main: cn.nekopixel.bedwars.Main
 api-version: 1.20
 
 commands:
-  bedwars:
+  bw:
     description: 管理 Bedwars 插件
-    usage: /<command> reload
-    permission: bedwars.admin
+    usage: /bw
+    permission: bw.admin
 
 permissions:
-  bedwars.admin:
+  bw.admin:
     description: 使用 Bedwars 管理命令
     default: op

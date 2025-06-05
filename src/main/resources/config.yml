@@ -1,0 +1,35 @@
+spawnpoints:
+  red:
+    x: 100
+    y: 65
+    z: -20
+    world: world
+  blue:
+    x: -100
+    y: 65
+    z: -20
+    world: world
+
+npcs:
+  shop:
+    x: 105
+    y: 65
+    z: -20
+    world: world
+  upgrade:
+    x: 110
+    y: 65
+    z: -20
+    world: world
+
+spawners:
+  iron:
+    - x: 102
+      y: 65
+      z: -20
+      world: world
+  diamond:
+    - x: 0
+      y: 65
+      z: 0
+      world: world

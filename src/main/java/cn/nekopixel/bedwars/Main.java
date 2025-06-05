@@ -19,6 +19,8 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         Loader.registerAllEvents(this);
+        Loader.registerCommands(this);
+        saveDefaultConfig();
         getLogger().info("加载完成！");
     }
 
