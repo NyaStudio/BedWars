@@ -12,5 +12,18 @@ package cn.nekopixel.bedwars;
 //├── listener/      # 各种监听器（方块、击杀、死亡等）
 //└── util/          # 工具类（位置、颜色、声音、NBT 等）
 
-public class Main {
+import org.bukkit.plugin.java.JavaPlugin;
+
+public final class Main extends JavaPlugin {
+
+    @Override
+    public void onEnable() {
+        Loader.registerAllEvents(this);
+        getLogger().info("加载完成！");
+    }
+
+    @Override
+    public void onDisable() {
+        getLogger().info("卸载完成！");
+    }
 }
