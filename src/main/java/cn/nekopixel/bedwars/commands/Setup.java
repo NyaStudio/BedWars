@@ -6,6 +6,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 import java.util.*;
 
@@ -30,6 +32,26 @@ public class Setup implements CommandExecutor {
         }
 
         switch (args[0].toLowerCase()) {
+            case "setbed" -> {
+                if (args.length < 2) {
+                    sender.sendMessage("§c用法: /bw setbed <team> [x] [y] [z]");
+                    return true;
+                }
+                String team = args[1].toLowerCase();
+                if (!validTeams.contains(team)) {
+                    sender.sendMessage("§c无效的队伍颜色！可用颜色: " + String.join(", ", validTeams));
+                    return true;
+                }
+                Location loc = getLocationFromArgs(p, args, 2);
+                Block block = loc.getBlock();
+                if (block.getType() != Material.RED_BED && block.getType() != Material.WHITE_BED) {
+                    sender.sendMessage("§c错误：指定位置必须是床方块");
+                    return true;
+                }
+                plugin.getConfig().set("beds." + team, loc.serialize());
+                sender.sendMessage("§a已设置 §e" + team + " §a队的床位置");
+            }
+
             case "setspawn" -> {
                 if (args.length < 2) {
                     sender.sendMessage("§c用法: /bw setspawn <team> [x] [y] [z] [yaw] [pitch]");
@@ -42,7 +64,7 @@ public class Setup implements CommandExecutor {
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
                 plugin.getConfig().set("spawnpoints." + team, loc.serialize());
-                sender.sendMessage("§a已设置 §e" + team + " §a队出生点！");
+                sender.sendMessage("§a已设置 §e" + team + " §a队出生点");
             }
 
             case "setnpc" -> {
@@ -53,7 +75,7 @@ public class Setup implements CommandExecutor {
                 String type = args[1].toLowerCase();
                 Location loc = getLocationFromArgs(p, args, 2);
                 plugin.getConfig().set("npcs." + type, loc.serialize());
-                sender.sendMessage("§a已设置 §e" + type + " §aNPC 位置！");
+                sender.sendMessage("§a已设置 §e" + type + " §aNPC 位置");
             }
 
             case "setspawner" -> {
@@ -66,7 +88,7 @@ public class Setup implements CommandExecutor {
                 List<Map<?, ?>> list = plugin.getConfig().getMapList("spawners." + type);
                 list.add(loc.serialize());
                 plugin.getConfig().set("spawners." + type, list);
-                sender.sendMessage("§a已添加一个 §e" + type + " §a资源生成点！");
+                sender.sendMessage("§a已添加一个 §e" + type + " §a资源生成点");
             }
 
             case "saveconfig" -> {
@@ -75,7 +97,7 @@ public class Setup implements CommandExecutor {
             }
 
             default -> {
-                sender.sendMessage("§c未知命令参数！");
+                sender.sendMessage("§c未知命令参数");
                 sendHelp(sender);
             }
         }
@@ -104,6 +126,7 @@ public class Setup implements CommandExecutor {
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("""
                 §6[Bedwars 地图配置]
+                §e/bw setbed <team> [x] [y] [z] §7- 设置队伍床位置
                 §e/bw setspawn <team> [x] [y] [z] [yaw] [pitch] §7- 设置队伍出生点
                 §e/bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] §7- 设置商店/升级NPC
                 §e/bw setspawner <type> [x] [y] [z] [yaw] [pitch] §7- 设置资源生成点
