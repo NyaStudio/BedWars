@@ -1,0 +1,15 @@
+name: BedWars
+version: 1.0.0
+main: cn.nekopixel.bedwars.Main
+api-version: 1.20
+
+commands:
+  bedwars:
+    description: 管理 Bedwars 插件
+    usage: /<command> reload
+    permission: bedwars.admin
+
+permissions:
+  bedwars.admin:
+    description: 使用 Bedwars 管理命令
+    default: op

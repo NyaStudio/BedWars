@@ -1,6 +1,6 @@
 package cn.nekopixel.bedwars;
 
-import cn.nekopixel.bedwars.map.CancelEvents;
+import cn.nekopixel.bedwars.listener.CancelEvents;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 

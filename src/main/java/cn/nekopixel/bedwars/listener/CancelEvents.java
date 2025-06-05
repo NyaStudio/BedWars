@@ -1,4 +1,4 @@
-package cn.nekopixel.bedwars.map;
+package cn.nekopixel.bedwars.listener;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
