@@ -116,6 +116,11 @@ public class Setup implements CommandExecutor {
                 sender.sendMessage("§a配置文件已保存！");
             }
 
+            case "reload" -> {
+                plugin.reloadConfig();
+                sender.sendMessage("§a配置文件已重新加载！");
+            }
+
             default -> {
                 sender.sendMessage("§c未知命令参数");
                 sendHelp(sender);
@@ -143,7 +148,7 @@ public class Setup implements CommandExecutor {
         }
     }
 
-    private void sendHelp(CommandSender sender) {
+    public void sendHelp(CommandSender sender) {
         sender.sendMessage("""
                 §6[Bedwars 地图配置]
                 §e/bw setjoin [x] [y] [z] [yaw] [pitch] §7- 设置加入时位置
@@ -152,6 +157,7 @@ public class Setup implements CommandExecutor {
                 §e/bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] §7- 设置商店/升级NPC
                 §e/bw setspawner <type> [x] [y] [z] [yaw] [pitch] §7- 设置资源生成点
                 §e/bw saveconfig §7- 保存配置文件
+                §e/bw reload §7- 重新加载配置文件
                 """);
     }
 }

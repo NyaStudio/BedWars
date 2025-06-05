@@ -1,6 +1,6 @@
 package cn.nekopixel.bedwars;
 
-import cn.nekopixel.bedwars.commands.Setup;
+import cn.nekopixel.bedwars.commands.CommandManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -16,6 +16,6 @@ public class Loader {
     }
 
     public static void registerCommands(Main plugin) {
-        plugin.getCommand("bw").setExecutor(new Setup(plugin));
+        plugin.getCommand("bw").setExecutor(new CommandManager(plugin));
     }
 }
