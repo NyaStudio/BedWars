@@ -32,6 +32,16 @@ public class Setup implements CommandExecutor {
         }
 
         switch (args[0].toLowerCase()) {
+            case "setjoin" -> {
+                if (args.length < 1) {
+                    sender.sendMessage("§c用法: /bw setjoin [x] [y] [z] [yaw] [pitch]");
+                    return true;
+                }
+                Location loc = getLocationFromArgs(p, args, 1);
+                plugin.getConfig().set("join", loc.serialize());
+                sender.sendMessage("§a已设置加入时位置");
+            }
+
             case "setbed" -> {
                 if (args.length < 2) {
                     sender.sendMessage("§c用法: /bw setbed <team> [x] [y] [z]");
@@ -74,8 +84,18 @@ public class Setup implements CommandExecutor {
                 }
                 String type = args[1].toLowerCase();
                 Location loc = getLocationFromArgs(p, args, 2);
-                plugin.getConfig().set("npcs." + type, loc.serialize());
-                sender.sendMessage("§a已设置 §e" + type + " §aNPC 位置");
+                
+                if (type.equals("shop")) {
+                    List<Map<?, ?>> list = plugin.getConfig().getMapList("npcs.shop");
+                    list.add(loc.serialize());
+                    plugin.getConfig().set("npcs.shop", list);
+                    sender.sendMessage("§a已添加一个商店NPC位置");
+                } else if (type.equals("upgrade")) {
+                    plugin.getConfig().set("npcs.upgrade", loc.serialize());
+                    sender.sendMessage("§a已设置升级NPC位置");
+                } else {
+                    sender.sendMessage("§c无效的NPC类型！可用类型: shop, upgrade");
+                }
             }
 
             case "setspawner" -> {
@@ -126,6 +146,7 @@ public class Setup implements CommandExecutor {
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("""
                 §6[Bedwars 地图配置]
+                §e/bw setjoin [x] [y] [z] [yaw] [pitch] §7- 设置加入时位置
                 §e/bw setbed <team> [x] [y] [z] §7- 设置队伍床位置
                 §e/bw setspawn <team> [x] [y] [z] [yaw] [pitch] §7- 设置队伍出生点
                 §e/bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] §7- 设置商店/升级NPC
