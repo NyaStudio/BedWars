@@ -112,7 +112,7 @@ public class Setup implements CommandExecutor {
                 sender.sendMessage("§a已添加一个资源生成点");
             }
 
-            case "saveconfig" -> {
+            case "save" -> {
                 plugin.saveConfig();
                 sender.sendMessage("§a配置文件已保存！");
             }
