@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars;
 
 import cn.nekopixel.bedwars.commands.CommandManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
+import cn.nekopixel.bedwars.listener.WorldEvents;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
@@ -11,6 +12,7 @@ public class Loader {
         PluginManager pm = plugin.getServer().getPluginManager();
 
         pm.registerEvents(new CancelEvents(), plugin);
+        pm.registerEvents(new WorldEvents(), plugin);
 
         plugin.getLogger().info("功能加载完成！");
     }
