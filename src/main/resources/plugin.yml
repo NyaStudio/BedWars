@@ -7,9 +7,15 @@ commands:
   bw:
     description: 管理 Bedwars 插件
     usage: /bw
-    permission: bw.admin
+    permission: bedwars.admin
+    aliases: [bedwars]
 
 permissions:
-  bw.admin:
+  bedwars.admin:
     description: 使用 Bedwars 管理命令
+    default: op
+    children:
+      bedwars.status: true
+  bedwars.status:
+    description: 允许切换游戏状态
     default: op
