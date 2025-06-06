@@ -3,7 +3,7 @@ package cn.nekopixel.bedwars.commands;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-public class Help {
+public class HelpCommand {
     public static void sendMainHelp(CommandSender sender) {
         sender.sendMessage(ChatColor.GOLD + "=== Bedwars 命令帮助 ===");
         sender.sendMessage(ChatColor.YELLOW + "/bw switch <status> " + ChatColor.GRAY + "- 切换游戏状态");

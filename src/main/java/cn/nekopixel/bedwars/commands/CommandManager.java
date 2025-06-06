@@ -1,7 +1,6 @@
 package cn.nekopixel.bedwars.commands;
 
 import cn.nekopixel.bedwars.Main;
-import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.ChatColor;
@@ -29,7 +28,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
-            Help.sendMainHelp(sender);
+            HelpCommand.sendMainHelp(sender);
             return true;
         }
 
@@ -45,20 +44,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 System.arraycopy(args, 1, newArgs, 0, args.length - 1);
                 return loadConfig.onCommand(sender, cmd, label, newArgs);
             case "switch":
-                if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw switch <status>");
-                    sender.sendMessage(ChatColor.YELLOW + "可用状态: " + GameStatus.getNamesAsString());
-                    return true;
-                }
-                try {
-                    GameStatus newStatus = GameStatus.valueOf(args[1].toUpperCase());
-                    GameManager.getInstance().setStatus(newStatus);
-                    sender.sendMessage(ChatColor.GREEN + "游戏状态已切换为: " + ChatColor.YELLOW + newStatus.name());
-                } catch (IllegalArgumentException e) {
-                    sender.sendMessage(ChatColor.RED + "无效的游戏状态！");
-                    sender.sendMessage(ChatColor.YELLOW + "可用状态: " + GameStatus.getNamesAsString());
-                }
-                return true;
+                return SwitchStatus.onCommand(sender, args);
             default:
                 return setup.onCommand(sender, cmd, label, args);
         }
@@ -74,7 +60,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             completions.addAll(GameStatus.getNames());
         } else if (args.length > 1) {
             if (args[0].equalsIgnoreCase("switch")) {
-                return setup.onTabComplete(sender, command, alias, args);
+                return SwitchStatus.onTabComplete(args);
             }
         }
         
