@@ -12,6 +12,8 @@ package cn.nekopixel.bedwars;
 //├── listener/      # 各种监听器（方块、击杀、死亡等）
 //└── util/          # 工具类（位置、颜色、声音、NBT 等）
 
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -21,6 +23,13 @@ public final class Main extends JavaPlugin {
         Loader.registerAllEvents(this);
         Loader.registerCommands(this);
         saveDefaultConfig();
+        
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            for (World world : Bukkit.getWorlds()) {
+                world.setTime(6000);
+            }
+        }, 0L, 100L); 
+        
         getLogger().info("加载完成！");
     }
 

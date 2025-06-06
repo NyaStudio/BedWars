@@ -1,6 +1,5 @@
 package cn.nekopixel.bedwars.listener;
 
-import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.weather.WeatherChangeEvent;
@@ -17,8 +16,6 @@ public class WorldEvents implements Listener {
 
     @EventHandler
     public void onTimeSkip(TimeSkipEvent event) {
-        World world = event.getWorld();
-        world.setTime(6000);
         event.setCancelled(true);
     }
 } 
