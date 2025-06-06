@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -12,7 +13,7 @@ import org.bukkit.ChatColor;
 
 import java.util.*;
 
-public class Map implements CommandExecutor {
+public class Map implements CommandExecutor, TabCompleter {
     private final Main plugin;
     private final Set<String> validTeams = Set.of("red", "blue", "green", "yellow", "aqua", "white", "pink", "gray");
 
@@ -28,8 +29,7 @@ public class Map implements CommandExecutor {
         }
 
         if (args.length < 1) {
-            sendHelp(sender);
-            return true;
+            return false;
         }
 
         switch (args[0].toLowerCase()) {
@@ -122,14 +122,39 @@ public class Map implements CommandExecutor {
                 plugin.saveConfig();
                 sender.sendMessage(ChatColor.GREEN + "配置文件已保存！");
             }
-
-            default -> {
-                sender.sendMessage(ChatColor.RED + "未知命令参数");
-                sendHelp(sender);
-            }
         }
 
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+        
+        if (args.length == 1) {
+            completions.add("setjoin");
+            completions.add("setbed");
+            completions.add("setspawn");
+            completions.add("setnpc");
+            completions.add("setspawner");
+            completions.add("save");
+        } else if (args.length == 2) {
+            switch (args[0].toLowerCase()) {
+                case "setbed", "setspawn" -> completions.addAll(validTeams);
+                case "setnpc" -> {
+                    completions.add("shop");
+                    completions.add("upgrade");
+                }
+                case "setspawner" -> {
+                    completions.add("iron");
+                    completions.add("gold");
+                    completions.add("diamond");
+                    completions.add("emerald");
+                }
+            }
+        }
+        
+        return completions;
     }
 
     private Location getLocationFromArgs(Player player, String[] args, int startIndex) {
@@ -148,16 +173,5 @@ public class Map implements CommandExecutor {
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             return player.getLocation();
         }
-    }
-
-    public void sendHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "=== Bedwars 地图配置 ===");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setjoin [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置加入时位置");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setbed <team> [x] [y] [z] " + ChatColor.GRAY + "- 设置队伍床位置");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setspawn <team> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置队伍出生点");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置商店/升级NPC");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置资源生成点");
-        sender.sendMessage(ChatColor.YELLOW + "/bw save " + ChatColor.GRAY + "- 保存配置文件");
-        sender.sendMessage(ChatColor.YELLOW + "/bw reload " + ChatColor.GRAY + "- 重新加载配置文件");
     }
 }
