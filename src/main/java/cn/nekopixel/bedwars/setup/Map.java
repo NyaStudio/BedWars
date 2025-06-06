@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.ChatColor;
 
 import java.util.*;
 
@@ -22,7 +23,7 @@ public class Map implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player p)) {
-            sender.sendMessage("这个命令只能玩家执行。");
+            sender.sendMessage(ChatColor.RED + "这个命令只能玩家执行。");
             return true;
         }
 
@@ -34,52 +35,52 @@ public class Map implements CommandExecutor {
         switch (args[0].toLowerCase()) {
             case "setjoin" -> {
                 if (args.length < 1) {
-                    sender.sendMessage("§c用法: /bw setjoin [x] [y] [z] [yaw] [pitch]");
+                    sender.sendMessage(ChatColor.RED + "用法: /bw setjoin [x] [y] [z] [yaw] [pitch]");
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 1);
                 plugin.getConfig().set("join", loc.serialize());
-                sender.sendMessage("§a已设置加入时位置");
+                sender.sendMessage(ChatColor.GREEN + "已设置加入时位置");
             }
 
             case "setbed" -> {
                 if (args.length < 2) {
-                    sender.sendMessage("§c用法: /bw setbed <team> [x] [y] [z]");
+                    sender.sendMessage(ChatColor.RED + "用法: /bw setbed <team> [x] [y] [z]");
                     return true;
                 }
                 String team = args[1].toLowerCase();
                 if (!validTeams.contains(team)) {
-                    sender.sendMessage("§c无效的队伍颜色！可用颜色: " + String.join(", ", validTeams));
+                    sender.sendMessage(ChatColor.RED + "无效的队伍颜色！可用颜色: " + String.join(", ", validTeams));
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
                 Block block = loc.getBlock();
                 if (block.getType() != Material.RED_BED && block.getType() != Material.WHITE_BED) {
-                    sender.sendMessage("§c错误：指定位置必须是床方块");
+                    sender.sendMessage(ChatColor.RED + "错误：指定位置必须是床方块");
                     return true;
                 }
                 plugin.getConfig().set("beds." + team, loc.serialize());
-                sender.sendMessage("§a已设置 §e" + team + " §a队的床位置");
+                sender.sendMessage(ChatColor.GREEN + "已设置 " + ChatColor.YELLOW + team + ChatColor.GREEN + " 队的床位置");
             }
 
             case "setspawn" -> {
                 if (args.length < 2) {
-                    sender.sendMessage("§c用法: /bw setspawn <team> [x] [y] [z] [yaw] [pitch]");
+                    sender.sendMessage(ChatColor.RED + "用法: /bw setspawn <team> [x] [y] [z] [yaw] [pitch]");
                     return true;
                 }
                 String team = args[1].toLowerCase();
                 if (!validTeams.contains(team)) {
-                    sender.sendMessage("§c无效的队伍颜色！可用颜色: " + String.join(", ", validTeams));
+                    sender.sendMessage(ChatColor.RED + "无效的队伍颜色！可用颜色: " + String.join(", ", validTeams));
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
                 plugin.getConfig().set("spawnpoints." + team, loc.serialize());
-                sender.sendMessage("§a已设置 §e" + team + " §a队出生点");
+                sender.sendMessage(ChatColor.GREEN + "已设置 " + ChatColor.YELLOW + team + ChatColor.GREEN + " 队出生点");
             }
 
             case "setnpc" -> {
                 if (args.length < 2) {
-                    sender.sendMessage("§c用法: /bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch]");
+                    sender.sendMessage(ChatColor.RED + "用法: /bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch]");
                     return true;
                 }
                 String type = args[1].toLowerCase();
@@ -89,41 +90,41 @@ public class Map implements CommandExecutor {
                     List<java.util.Map<?, ?>> list = plugin.getConfig().getMapList("npcs.shop");
                     list.add(loc.serialize());
                     plugin.getConfig().set("npcs.shop", list);
-                    sender.sendMessage("§a已添加一个商店NPC位置");
+                    sender.sendMessage(ChatColor.GREEN + "已添加一个商店NPC位置");
                 } else if (type.equals("upgrade")) {
                     List<java.util.Map<?, ?>> list = plugin.getConfig().getMapList("npcs.upgrade");
                     list.add(loc.serialize());
                     plugin.getConfig().set("npcs.upgrade", list);
-                    sender.sendMessage("§a已添加一个升级NPC位置");
+                    sender.sendMessage(ChatColor.GREEN + "已添加一个升级NPC位置");
                 } else {
-                    sender.sendMessage("§c无效的NPC类型！可用类型: shop, upgrade");
+                    sender.sendMessage(ChatColor.RED + "无效的NPC类型！可用类型: shop, upgrade");
                 }
             }
 
             case "setspawner" -> {
                 if (args.length < 2) {
-                    sender.sendMessage("§c用法: /bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch]");
+                    sender.sendMessage(ChatColor.RED + "用法: /bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch]");
                     return true;
                 }
                 String type = args[1].toLowerCase();
                 if (!type.equals("iron") && !type.equals("gold") && !type.equals("diamond") && !type.equals("emerald")) {
-                    sender.sendMessage("§c无效的资源类型！可用类型: iron, gold, diamond, emerald");
+                    sender.sendMessage(ChatColor.RED + "无效的资源类型！可用类型: iron, gold, diamond, emerald");
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
                 List<java.util.Map<?, ?>> list = plugin.getConfig().getMapList("spawners." + type);
                 list.add(loc.serialize());
                 plugin.getConfig().set("spawners." + type, list);
-                sender.sendMessage("§a已添加一个 §e" + type + " §a生成点");
+                sender.sendMessage(ChatColor.GREEN + "已添加一个 " + ChatColor.YELLOW + type + ChatColor.GREEN + " 生成点");
             }
 
             case "save" -> {
                 plugin.saveConfig();
-                sender.sendMessage("§a配置文件已保存！");
+                sender.sendMessage(ChatColor.GREEN + "配置文件已保存！");
             }
 
             default -> {
-                sender.sendMessage("§c未知命令参数");
+                sender.sendMessage(ChatColor.RED + "未知命令参数");
                 sendHelp(sender);
             }
         }
@@ -150,15 +151,13 @@ public class Map implements CommandExecutor {
     }
 
     public void sendHelp(CommandSender sender) {
-        sender.sendMessage("""
-                §6[Bedwars 地图配置]
-                §e/bw setjoin [x] [y] [z] [yaw] [pitch] §7- 设置加入时位置
-                §e/bw setbed <team> [x] [y] [z] §7- 设置队伍床位置
-                §e/bw setspawn <team> [x] [y] [z] [yaw] [pitch] §7- 设置队伍出生点
-                §e/bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] §7- 设置商店/升级NPC
-                §e/bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch] §7- 设置资源生成点
-                §e/bw save §7- 保存配置文件
-                §e/bw reload §7- 重新加载配置文件
-                """);
+        sender.sendMessage(ChatColor.GOLD + "=== Bedwars 地图配置 ===");
+        sender.sendMessage(ChatColor.YELLOW + "/bw setjoin [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置加入时位置");
+        sender.sendMessage(ChatColor.YELLOW + "/bw setbed <team> [x] [y] [z] " + ChatColor.GRAY + "- 设置队伍床位置");
+        sender.sendMessage(ChatColor.YELLOW + "/bw setspawn <team> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置队伍出生点");
+        sender.sendMessage(ChatColor.YELLOW + "/bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置商店/升级NPC");
+        sender.sendMessage(ChatColor.YELLOW + "/bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置资源生成点");
+        sender.sendMessage(ChatColor.YELLOW + "/bw save " + ChatColor.GRAY + "- 保存配置文件");
+        sender.sendMessage(ChatColor.YELLOW + "/bw reload " + ChatColor.GRAY + "- 重新加载配置文件");
     }
 }
