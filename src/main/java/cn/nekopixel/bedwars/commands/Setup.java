@@ -101,15 +101,20 @@ public class Setup implements CommandExecutor {
             }
 
             case "setspawner" -> {
-                if (args.length < 1) {
-                    sender.sendMessage("§c用法: /bw setspawner [x] [y] [z] [yaw] [pitch]");
+                if (args.length < 2) {
+                    sender.sendMessage("§c用法: /bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch]");
                     return true;
                 }
-                Location loc = getLocationFromArgs(p, args, 1);
-                List<Map<?, ?>> list = plugin.getConfig().getMapList("spawners");
+                String type = args[1].toLowerCase();
+                if (!type.equals("iron") && !type.equals("gold") && !type.equals("diamond") && !type.equals("emerald")) {
+                    sender.sendMessage("§c无效的资源类型！可用类型: iron, gold, diamond, emerald");
+                    return true;
+                }
+                Location loc = getLocationFromArgs(p, args, 2);
+                List<Map<?, ?>> list = plugin.getConfig().getMapList("spawners." + type);
                 list.add(loc.serialize());
-                plugin.getConfig().set("spawners", list);
-                sender.sendMessage("§a已添加一个资源生成点");
+                plugin.getConfig().set("spawners." + type, list);
+                sender.sendMessage("§a已添加一个 §e" + type + " §a生成点");
             }
 
             case "save" -> {
@@ -156,8 +161,8 @@ public class Setup implements CommandExecutor {
                 §e/bw setbed <team> [x] [y] [z] §7- 设置队伍床位置
                 §e/bw setspawn <team> [x] [y] [z] [yaw] [pitch] §7- 设置队伍出生点
                 §e/bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] §7- 设置商店/升级NPC
-                §e/bw setspawner [x] [y] [z] [yaw] [pitch] §7- 设置资源生成点
-                §e/bw saveconfig §7- 保存配置文件
+                §e/bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch] §7- 设置资源生成点
+                §e/bw save §7- 保存配置文件
                 §e/bw reload §7- 重新加载配置文件
                 """);
     }
