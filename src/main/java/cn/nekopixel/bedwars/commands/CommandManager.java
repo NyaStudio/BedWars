@@ -1,18 +1,19 @@
 package cn.nekopixel.bedwars.commands;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 public class CommandManager implements CommandExecutor {
     private final Main plugin;
-    private final Setup setup;
+    private final Map setup;
     private final LoadConfig loadConfig;
 
     public CommandManager(Main plugin) {
         this.plugin = plugin;
-        this.setup = new Setup(plugin);
+        this.setup = new Map(plugin);
         this.loadConfig = new LoadConfig(plugin);
     }
 

@@ -1,4 +1,4 @@
-package cn.nekopixel.bedwars.commands;
+package cn.nekopixel.bedwars.setup;
 
 import cn.nekopixel.bedwars.Main;
 import org.bukkit.Location;
@@ -11,11 +11,11 @@ import org.bukkit.block.Block;
 
 import java.util.*;
 
-public class Setup implements CommandExecutor {
+public class Map implements CommandExecutor {
     private final Main plugin;
     private final Set<String> validTeams = Set.of("red", "blue", "green", "yellow", "aqua", "white", "pink", "gray");
 
-    public Setup(Main plugin) {
+    public Map(Main plugin) {
         this.plugin = plugin;
     }
 
@@ -84,14 +84,14 @@ public class Setup implements CommandExecutor {
                 }
                 String type = args[1].toLowerCase();
                 Location loc = getLocationFromArgs(p, args, 2);
-                
+
                 if (type.equals("shop")) {
-                    List<Map<?, ?>> list = plugin.getConfig().getMapList("npcs.shop");
+                    List<java.util.Map<?, ?>> list = plugin.getConfig().getMapList("npcs.shop");
                     list.add(loc.serialize());
                     plugin.getConfig().set("npcs.shop", list);
                     sender.sendMessage("§a已添加一个商店NPC位置");
                 } else if (type.equals("upgrade")) {
-                    List<Map<?, ?>> list = plugin.getConfig().getMapList("npcs.upgrade");
+                    List<java.util.Map<?, ?>> list = plugin.getConfig().getMapList("npcs.upgrade");
                     list.add(loc.serialize());
                     plugin.getConfig().set("npcs.upgrade", list);
                     sender.sendMessage("§a已添加一个升级NPC位置");
@@ -111,7 +111,7 @@ public class Setup implements CommandExecutor {
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
-                List<Map<?, ?>> list = plugin.getConfig().getMapList("spawners." + type);
+                List<java.util.Map<?, ?>> list = plugin.getConfig().getMapList("spawners." + type);
                 list.add(loc.serialize());
                 plugin.getConfig().set("spawners." + type, list);
                 sender.sendMessage("§a已添加一个 §e" + type + " §a生成点");
