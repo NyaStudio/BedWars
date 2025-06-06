@@ -122,11 +122,6 @@ public class Map implements CommandExecutor {
                 sender.sendMessage("§a配置文件已保存！");
             }
 
-            case "reload" -> {
-                plugin.reloadConfig();
-                sender.sendMessage("§a配置文件已重新加载！");
-            }
-
             default -> {
                 sender.sendMessage("§c未知命令参数");
                 sendHelp(sender);
