@@ -40,13 +40,50 @@ public class Map implements CommandExecutor, TabCompleter {
         mapConfig = YamlConfiguration.loadConfiguration(mapFile);
     }
 
+    private void saveMapConfig() {
+        try {
+            FileConfiguration fileConfig = YamlConfiguration.loadConfiguration(mapFile);
+            
+            Set<String> memoryKeys = new HashSet<>(mapConfig.getKeys(true));
+            
+            Set<String> fileKeys = new HashSet<>(fileConfig.getKeys(true));
+            
+            for (String key : memoryKeys) {
+                fileConfig.set(key, mapConfig.get(key));
+            }
+            
+            fileConfig.save(mapFile);
+            plugin.getLogger().info("地图配置文件已保存");
+        } catch (IOException e) {
+            plugin.getLogger().severe("无法保存 map.yml 文件: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public void reloadMapConfig() {
         try {
+            saveMapConfig();
             loadMapConfig();
+            validateConfig();
             plugin.getLogger().info("地图配置文件已重新加载");
         } catch (Exception e) {
             plugin.getLogger().severe("重新加载地图配置文件时发生错误: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void validateConfig() {
+        if (!mapConfig.contains("spawnpoints")) {
+            plugin.getLogger().warning("配置文件中缺少 spawnpoints 配置项");
+        }
+        if (!mapConfig.contains("npcs")) {
+            plugin.getLogger().warning("配置文件中缺少 npcs 配置项");
+        }
+        if (!mapConfig.contains("spawners")) {
+            plugin.getLogger().warning("配置文件中缺少 spawners 配置项");
+        }
+        if (!mapConfig.contains("join")) {
+            plugin.getLogger().warning("配置文件中缺少 join 配置项");
         }
     }
 
@@ -160,19 +197,6 @@ public class Map implements CommandExecutor, TabCompleter {
         }
 
         return true;
-    }
-
-    private void saveMapConfig() {
-        try {
-            FileConfiguration currentConfig = YamlConfiguration.loadConfiguration(mapFile);
-            for (String key : mapConfig.getKeys(true)) {
-                currentConfig.set(key, mapConfig.get(key));
-            }
-            currentConfig.save(mapFile);
-        } catch (IOException e) {
-            plugin.getLogger().severe("无法保存 map.yml 文件: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     public FileConfiguration getMapConfig() {
