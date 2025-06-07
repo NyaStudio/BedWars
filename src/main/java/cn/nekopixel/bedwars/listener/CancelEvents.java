@@ -5,11 +5,14 @@ import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerAdvancementDoneEvent;
-import org.bukkit.advancement.Advancement;
-import org.bukkit.advancement.AdvancementProgress;
+import com.github.retrooper.packetevents.event.PacketListener;
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 
-public class CancelEvents implements Listener {
+public class CancelEvents implements PacketListener, Listener {
+
+    public CancelEvents() {
+        super();
+    }
 
     // cancel bed events
     @EventHandler
@@ -25,6 +28,11 @@ public class CancelEvents implements Listener {
     }
 
     // cancel advancements
-    // 我承认我确实不会 cancel
-    // 所以自己在 spigot.yml 里改
+    // 哎呦我又会了 吗?
+    @Override
+    public void onPacketReceive(PacketReceiveEvent event) {
+        if (event.getPacketType().toString().contains("ADVANCEMENT")) {
+            event.setCancelled(true);
+        }
+    }
 }

@@ -3,6 +3,9 @@ version: 1.0.0
 main: cn.nekopixel.bedwars.Main
 api-version: 1.20
 
+depend:
+  - packetevents
+
 commands:
   bw:
     description: 管理 Bedwars 插件
