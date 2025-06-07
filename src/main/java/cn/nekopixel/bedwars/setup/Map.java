@@ -62,7 +62,6 @@ public class Map implements CommandExecutor, TabCompleter {
 
     public void reloadMapConfig() {
         try {
-            saveMapConfig();
             loadMapConfig();
             validateConfig();
             plugin.getLogger().info("地图配置文件已重新加载");
