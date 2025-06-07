@@ -88,7 +88,7 @@ public class NPCManager implements Listener {
         Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
         villager.setAI(false);
         villager.setInvulnerable(true);
-        villager.setCustomName("§e商店");
+        villager.setCustomName("§b道具商店\n§e右键点击");
         villager.setCustomNameVisible(true);
         shopNPCs.add(villager);
     }
@@ -97,7 +97,7 @@ public class NPCManager implements Listener {
         Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
         villager.setAI(false);
         villager.setInvulnerable(true);
-        villager.setCustomName("§b升级");
+        villager.setCustomName("§b升级\n§e右键点击");
         villager.setCustomNameVisible(true);
         upgradeNPCs.add(villager);
     }
