@@ -13,4 +13,14 @@ public class Iron extends ResourceSpawner {
     protected ItemStack getItem() {
         return new ItemStack(Material.IRON_INGOT, 1);
     }
+
+    @Override
+    protected Material getMaterial() {
+        return Material.IRON_INGOT;
+    }
+
+    @Override
+    protected int getMaxAmount() {
+        return 48;
+    }
 }

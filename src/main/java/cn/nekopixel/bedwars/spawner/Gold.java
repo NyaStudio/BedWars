@@ -13,4 +13,14 @@ public class Gold extends ResourceSpawner {
     protected ItemStack getItem() {
         return new ItemStack(Material.GOLD_INGOT, 1);
     }
+
+    @Override
+    protected Material getMaterial() {
+        return Material.GOLD_INGOT;
+    }
+
+    @Override
+    protected int getMaxAmount() {
+        return 8;
+    }
 }
