@@ -1,2 +1,3 @@
 # BedWars
-A Bedwars Bukkit Plugin [1.20.4]
+A Bedwars Bukkit Plugin [1.20.4]  
+Depends on `packetevents`
