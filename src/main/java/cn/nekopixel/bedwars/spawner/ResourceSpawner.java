@@ -32,6 +32,42 @@ public abstract class ResourceSpawner implements Listener {
     private final java.util.Map<Location, BukkitRunnable> countdownTasks = new HashMap<>();
     private int level = 1;
 
+    private static class HologramText {
+        final String prefix;
+        final String content;
+        final String suffix;
+
+        HologramText(String prefix, String content, String suffix) {
+            this.prefix = prefix;
+            this.content = content;
+            this.suffix = suffix;
+        }
+
+        String getFullText() {
+            return prefix + content + suffix;
+        }
+    }
+
+    private static class HologramConfig {
+        final Material blockMaterial;
+        final String resourceName;
+        final String resourceColor;
+
+        HologramConfig(Material material) {
+            if (material == Material.DIAMOND) {
+                this.blockMaterial = Material.DIAMOND_BLOCK;
+                this.resourceName = "钻石";
+                this.resourceColor = "§3";
+            } else if (material == Material.EMERALD) {
+                this.blockMaterial = Material.EMERALD_BLOCK;
+                this.resourceName = "绿宝石";
+                this.resourceColor = "§2";
+            } else {
+                throw new IllegalArgumentException("不支持的资源类型");
+            }
+        }
+    }
+
     public ResourceSpawner(Main plugin, String type, long interval) {
         this.plugin = plugin;
         this.type = type;
@@ -202,97 +238,105 @@ public abstract class ResourceSpawner implements Listener {
             World world = baseLoc.getWorld();
             if (world == null) continue;
 
-            Location center = baseLoc.clone().add(0.5, 1.0, 0.5);
-
-            Material mat = getMaterial();
-            Material blockMaterial;
-            if (mat == Material.DIAMOND) {
-                blockMaterial = Material.DIAMOND_BLOCK;
-            } else if (mat == Material.EMERALD) {
-                blockMaterial = Material.EMERALD_BLOCK;
-            } else {
-                continue;
-            }
-
-            if (mat == Material.DIAMOND || mat == Material.EMERALD) {
-                Material targetBlock = (mat == Material.DIAMOND) ? Material.DIAMOND_BLOCK : Material.EMERALD_BLOCK;
-                Location nearest = findNearestBlock(baseLoc, targetBlock, 3);
-                if (nearest != null) {
-                    center = nearest.clone().add(0.5, 1.0, 0.5);
-                }
-            }
-
+            Location center = findSpawnerCenter(baseLoc);
             Location hologramLoc = center.clone().add(0, 4.0, 0);
             List<Entity> entities = new ArrayList<>();
 
-            ArmorStand levelStand = (ArmorStand) world.spawnEntity(hologramLoc.clone().add(0, 0.8, 0), EntityType.ARMOR_STAND);
-            levelStand.setVisible(false);
-            levelStand.setGravity(false);
-            levelStand.setMarker(true);
-            levelStand.setCustomName("§e等级 " + "§c" + getRomanNumeral(level));
-            levelStand.setCustomNameVisible(true);
-            entities.add(levelStand);
-
-            ArmorStand nameStand = (ArmorStand) world.spawnEntity(hologramLoc.clone().add(0, 0.5, 0), EntityType.ARMOR_STAND);
-            nameStand.setVisible(false);
-            nameStand.setGravity(false);
-            nameStand.setMarker(true);
-            nameStand.setCustomName((mat == Material.DIAMOND ? "§3" : "§2") + (mat == Material.DIAMOND ? "钻石" : "绿宝石"));
-            nameStand.setCustomNameVisible(true);
-            entities.add(nameStand);
-
-            ArmorStand countdownStand = (ArmorStand) world.spawnEntity(hologramLoc.clone().add(0, 0.2, 0), EntityType.ARMOR_STAND);
-            countdownStand.setVisible(false);
-            countdownStand.setGravity(false);
-            countdownStand.setMarker(true);
-            countdownStand.setCustomName("§e将在 §c" + (interval / 20) + "§e 秒后产出");
-            countdownStand.setCustomNameVisible(true);
-            entities.add(countdownStand);
-
-            ArmorStand blockStand = (ArmorStand) world.spawnEntity(hologramLoc.clone().add(0, -1.0, 0), EntityType.ARMOR_STAND);
-            blockStand.setVisible(false);
-            blockStand.setGravity(false);
-            blockStand.setMarker(true);
-            blockStand.setSmall(true);
-            blockStand.setHelmet(new ItemStack(blockMaterial));
-            blockStand.setHeadPose(new EulerAngle(0, 0, 0));
-            entities.add(blockStand);
-
-            hologramEntities.put(baseLoc, entities);
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (GameManager.getInstance().getCurrentStatus() != GameStatus.INGAME) {
-                        cancel();
-                        return;
-                    }
-                    EulerAngle currentPose = blockStand.getHeadPose();
-                    blockStand.setHeadPose(new EulerAngle(currentPose.getX(), currentPose.getY() + 0.1, currentPose.getZ()));
-                }
-            }.runTaskTimer(plugin, 0L, 1L);
-
-            BukkitRunnable countdownTask = new BukkitRunnable() {
-                private long remainingTicks = interval;
-
-                @Override
-                public void run() {
-                    if (GameManager.getInstance().getCurrentStatus() != GameStatus.INGAME) {
-                        cancel();
-                        return;
-                    }
-
-                    remainingTicks--;
-                    if (remainingTicks <= 0) {
-                        remainingTicks = interval;
-                    }
-
-                    countdownStand.setCustomName("§e将在 §c" + (remainingTicks / 20) + "§e 秒后产出");
-                }
-            };
-            countdownTask.runTaskTimer(plugin, 0L, 1L);
-            countdownTasks.put(baseLoc, countdownTask);
+            try {
+                HologramConfig config = new HologramConfig(getMaterial());
+                createHologramEntities(world, hologramLoc, config, entities);
+                startHologramAnimations(world, entities, config);
+                hologramEntities.put(baseLoc, entities);
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
         }
+    }
+
+    private Location findSpawnerCenter(Location baseLoc) {
+        Location center = baseLoc.clone().add(0.5, 1.0, 0.5);
+        Material mat = getMaterial();
+        if (mat == Material.DIAMOND || mat == Material.EMERALD) {
+            Material targetBlock = (mat == Material.DIAMOND) ? Material.DIAMOND_BLOCK : Material.EMERALD_BLOCK;
+            Location nearest = findNearestBlock(baseLoc, targetBlock, 3);
+            if (nearest != null) {
+                center = nearest.clone().add(0.5, 1.0, 0.5);
+            }
+        }
+        return center;
+    }
+
+    private void createHologramEntities(World world, Location hologramLoc, HologramConfig config, List<Entity> entities) {
+        // 等级
+        entities.add(createTextStand(world, hologramLoc.clone().add(0, 0.8, 0), 
+            new HologramText("§e等级 ", "§c" + getRomanNumeral(level), "")));
+
+        // 资源名称
+        entities.add(createTextStand(world, hologramLoc.clone().add(0, 0.5, 0),
+            new HologramText(config.resourceColor, config.resourceName, "")));
+
+        // 倒计时
+        entities.add(createTextStand(world, hologramLoc.clone().add(0, 0.2, 0),
+            new HologramText("§e将在 ", "§c" + (interval / 20), "§e 秒后产出")));
+
+        // 会转圈圈的方块
+        ArmorStand blockStand = (ArmorStand) world.spawnEntity(hologramLoc.clone().add(0, -1.0, 0), EntityType.ARMOR_STAND);
+        blockStand.setVisible(false);
+        blockStand.setGravity(false);
+        blockStand.setMarker(true);
+        blockStand.setSmall(true);
+        blockStand.setHelmet(new ItemStack(config.blockMaterial));
+        blockStand.setHeadPose(new EulerAngle(0, 0, 0));
+        entities.add(blockStand);
+    }
+
+    private ArmorStand createTextStand(World world, Location loc, HologramText text) {
+        ArmorStand stand = (ArmorStand) world.spawnEntity(loc, EntityType.ARMOR_STAND);
+        stand.setVisible(false);
+        stand.setGravity(false);
+        stand.setMarker(true);
+        stand.setCustomName(text.getFullText());
+        stand.setCustomNameVisible(true);
+        return stand;
+    }
+
+    private void startHologramAnimations(World world, List<Entity> entities, HologramConfig config) {
+        // 转圈圈动画
+        ArmorStand blockStand = (ArmorStand) entities.get(3);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (GameManager.getInstance().getCurrentStatus() != GameStatus.INGAME) {
+                    cancel();
+                    return;
+                }
+                EulerAngle currentPose = blockStand.getHeadPose();
+                blockStand.setHeadPose(new EulerAngle(currentPose.getX(), currentPose.getY() + 0.1, currentPose.getZ()));
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+
+        // 倒计时动画
+        ArmorStand countdownStand = (ArmorStand) entities.get(2);
+        BukkitRunnable countdownTask = new BukkitRunnable() {
+            private long remainingTicks = interval;
+
+            @Override
+            public void run() {
+                if (GameManager.getInstance().getCurrentStatus() != GameStatus.INGAME) {
+                    cancel();
+                    return;
+                }
+
+                remainingTicks--;
+                if (remainingTicks <= 0) {
+                    remainingTicks = interval;
+                }
+
+                countdownStand.setCustomName(new HologramText("§e将在 ", "§c" + (remainingTicks / 20), "§e 秒后产出").getFullText());
+            }
+        };
+        countdownTask.runTaskTimer(plugin, 0L, 1L);
+        countdownTasks.put(blockStand.getLocation(), countdownTask);
     }
 
     private void removeHolograms() {
@@ -329,15 +373,19 @@ public abstract class ResourceSpawner implements Listener {
                 break;
         }
 
+        updateHologramDisplays();
+    }
+
+    private void updateHologramDisplays() {
         for (List<Entity> entities : hologramEntities.values()) {
             for (Entity entity : entities) {
                 if (entity instanceof ArmorStand) {
                     ArmorStand stand = (ArmorStand) entity;
                     if (stand.getCustomName() != null) {
                         if (stand.getCustomName().startsWith("§e等级")) {
-                            stand.setCustomName("§e等级 " + getRomanNumeral(level));
+                            stand.setCustomName(new HologramText("§e等级 ", "§c" + getRomanNumeral(level), "").getFullText());
                         } else if (stand.getCustomName().startsWith("§e将在")) {
-                            stand.setCustomName("§e将在 §c" + (interval / 20) + "§e 秒后产出");
+                            stand.setCustomName(new HologramText("§e将在 ", "§c" + (interval / 20), "§e 秒后产出").getFullText());
                         }
                     }
                 }
