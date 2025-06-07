@@ -6,7 +6,9 @@ import cn.nekopixel.bedwars.game.GameStatus;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Item;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +42,9 @@ public abstract class ResourceSpawner {
                     Location loc = Location.deserialize((Map<String, Object>) locMap);
                     World world = loc.getWorld();
                     if (world != null) {
-                        world.dropItemNaturally(loc, getItem());
+                        Item item = world.dropItem(loc, getItem());
+                        item.setVelocity(new Vector(0, 0, 0));
+                        item.teleport(loc.add(0.5, 0.1, 0.5));
                     }
                 }
             }
