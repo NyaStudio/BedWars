@@ -6,6 +6,7 @@ import cn.nekopixel.bedwars.game.GameStatusChange;
 import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -21,6 +22,7 @@ public class NPCManager implements Listener {
 
     private final java.util.Map<Location, Villager> shopNPCs = new HashMap<>();
     private final java.util.Map<Location, Villager> upgradeNPCs = new HashMap<>();
+    private final java.util.Map<Villager, List<ArmorStand>> npcNameStands = new HashMap<>();
     private BukkitRunnable correctionTask;
 
     public NPCManager(Main plugin) {
@@ -33,12 +35,13 @@ public class NPCManager implements Listener {
     private void initializeNPCs() {
         plugin.getServer().getWorlds().forEach(world -> {
             world.getEntities().stream()
-                .filter(entity -> entity instanceof Villager)
+                .filter(entity -> entity instanceof Villager || entity instanceof ArmorStand)
                 .forEach(entity -> entity.remove());
         });
         
         shopNPCs.clear();
         upgradeNPCs.clear();
+        npcNameStands.clear();
     }
 
     @EventHandler
@@ -49,10 +52,9 @@ public class NPCManager implements Listener {
         } else {
             stopCorrectionTask();
             removeNPCs();
-            // 清除所有世界中的村民NPC
             plugin.getServer().getWorlds().forEach(world -> {
                 world.getEntities().stream()
-                    .filter(entity -> entity instanceof Villager)
+                    .filter(entity -> entity instanceof Villager || entity instanceof ArmorStand)
                     .forEach(entity -> entity.remove());
             });
         }
@@ -60,7 +62,7 @@ public class NPCManager implements Listener {
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Villager) {
+        if (event.getEntity() instanceof Villager || event.getEntity() instanceof ArmorStand) {
             event.setCancelled(true);
         }
     }
@@ -77,7 +79,7 @@ public class NPCManager implements Listener {
                 String worldName = (String) locMap.get("world");
                 if (worldName != null && plugin.getServer().getWorld(worldName) != null) {
                     Location loc = Location.deserialize(locMap);
-                    spawnShopNPC(loc);
+                    spawnNPC(loc, "§b道具商店", "§e右键点击", true);
                 }
             }
         }
@@ -89,31 +91,48 @@ public class NPCManager implements Listener {
                 String worldName = (String) locMap.get("world");
                 if (worldName != null && plugin.getServer().getWorld(worldName) != null) {
                     Location loc = Location.deserialize(locMap);
-                    spawnUpgradeNPC(loc);
+                    spawnNPC(loc, "§b升级", "§e右键点击", false);
                 }
             }
         }
     }
 
-    private void spawnShopNPC(Location location) {
+    private void spawnNPC(Location location, String title, String subtitle, boolean isShop) {
         Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
         villager.setAI(false);
         villager.setInvulnerable(true);
-        villager.setCustomName("§b道具商店\n§e右键点击");
-        villager.setCustomNameVisible(true);
-        shopNPCs.put(location, villager);
+        villager.setCustomNameVisible(false);
+        
+        if (isShop) {
+            shopNPCs.put(location, villager);
+        } else {
+            upgradeNPCs.put(location, villager);
+        }
+        
+        List<ArmorStand> nameStands = new ArrayList<>();
+        Location nameLoc = location.clone().add(0, 2.1, 0);
+        ArmorStand titleStand = createNameStand(nameLoc, title);
+        nameStands.add(titleStand);
+        ArmorStand subtitleStand = createNameStand(nameLoc.clone().add(0, -0.3, 0), subtitle);
+        nameStands.add(subtitleStand);
+        
+        npcNameStands.put(villager, nameStands);
     }
 
-    private void spawnUpgradeNPC(Location location) {
-        Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
-        villager.setAI(false);
-        villager.setInvulnerable(true);
-        villager.setCustomName("§b升级\n§e右键点击");
-        villager.setCustomNameVisible(true);
-        upgradeNPCs.put(location, villager);
+    private ArmorStand createNameStand(Location location, String name) {
+        ArmorStand stand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+        stand.setVisible(false);
+        stand.setCustomName(name);
+        stand.setCustomNameVisible(true);
+        stand.setGravity(false);
+        stand.setMarker(true);
+        return stand;
     }
 
     private void removeNPCs() {
+        npcNameStands.values().forEach(stands -> stands.forEach(ArmorStand::remove));
+        npcNameStands.clear();
+        
         shopNPCs.values().forEach(Villager::remove);
         upgradeNPCs.values().forEach(Villager::remove);
         shopNPCs.clear();
@@ -153,13 +172,13 @@ public class NPCManager implements Listener {
         }
 
         for (Location loc : toRespawn) {
+            if (npcNameStands.containsKey(npcMap.get(loc))) {
+                npcNameStands.get(npcMap.get(loc)).forEach(ArmorStand::remove);
+                npcNameStands.remove(npcMap.get(loc));
+            }
+            
             npcMap.get(loc).remove();
-            Villager newNPC = (Villager) loc.getWorld().spawnEntity(loc, EntityType.VILLAGER);
-            newNPC.setAI(false);
-            newNPC.setInvulnerable(true);
-            newNPC.setCustomName(isShop ? "§b道具商店\n§e右键点击" : "§b升级\n§e右键点击");
-            newNPC.setCustomNameVisible(true);
-            npcMap.put(loc, newNPC);
+            spawnNPC(loc, isShop ? "§b道具商店" : "§b升级", "§e右键点击", isShop);
         }
     }
 }
