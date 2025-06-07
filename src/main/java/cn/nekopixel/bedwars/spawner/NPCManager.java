@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.spawner;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.GameStatusChange;
+import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
@@ -16,11 +17,13 @@ import java.util.List;
 
 public class NPCManager implements Listener {
     private final Main plugin;
+    private final Map mapSetup;
     private final List<Villager> shopNPCs;
     private final List<Villager> upgradeNPCs;
 
     public NPCManager(Main plugin) {
         this.plugin = plugin;
+        this.mapSetup = new Map(plugin);
         this.shopNPCs = new ArrayList<>();
         this.upgradeNPCs = new ArrayList<>();
     }
@@ -41,46 +44,23 @@ public class NPCManager implements Listener {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void spawnNPCs() {
-        ConfigurationSection mapConfig = plugin.getConfig().getConfigurationSection("map");
+        ConfigurationSection mapConfig = mapSetup.getMapConfig();
         if (mapConfig == null) return;
 
         // shop
-        ConfigurationSection shopSection = mapConfig.getConfigurationSection("npcs.shop");
-        if (shopSection != null) {
-            for (String key : shopSection.getKeys(false)) {
-                ConfigurationSection locationSection = shopSection.getConfigurationSection(key);
-                if (locationSection != null) {
-                    Location location = new Location(
-                            plugin.getServer().getWorld(locationSection.getString("world")),
-                            locationSection.getDouble("x"),
-                            locationSection.getDouble("y"),
-                            locationSection.getDouble("z"),
-                            (float) locationSection.getDouble("yaw"),
-                            (float) locationSection.getDouble("pitch")
-                    );
-                    spawnShopNPC(location);
-                }
-            }
+        List<java.util.Map<?, ?>> shopList = mapConfig.getMapList("npcs.shop");
+        for (java.util.Map<?, ?> locationMap : shopList) {
+            Location location = Location.deserialize((java.util.Map<String, Object>) locationMap);
+            spawnShopNPC(location);
         }
 
         // upgrade
-        ConfigurationSection upgradeSection = mapConfig.getConfigurationSection("npcs.upgrade");
-        if (upgradeSection != null) {
-            for (String key : upgradeSection.getKeys(false)) {
-                ConfigurationSection locationSection = upgradeSection.getConfigurationSection(key);
-                if (locationSection != null) {
-                    Location location = new Location(
-                            plugin.getServer().getWorld(locationSection.getString("world")),
-                            locationSection.getDouble("x"),
-                            locationSection.getDouble("y"),
-                            locationSection.getDouble("z"),
-                            (float) locationSection.getDouble("yaw"),
-                            (float) locationSection.getDouble("pitch")
-                    );
-                    spawnUpgradeNPC(location);
-                }
-            }
+        List<java.util.Map<?, ?>> upgradeList = mapConfig.getMapList("npcs.upgrade");
+        for (java.util.Map<?, ?> locationMap : upgradeList) {
+            Location location = Location.deserialize((java.util.Map<String, Object>) locationMap);
+            spawnUpgradeNPC(location);
         }
     }
 
