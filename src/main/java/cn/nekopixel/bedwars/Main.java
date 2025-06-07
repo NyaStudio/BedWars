@@ -13,12 +13,14 @@ package cn.nekopixel.bedwars;
 //└── util/          # 工具类（位置、颜色、声音、NBT 等）
 
 import cn.nekopixel.bedwars.game.GameManager;
+import cn.nekopixel.bedwars.spawner.NPCManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
     private GameManager gameManager;
+    private NPCManager npcManager;
 
     @Override
     public void onEnable() {
@@ -28,6 +30,9 @@ public final class Main extends JavaPlugin {
 
         GameManager.initialize(this);
         this.gameManager = GameManager.getInstance();
+        
+        this.npcManager = new NPCManager(this);
+        getServer().getPluginManager().registerEvents(npcManager, this);
         
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             for (World world : Bukkit.getWorlds()) {
@@ -45,5 +50,9 @@ public final class Main extends JavaPlugin {
     
     public GameManager getGameManager() {
         return gameManager;
+    }
+    
+    public NPCManager getNPCManager() {
+        return npcManager;
     }
 }
