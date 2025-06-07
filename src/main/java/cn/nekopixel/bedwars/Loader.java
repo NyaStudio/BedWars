@@ -25,10 +25,19 @@ public class Loader {
     }
 
     public static void reloadAll(Main plugin) {
-        plugin.reloadConfig();
-        if (mapSetup != null) {
-            mapSetup.reloadMapConfig();
+        try {
+            plugin.reloadConfig();
+            if (mapSetup != null) {
+                mapSetup.reloadMapConfig();
+            } else {
+                // plugin.getLogger().warning("mapSetup 为空，无法重载地图配置");
+                mapSetup = new Map(plugin);
+                mapSetup.reloadMapConfig();
+            }
+            plugin.getLogger().info("所有配置文件已重新加载！");
+        } catch (Exception e) {
+            plugin.getLogger().severe("重载配置文件时发生错误: " + e.getMessage());
+            e.printStackTrace();
         }
-        plugin.getLogger().info("所有配置文件已重新加载！");
     }
 }

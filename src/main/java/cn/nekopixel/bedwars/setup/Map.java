@@ -41,7 +41,13 @@ public class Map implements CommandExecutor, TabCompleter {
     }
 
     public void reloadMapConfig() {
-        loadMapConfig();
+        try {
+            loadMapConfig();
+            plugin.getLogger().info("地图配置文件已重新加载");
+        } catch (Exception e) {
+            plugin.getLogger().severe("重新加载地图配置文件时发生错误: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -158,9 +164,14 @@ public class Map implements CommandExecutor, TabCompleter {
 
     private void saveMapConfig() {
         try {
-            mapConfig.save(mapFile);
+            FileConfiguration currentConfig = YamlConfiguration.loadConfiguration(mapFile);
+            for (String key : mapConfig.getKeys(true)) {
+                currentConfig.set(key, mapConfig.get(key));
+            }
+            currentConfig.save(mapFile);
         } catch (IOException e) {
             plugin.getLogger().severe("无法保存 map.yml 文件: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
