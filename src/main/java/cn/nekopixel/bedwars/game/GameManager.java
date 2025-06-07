@@ -23,7 +23,9 @@ public class GameManager {
     }
 
     public void setStatus(GameStatus status) {
+        GameStatus oldStatus = this.currentStatus;
         this.currentStatus = status;
+        Bukkit.getPluginManager().callEvent(new GameStatusChange(oldStatus, status));
         Bukkit.broadcastMessage(ChatColor.GREEN + "状态已更改为: " + status.name());
     }
 

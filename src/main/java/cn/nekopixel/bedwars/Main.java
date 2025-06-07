@@ -12,17 +12,23 @@ package cn.nekopixel.bedwars;
 //├── listener/      # 各种监听器（方块、击杀、死亡等）
 //└── util/          # 工具类（位置、颜色、声音、NBT 等）
 
+import cn.nekopixel.bedwars.game.GameManager;
+import cn.nekopixel.bedwars.spawner.SpawnerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
+    private GameManager gameManager;
 
     @Override
     public void onEnable() {
         Loader.registerAllEvents(this);
         Loader.registerCommands(this);
         saveDefaultConfig();
+        
+        this.gameManager = GameManager.getInstance();
+        getServer().getPluginManager().registerEvents(new SpawnerManager(this), this);
         
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             for (World world : Bukkit.getWorlds()) {
@@ -36,5 +42,8 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("卸载完成！");
+    }
+    public GameManager getGameManager() {
+        return gameManager;
     }
 }
