@@ -25,12 +25,6 @@ public class CancelEvents implements Listener {
     }
 
     // cancel advancements
-    @EventHandler
-    public void onAdvancement(PlayerAdvancementDoneEvent event) {
-        Advancement advancement = event.getAdvancement();
-        AdvancementProgress progress = event.getPlayer().getAdvancementProgress(advancement);
-        for (String criterion : progress.getAwardedCriteria()) {
-            progress.revokeCriteria(criterion);
-        }
-    }
+    // 我承认我确实不会 cancel
+    // 所以自己在 spigot.yml 里改
 }
