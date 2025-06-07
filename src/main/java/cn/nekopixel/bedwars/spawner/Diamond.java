@@ -1,4 +1,40 @@
 package cn.nekopixel.bedwars.spawner;
 
-public class Diamond {
+import cn.nekopixel.bedwars.Main;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+public class Diamond extends ResourceSpawner {
+    private int level = 1;
+
+    public Diamond(Main plugin) {
+        super(plugin, "diamond", 400L); // 20 ticks = 1 second, 400 ticks = 20 seconds
+    }
+
+    @Override
+    protected ItemStack getItem() {
+        return new ItemStack(Material.DIAMOND, 1);
+    }
+
+    @Override
+    protected Material getMaterial() {
+        return Material.DIAMOND;
+    }
+
+    @Override
+    protected int getMaxAmount() {
+        return 4;
+    }
+
+    public void upgrade() {
+        level++;
+        switch (level) {
+            case 2:
+                setSpawnInterval(360L); // 18 secs
+                break;
+            case 3:
+                setSpawnInterval(320L); // 16 secs
+                break;
+        }
+    }
 }

@@ -10,11 +10,15 @@ public class SpawnerManager implements Listener {
     private final Main plugin;
     private final Iron ironSpawner;
     private final Gold goldSpawner;
+    private final Diamond diamondSpawner;
+    private final Emerald emeraldSpawner;
 
     public SpawnerManager(Main plugin) {
         this.plugin = plugin;
         this.ironSpawner = new Iron(plugin);
         this.goldSpawner = new Gold(plugin);
+        this.diamondSpawner = new Diamond(plugin);
+        this.emeraldSpawner = new Emerald(plugin);
     }
 
     @EventHandler
@@ -29,10 +33,22 @@ public class SpawnerManager implements Listener {
     private void startSpawners() {
         ironSpawner.start();
         goldSpawner.start();
+        diamondSpawner.start();
+        emeraldSpawner.start();
     }
 
     private void stopSpawners() {
         ironSpawner.stop();
         goldSpawner.stop();
+        diamondSpawner.stop();
+        emeraldSpawner.stop();
+    }
+
+    public Diamond getDiamondSpawner() {
+        return diamondSpawner;
+    }
+
+    public Emerald getEmeraldSpawner() {
+        return emeraldSpawner;
     }
 } 
