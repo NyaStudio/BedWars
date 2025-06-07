@@ -3,11 +3,9 @@ package cn.nekopixel.bedwars.spawner;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -100,9 +98,11 @@ public abstract class ResourceSpawner {
         }
 
         // 新实体
-        Item item = world.dropItem(loc, toDrop.clone());
-        item.setVelocity(new Vector(0, 0, 0));
-        item.teleport(loc);
+        Item item = world.spawn(loc, Item.class, i -> {
+            i.setItemStack(toDrop.clone());
+            i.setVelocity(new Vector(0, 0, 0));
+            i.setPickupDelay(0);
+        });
         activeDrops.put(baseLoc, item);
     }
 
