@@ -5,8 +5,10 @@ import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import com.github.retrooper.packetevents.event.PacketListener;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 
 public class CancelEvents implements PacketListener, Listener {
 
@@ -28,9 +30,20 @@ public class CancelEvents implements PacketListener, Listener {
     }
 
     // cancel advancements
-    // 哎呦我又会了 吗?
+    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
+    public void onAdvancementDone(PlayerAdvancementDoneEvent event) {
+        // event.getPlayer().sendMessage("Cancelled 1 Packet");
+    }
+
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
+        if (event.getPacketType().toString().contains("ADVANCEMENT")) {
+            event.setCancelled(true);
+        }
+    }
+
+    @Override
+    public void onPacketSend(PacketSendEvent event) {
         if (event.getPacketType().toString().contains("ADVANCEMENT")) {
             event.setCancelled(true);
         }

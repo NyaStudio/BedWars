@@ -16,7 +16,6 @@ import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
 import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
