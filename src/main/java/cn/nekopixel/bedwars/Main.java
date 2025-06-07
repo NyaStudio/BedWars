@@ -4,7 +4,7 @@ package cn.nekopixel.bedwars;
 //├── api/           # 公共接口层
 //├── game/          # 核心游戏逻辑（队伍、状态管理）
 //├── map/           # 地图加载与世界控制
-//├── generator/     # 资源生成逻辑
+//├── spawner/       # 资源生成逻辑                     # 已完成
 //├── player/        # 玩家数据与状态
 //├── shop/          # 商店系统（支持 JSON 配置）
 //├── trap/          # 陷阱系统
