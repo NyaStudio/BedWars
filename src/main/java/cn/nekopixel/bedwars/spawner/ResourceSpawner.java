@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.spawner;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
+import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -18,9 +19,10 @@ public abstract class ResourceSpawner {
     protected final String type;
     protected final long interval;
     protected BukkitRunnable task;
+    protected final Map mapSetup;
 
     // 每个资源点的活动掉落物
-    private final Map<Location, Item> activeDrops = new HashMap<>();
+    private final java.util.Map<Location, Item> activeDrops = new HashMap<>();
 
     // 被暂停的资源点
     private final Set<Location> pausedPoints = new HashSet<>();
@@ -29,6 +31,7 @@ public abstract class ResourceSpawner {
         this.plugin = plugin;
         this.type = type;
         this.interval = interval;
+        this.mapSetup = new Map(plugin);
     }
 
     public void start() {
@@ -39,10 +42,10 @@ public abstract class ResourceSpawner {
             public void run() {
                 if (GameManager.getInstance().getCurrentStatus() != GameStatus.INGAME) return;
 
-                List<Map<?, ?>> spawnerLocations = plugin.getConfig().getMapList("spawners." + type);
-                for (Map<?, ?> locMap : spawnerLocations) {
+                List<java.util.Map<?, ?>> spawnerLocations = mapSetup.getMapConfig().getMapList("spawners." + type);
+                for (java.util.Map<?, ?> locMap : spawnerLocations) {
                     @SuppressWarnings("unchecked")
-                    Location baseLoc = Location.deserialize((Map<String, Object>) locMap);
+                    Location baseLoc = Location.deserialize((java.util.Map<String, Object>) locMap);
                     World world = baseLoc.getWorld();
                     if (world == null) continue;
 

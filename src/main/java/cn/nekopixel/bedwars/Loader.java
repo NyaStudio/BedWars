@@ -3,10 +3,12 @@ package cn.nekopixel.bedwars;
 import cn.nekopixel.bedwars.commands.CommandManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
 import cn.nekopixel.bedwars.listener.WorldEvents;
+import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 public class Loader {
+    private static Map mapSetup;
 
     public static void registerAllEvents(Plugin plugin) {
         PluginManager pm = plugin.getServer().getPluginManager();
@@ -18,6 +20,15 @@ public class Loader {
     }
 
     public static void registerCommands(Main plugin) {
+        mapSetup = new Map(plugin);
         plugin.getCommand("bw").setExecutor(new CommandManager(plugin));
+    }
+
+    public static void reloadAll(Main plugin) {
+        plugin.reloadConfig();
+        if (mapSetup != null) {
+            mapSetup.reloadMapConfig();
+        }
+        plugin.getLogger().info("所有配置文件已重新加载！");
     }
 }

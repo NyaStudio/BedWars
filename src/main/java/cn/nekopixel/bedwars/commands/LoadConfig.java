@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.commands;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.Loader;
 import org.bukkit.command.Command;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
@@ -21,8 +22,8 @@ public class LoadConfig implements CommandExecutor {
         }
 
         try {
-            plugin.reloadConfig();
-            sender.sendMessage(ChatColor.GREEN + "配置文件已重新加载");
+            Loader.reloadAll(plugin);
+            sender.sendMessage(ChatColor.GREEN + "所有配置文件已重新加载");
         } catch (Exception e) {
             sender.sendMessage(ChatColor.RED + "配置文件加载失败: " + e.getMessage());
         }

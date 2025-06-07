@@ -10,15 +10,38 @@ import org.bukkit.entity.Player;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class Map implements CommandExecutor, TabCompleter {
     private final Main plugin;
     private final Set<String> validTeams = Set.of("red", "blue", "green", "yellow", "aqua", "white", "pink", "gray");
+    private FileConfiguration mapConfig;
+    private File mapFile;
 
     public Map(Main plugin) {
         this.plugin = plugin;
+        loadMapConfig();
+    }
+
+    private void loadMapConfig() {
+        if (!plugin.getDataFolder().exists()) {
+            plugin.getDataFolder().mkdir();
+        }
+
+        mapFile = new File(plugin.getDataFolder(), "map.yml");
+        if (!mapFile.exists()) {
+            plugin.saveResource("map.yml", false);
+        }
+        mapConfig = YamlConfiguration.loadConfiguration(mapFile);
+    }
+
+    public void reloadMapConfig() {
+        loadMapConfig();
     }
 
     @Override
@@ -39,7 +62,8 @@ public class Map implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 1);
-                plugin.getConfig().set("join", loc.serialize());
+                mapConfig.set("join", loc.serialize());
+                saveMapConfig();
                 sender.sendMessage(ChatColor.GREEN + "已设置加入时位置");
             }
 
@@ -59,7 +83,8 @@ public class Map implements CommandExecutor, TabCompleter {
                     sender.sendMessage(ChatColor.RED + "错误：指定位置必须是床方块");
                     return true;
                 }
-                plugin.getConfig().set("beds." + team, loc.serialize());
+                mapConfig.set("beds." + team, loc.serialize());
+                saveMapConfig();
                 sender.sendMessage(ChatColor.GREEN + "已设置 " + ChatColor.YELLOW + team + ChatColor.GREEN + " 队的床位置");
             }
 
@@ -74,7 +99,8 @@ public class Map implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
-                plugin.getConfig().set("spawnpoints." + team, loc.serialize());
+                mapConfig.set("spawnpoints." + team, loc.serialize());
+                saveMapConfig();
                 sender.sendMessage(ChatColor.GREEN + "已设置 " + ChatColor.YELLOW + team + ChatColor.GREEN + " 队出生点");
             }
 
@@ -87,14 +113,16 @@ public class Map implements CommandExecutor, TabCompleter {
                 Location loc = getLocationFromArgs(p, args, 2);
 
                 if (type.equals("shop")) {
-                    List<java.util.Map<?, ?>> list = plugin.getConfig().getMapList("npcs.shop");
+                    List<java.util.Map<?, ?>> list = mapConfig.getMapList("npcs.shop");
                     list.add(loc.serialize());
-                    plugin.getConfig().set("npcs.shop", list);
+                    mapConfig.set("npcs.shop", list);
+                    saveMapConfig();
                     sender.sendMessage(ChatColor.GREEN + "已添加一个商店NPC位置");
                 } else if (type.equals("upgrade")) {
-                    List<java.util.Map<?, ?>> list = plugin.getConfig().getMapList("npcs.upgrade");
+                    List<java.util.Map<?, ?>> list = mapConfig.getMapList("npcs.upgrade");
                     list.add(loc.serialize());
-                    plugin.getConfig().set("npcs.upgrade", list);
+                    mapConfig.set("npcs.upgrade", list);
+                    saveMapConfig();
                     sender.sendMessage(ChatColor.GREEN + "已添加一个升级NPC位置");
                 } else {
                     sender.sendMessage(ChatColor.RED + "无效的NPC类型！可用类型: shop, upgrade");
@@ -112,19 +140,32 @@ public class Map implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
-                List<java.util.Map<?, ?>> list = plugin.getConfig().getMapList("spawners." + type);
+                List<java.util.Map<?, ?>> list = mapConfig.getMapList("spawners." + type);
                 list.add(loc.serialize());
-                plugin.getConfig().set("spawners." + type, list);
+                mapConfig.set("spawners." + type, list);
+                saveMapConfig();
                 sender.sendMessage(ChatColor.GREEN + "已添加一个 " + ChatColor.YELLOW + type + ChatColor.GREEN + " 生成点");
             }
 
             case "save" -> {
-                plugin.saveConfig();
+                saveMapConfig();
                 sender.sendMessage(ChatColor.GREEN + "配置文件已保存！");
             }
         }
 
         return true;
+    }
+
+    private void saveMapConfig() {
+        try {
+            mapConfig.save(mapFile);
+        } catch (IOException e) {
+            plugin.getLogger().severe("无法保存 map.yml 文件: " + e.getMessage());
+        }
+    }
+
+    public FileConfiguration getMapConfig() {
+        return mapConfig;
     }
 
     @Override
