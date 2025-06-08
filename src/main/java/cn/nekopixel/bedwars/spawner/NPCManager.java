@@ -20,8 +20,8 @@ public class NPCManager implements Listener {
     private final Main plugin;
     private final Map mapSetup;
 
-    private final java.util.Map<Location, Villager> shopNPCs = new HashMap<>();
-    private final java.util.Map<Location, Villager> upgradeNPCs = new HashMap<>();
+    private final Set<Villager> shopNPCs = new HashSet<>();
+    private final Set<Villager> upgradeNPCs = new HashSet<>();
     private final java.util.Map<Villager, List<ArmorStand>> npcNameStands = new HashMap<>();
     private BukkitRunnable correctionTask;
 
@@ -104,9 +104,9 @@ public class NPCManager implements Listener {
         villager.setCustomNameVisible(false);
         
         if (isShop) {
-            shopNPCs.put(location, villager);
+            shopNPCs.add(villager);
         } else {
-            upgradeNPCs.put(location, villager);
+            upgradeNPCs.add(villager);
         }
         
         List<ArmorStand> nameStands = new ArrayList<>();
@@ -133,8 +133,8 @@ public class NPCManager implements Listener {
         npcNameStands.values().forEach(stands -> stands.forEach(ArmorStand::remove));
         npcNameStands.clear();
         
-        shopNPCs.values().forEach(Villager::remove);
-        upgradeNPCs.values().forEach(Villager::remove);
+        shopNPCs.forEach(Villager::remove);
+        upgradeNPCs.forEach(Villager::remove);
         shopNPCs.clear();
         upgradeNPCs.clear();
     }
@@ -161,24 +161,33 @@ public class NPCManager implements Listener {
         }
     }
 
-    private void correctNPCs(java.util.Map<Location, Villager> npcMap, boolean isShop) {
-        List<Location> toRespawn = new ArrayList<>();
-
-        for (java.util.Map.Entry<Location, Villager> entry : npcMap.entrySet()) {
-            Villager npc = entry.getValue();
+    private void correctNPCs(Set<Villager> npcSet, boolean isShop) {
+        List<Villager> toRemove = new ArrayList<>();
+        
+        for (Villager npc : npcSet) {
             if (npc == null || npc.isDead() || !npc.isValid()) {
-                toRespawn.add(entry.getKey());
+                toRemove.add(npc);
             }
         }
 
-        for (Location loc : toRespawn) {
-            if (npcNameStands.containsKey(npcMap.get(loc))) {
-                npcNameStands.get(npcMap.get(loc)).forEach(ArmorStand::remove);
-                npcNameStands.remove(npcMap.get(loc));
+        for (Villager npc : toRemove) {
+            if (npcNameStands.containsKey(npc)) {
+                npcNameStands.get(npc).forEach(ArmorStand::remove);
+                npcNameStands.remove(npc);
             }
             
-            npcMap.get(loc).remove();
+            npc.remove();
+            npcSet.remove(npc);
+            Location loc = npc.getLocation();
             spawnNPC(loc, isShop ? "§b道具商店" : "§b升级", "§e右键点击", isShop);
         }
+    }
+
+    public boolean isShopNPC(Villager villager) {
+        return shopNPCs.contains(villager);
+    }
+
+    public boolean isUpgradeNPC(Villager villager) {
+        return upgradeNPCs.contains(villager);
     }
 }

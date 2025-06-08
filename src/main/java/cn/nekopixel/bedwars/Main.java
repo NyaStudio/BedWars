@@ -14,6 +14,7 @@ package cn.nekopixel.bedwars;
 
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.spawner.NPCManager;
+import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
@@ -24,6 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class Main extends JavaPlugin {
     private GameManager gameManager;
     private NPCManager npcManager;
+    private ShopManager shopManager;
 
     @Override
     public void onEnable() {
@@ -45,7 +47,10 @@ public final class Main extends JavaPlugin {
         
         this.npcManager = new NPCManager(this);
         getServer().getPluginManager().registerEvents(npcManager, this);
-        
+
+        this.shopManager = new ShopManager(this, npcManager);
+        getServer().getPluginManager().registerEvents(shopManager, this);
+
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             for (World world : Bukkit.getWorlds()) {
                 world.setTime(6000);
@@ -67,5 +72,9 @@ public final class Main extends JavaPlugin {
     
     public NPCManager getNPCManager() {
         return npcManager;
+    }
+    
+    public ShopManager getShopManager() {
+        return shopManager;
     }
 }
