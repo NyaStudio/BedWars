@@ -175,6 +175,14 @@ public abstract class ResourceSpawner implements Listener {
             Location nearest = findNearestBlock(baseLoc, targetBlock, 3);
             if (nearest != null) {
                 center = nearest.clone().add(0.5, 1.0, 0.5);
+                
+                List<Entity> hologramEntities = this.hologramEntities.get(baseLoc);
+                if (hologramEntities != null && hologramEntities.size() > 3) {
+                    ArmorStand blockStand = (ArmorStand) hologramEntities.get(3);
+                    if (blockStand != null && !blockStand.isDead()) {
+                        center = blockStand.getLocation().clone();
+                    }
+                }
             }
         }
 
@@ -185,16 +193,12 @@ public abstract class ResourceSpawner implements Listener {
                 int newAmount = Math.min(current.getAmount() + toDrop.getAmount(), toDrop.getMaxStackSize());
                 current.setAmount(newAmount);
                 existing.setItemStack(current);
-
-                if (existing.getLocation().distanceSquared(center) > 0.01) {
-                    existing.teleport(center);
-                }
                 return;
             }
         }
 
         Item item = world.dropItem(center, toDrop.clone());
-        item.setVelocity(new Vector(0, 0, 0));
+        item.setVelocity(new Vector(0, -0.1, 0));
         item.setPickupDelay(0);
         activeDrops.put(baseLoc, item);
     }
@@ -323,10 +327,10 @@ public abstract class ResourceSpawner implements Listener {
                 Location newLoc = baseLoc.clone().add(dx, dy, dz);
                 blockStand.teleport(newLoc);
 
-                t += 4;
+                t += 8;
                 if (t >= 360) t = 0;
             }
-        }.runTaskTimer(plugin, 0L, 2L);
+        }.runTaskTimer(plugin, 0L, 1L);
 
         // 倒计时动画
         ArmorStand countdownStand = (ArmorStand) entities.get(2);
