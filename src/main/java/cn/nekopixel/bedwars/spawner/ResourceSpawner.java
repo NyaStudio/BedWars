@@ -303,17 +303,30 @@ public abstract class ResourceSpawner implements Listener {
     private void startHologramAnimations(World world, List<Entity> entities, HologramConfig config) {
         // 转圈圈动画
         ArmorStand blockStand = (ArmorStand) entities.get(3);
+        Location baseLoc = blockStand.getLocation().clone();
         new BukkitRunnable() {
+            double t = 0;
+
             @Override
             public void run() {
                 if (GameManager.getInstance().getCurrentStatus() != GameStatus.INGAME) {
                     cancel();
                     return;
                 }
-                EulerAngle currentPose = blockStand.getHeadPose();
-                blockStand.setHeadPose(new EulerAngle(currentPose.getX(), currentPose.getY() + 0.1, currentPose.getZ()));
+
+                blockStand.setHeadPose(new EulerAngle(0, Math.toRadians(t), 0));
+
+                double dy = Math.sin(Math.toRadians(t)) * 0.1;
+                double dx = Math.cos(Math.toRadians(t)) * 0.05;
+                double dz = Math.sin(Math.toRadians(t)) * 0.05;
+
+                Location newLoc = baseLoc.clone().add(dx, dy, dz);
+                blockStand.teleport(newLoc);
+
+                t += 4;
+                if (t >= 360) t = 0;
             }
-        }.runTaskTimer(plugin, 0L, 1L);
+        }.runTaskTimer(plugin, 0L, 2L);
 
         // 倒计时动画
         ArmorStand countdownStand = (ArmorStand) entities.get(2);
