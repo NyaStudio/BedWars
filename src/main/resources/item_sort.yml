@@ -1,0 +1,23 @@
+categories:
+  quick_buy:
+    name: "§b快速购买"
+    type: "minecraft:white_wool"
+    index: 0
+  blocks:
+    name: "§a方块"
+    type: "minecraft:white_wool"
+    index: 1
+    lore:
+      - "§e点击查看"
+  weapons:
+    name: "§a近战武器"
+    type: "minecraft:golden_sword"
+    index: 2
+    lore:
+      - "§e点击查看"
+  armor:
+    name: "§9防具"
+    type: "minecraft:chainmail_chestplate"
+    index: 3
+    lore:
+      - "§e点击查看"

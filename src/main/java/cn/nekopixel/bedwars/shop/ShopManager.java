@@ -46,6 +46,7 @@ public class ShopManager implements Listener {
         this.plugin = plugin;
         this.npcManager = npcManager;
         this.itemShopConfigFile = new File(plugin.getDataFolder(), "item_shop.yml");
+        new ItemSort(plugin);
         this.itemShop = new ItemShop(plugin);
         this.upgradeShop = new UpgradeShop(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -82,6 +83,9 @@ public class ShopManager implements Listener {
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> enchantments = (List<Map<String, Object>>) itemSection.getList("enchantments", List.of());
 
+            String category = itemSection.getString("category", "default");
+            // plugin.getLogger().info("加载物品: " + key + ", 分类: " + category);
+
             ShopItem item = new ShopItem(
                 itemSection.getInt("index", 0),
                 itemSection.getString("type", ""),
@@ -92,7 +96,10 @@ public class ShopManager implements Listener {
                 enchantments,
                 itemSection.getInt("potion_level", 1),
                 itemSection.getInt("potion_duration", 0),
-                itemSection.getInt("amount", 1)
+                itemSection.getInt("amount", 1),
+                category,
+                itemSection.getInt("row", 0),
+                itemSection.getInt("column", 0)
             );
             itemShopItems.put(key, item);
         }
@@ -103,6 +110,7 @@ public class ShopManager implements Listener {
             plugin.saveResource(itemShopConfigFile.getName(), false);
         }
         loadConfigs();
+        ItemSort.getInstance().loadConfig();
     }
 
     public ItemStack createShopItem(Material material, ShopItem item, NamespacedKey shopItemKey, 
@@ -223,6 +231,24 @@ public class ShopManager implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
 
+        if (itemShop.isCategoryItem(clickedItem)) {
+            event.setCancelled(true);
+            player.setItemOnCursor(null);
+            String category = itemShop.getCategoryFromItem(clickedItem);
+            if (category != null) {
+                // plugin.getLogger().info("点击分类: " + category);
+                ItemSort.getInstance().setCurrentCategory(category);
+                itemShop.openShop(player);
+            }
+            return;
+        }
+
+        if (itemShop.isSeparator(clickedItem)) {
+            event.setCancelled(true);
+            player.setItemOnCursor(null);
+            return;
+        }
+
         if (!itemShop.isShopItem(clickedItem) && !upgradeShop.isShopItem(clickedItem)) return;
 
         event.setCancelled(true);
@@ -251,7 +277,7 @@ public class ShopManager implements Listener {
         String currency = data.getOrDefault(itemShop.getCurrencyKey(), PersistentDataType.STRING, "iron");
 
         if (currency.startsWith("minecraft:")) {
-            currency = currency.substring(10);  // im baka and i just can do this
+            currency = currency.substring(10);
         }
 
         Material costMaterial = switch (currency.toLowerCase()) {

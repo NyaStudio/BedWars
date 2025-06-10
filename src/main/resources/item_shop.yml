@@ -6,6 +6,9 @@ items:
     lore:
       - "§7这是羊毛"
     amount: 16
+    category: blocks
+    row: 0
+    column: 0
     pricing_type: "minecraft:iron_ingot"
     pricing: 4
 
@@ -15,6 +18,9 @@ items:
     name: "§f石剑"
     lore:
       - "§7这是石剑"
+    category: weapons
+    row: 0
+    column: 1
     pricing_type: "minecraft:iron_ingot"
     pricing: 10
 
@@ -24,6 +30,9 @@ items:
     name: "§b钻石剑"
     lore:
       - "§e这是钻石剑"
+    category: weapons
+    row: 0
+    column: 2
     pricing_type: "minecraft:iron_ingot"
     pricing: 1
     enchantments:
