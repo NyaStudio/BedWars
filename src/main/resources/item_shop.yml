@@ -5,6 +5,7 @@ items:
     name: "§f羊毛"
     lore:
       - "§7这是羊毛"
+    amount: 16
     pricing_type: "minecraft:iron_ingot"
     pricing: 4
 

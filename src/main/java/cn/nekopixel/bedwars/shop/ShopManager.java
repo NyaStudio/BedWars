@@ -91,7 +91,8 @@ public class ShopManager implements Listener {
                 itemSection.getInt("pricing", 0),
                 enchantments,
                 itemSection.getInt("potion_level", 1),
-                itemSection.getInt("potion_duration", 0)
+                itemSection.getInt("potion_duration", 0),
+                itemSection.getInt("amount", 1)
             );
             itemShopItems.put(key, item);
         }
@@ -123,6 +124,8 @@ public class ShopManager implements Listener {
         } else {
             itemStack = new ItemStack(material);
         }
+
+        itemStack.setAmount(item.getAmount());
 
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(item.getName());
@@ -272,7 +275,7 @@ public class ShopManager implements Listener {
 
         removeMaterial(player, costMaterial, price);
         ItemStack reward = clickedItem.clone();
-        reward.setAmount(1);
+        reward.setAmount(clickedItem.getAmount());
 
         player.getInventory().addItem(reward);
         player.sendMessage("§a购买成功: §f" + meta.getDisplayName() + " §7（花费 " + price + " " + translateCurrency(currency) + "）");

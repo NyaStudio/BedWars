@@ -13,10 +13,11 @@ public class ShopItem {
     private final List<Map<String, Object>> enchantments;
     private final int potionLevel;
     private final int potionDuration;
+    private final int amount;
 
     public ShopItem(int index, String type, String name, List<String> lore, 
                    String pricingType, int pricing, List<Map<String, Object>> enchantments,
-                   int potionLevel, int potionDuration) {
+                   int potionLevel, int potionDuration, int amount) {
         this.index = index;
         this.type = type;
         this.name = name;
@@ -26,6 +27,7 @@ public class ShopItem {
         this.enchantments = enchantments;
         this.potionLevel = potionLevel;
         this.potionDuration = potionDuration;
+        this.amount = amount;
     }
 
     public int getIndex() {
@@ -62,5 +64,9 @@ public class ShopItem {
 
     public int getPotionDuration() {
         return potionDuration;
+    }
+
+    public int getAmount() {
+        return amount;
     }
 } 
