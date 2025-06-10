@@ -54,8 +54,9 @@ public class ShopManager implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
-        String title = event.getView().getTitle();
-        if (!title.contains("商店")) return;
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+        if (!itemShop.isShopItem(clickedItem) && !upgradeShop.isShopItem(clickedItem)) return;
 
         event.setCancelled(true);
         player.setItemOnCursor(null);
@@ -65,15 +66,10 @@ public class ShopManager implements Listener {
 
         if (clickedInventory == null || !clickedInventory.equals(topInventory)) return;
 
-        ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
-
         ItemMeta meta = clickedItem.getItemMeta();
         if (meta == null) return;
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        if (!data.has(itemShop.getShopItemKey(), PersistentDataType.BYTE) && 
-            !data.has(upgradeShop.getShopItemKey(), PersistentDataType.BYTE)) return;
 
         // 防止买两次
         long currentTime = System.currentTimeMillis();
@@ -116,11 +112,12 @@ public class ShopManager implements Listener {
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
-        if (event.getView().getTitle().contains("商店")) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        
+        ItemStack cursorItem = event.getCursor();
+        if (cursorItem != null && (itemShop.isShopItem(cursorItem) || upgradeShop.isShopItem(cursorItem))) {
             event.setCancelled(true);
-            if (event.getWhoClicked() instanceof Player player) {
-                player.setItemOnCursor(null);
-            }
+            player.setItemOnCursor(null);
         }
     }
 

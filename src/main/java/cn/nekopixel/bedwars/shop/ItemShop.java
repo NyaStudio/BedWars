@@ -21,6 +21,7 @@ public class ItemShop {
     private final NamespacedKey shopItemKey;
     private final NamespacedKey priceKey;
     private final NamespacedKey currencyKey;
+    private final NamespacedKey shopTypeKey;
 
     public ItemShop(Main plugin) {
         this.plugin = plugin;
@@ -29,6 +30,7 @@ public class ItemShop {
         this.shopItemKey = new NamespacedKey(plugin, "shop_item");
         this.priceKey = new NamespacedKey(plugin, "shop_price");
         this.currencyKey = new NamespacedKey(plugin, "shop_currency");
+        this.shopTypeKey = new NamespacedKey(plugin, "shop_type");
         setupShop();
     }
 
@@ -50,6 +52,7 @@ public class ItemShop {
         data.set(shopItemKey, PersistentDataType.BYTE, (byte) 1);
         data.set(priceKey, PersistentDataType.INTEGER, price);
         data.set(currencyKey, PersistentDataType.STRING, currency);
+        data.set(shopTypeKey, PersistentDataType.STRING, "item_shop");
 
         item.setItemMeta(meta);
         return item;
@@ -74,6 +77,15 @@ public class ItemShop {
         player.openInventory(copy);
     }
 
+    public boolean isShopItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        return data.has(shopItemKey, PersistentDataType.BYTE) && 
+               data.has(shopTypeKey, PersistentDataType.STRING) &&
+               "item_shop".equals(data.get(shopTypeKey, PersistentDataType.STRING));
+    }
+
     public boolean isShopInventory(String inventoryTitle) {
         return inventoryTitle.equals(title);
     }
@@ -88,5 +100,9 @@ public class ItemShop {
 
     public NamespacedKey getCurrencyKey() {
         return currencyKey;
+    }
+
+    public NamespacedKey getShopTypeKey() {
+        return shopTypeKey;
     }
 } 

@@ -21,6 +21,7 @@ public class UpgradeShop {
     private final NamespacedKey shopItemKey;
     private final NamespacedKey priceKey;
     private final NamespacedKey currencyKey;
+    private final NamespacedKey shopTypeKey;
 
     public UpgradeShop(Main plugin) {
         this.plugin = plugin;
@@ -29,6 +30,7 @@ public class UpgradeShop {
         this.shopItemKey = new NamespacedKey(plugin, "shop_item");
         this.priceKey = new NamespacedKey(plugin, "shop_price");
         this.currencyKey = new NamespacedKey(plugin, "shop_currency");
+        this.shopTypeKey = new NamespacedKey(plugin, "shop_type");
         setupShop();
     }
 
@@ -50,6 +52,7 @@ public class UpgradeShop {
         data.set(shopItemKey, PersistentDataType.BYTE, (byte) 1);
         data.set(priceKey, PersistentDataType.INTEGER, price);
         data.set(currencyKey, PersistentDataType.STRING, currency);
+        data.set(shopTypeKey, PersistentDataType.STRING, "upgrade_shop");
 
         item.setItemMeta(meta);
         return item;
@@ -74,8 +77,13 @@ public class UpgradeShop {
         player.openInventory(copy);
     }
 
-    public boolean isShopInventory(String inventoryTitle) {
-        return inventoryTitle.equals(title);
+    public boolean isShopItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        return data.has(shopItemKey, PersistentDataType.BYTE) && 
+               data.has(shopTypeKey, PersistentDataType.STRING) &&
+               "upgrade_shop".equals(data.get(shopTypeKey, PersistentDataType.STRING));
     }
 
     public NamespacedKey getShopItemKey() {
@@ -88,5 +96,9 @@ public class UpgradeShop {
 
     public NamespacedKey getCurrencyKey() {
         return currencyKey;
+    }
+
+    public NamespacedKey getShopTypeKey() {
+        return shopTypeKey;
     }
 } 
