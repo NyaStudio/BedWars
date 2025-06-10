@@ -18,11 +18,15 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -65,11 +69,18 @@ public class ShopManager implements Listener {
     private void loadItemShopItems() {
         itemShopItems.clear();
         ConfigurationSection itemsSection = itemShopConfig.getConfigurationSection("items");
-        if (itemsSection == null) return;
+        if (itemsSection == null) {
+            return;
+        }
 
         for (String key : itemsSection.getKeys(false)) {
             ConfigurationSection itemSection = itemsSection.getConfigurationSection(key);
-            if (itemSection == null) continue;
+            if (itemSection == null) {
+                continue;
+            }
+
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> enchantments = (List<Map<String, Object>>) itemSection.getList("enchantments", List.of());
 
             ShopItem item = new ShopItem(
                 itemSection.getInt("index", 0),
@@ -78,7 +89,9 @@ public class ShopManager implements Listener {
                 itemSection.getStringList("lore"),
                 itemSection.getString("pricing_type", ""),
                 itemSection.getInt("pricing", 0),
-                itemSection.getConfigurationSection("enchantments")
+                enchantments,
+                itemSection.getInt("potion_level", 1),
+                itemSection.getInt("potion_duration", 0)
             );
             itemShopItems.put(key, item);
         }
@@ -87,7 +100,6 @@ public class ShopManager implements Listener {
     public void reloadConfigs() {
         if (!itemShopConfigFile.exists()) {
             plugin.saveResource(itemShopConfigFile.getName(), false);
-            plugin.getLogger().info("配置文件不存在，已重新生成 item_shop.yml");
         }
         loadConfigs();
     }
@@ -95,23 +107,88 @@ public class ShopManager implements Listener {
     public ItemStack createShopItem(Material material, ShopItem item, NamespacedKey shopItemKey, 
                                   NamespacedKey priceKey, NamespacedKey currencyKey, 
                                   NamespacedKey shopTypeKey, String shopType) {
-        ItemStack itemStack = new ItemStack(material);
+        ItemStack itemStack;
+        String type = item.getType();
+        
+        if (type.startsWith("minecraft:potion{")) {
+            itemStack = new ItemStack(Material.POTION);
+        } else if (type.startsWith("minecraft:")) {
+            String materialName = type.substring(10).toUpperCase();
+            try {
+                Material materialType = Material.valueOf(materialName);
+                itemStack = new ItemStack(materialType);
+            } catch (IllegalArgumentException e) {
+                itemStack = new ItemStack(material);
+            }
+        } else {
+            itemStack = new ItemStack(material);
+        }
+
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(item.getName());
         meta.setLore(item.getLore());
 
-        // 添加附魔
         if (item.getEnchantments() != null) {
-            for (String enchantName : item.getEnchantments().getKeys(false)) {
-                Enchantment enchantment = Enchantment.getByName(enchantName.toUpperCase());
+            for (Map<String, Object> enchantData : item.getEnchantments()) {
+                String id = (String) enchantData.get("id");
+                if (id != null && id.startsWith("minecraft:")) {
+                    id = id.substring(10);
+                }
+                Enchantment enchantment = Enchantment.getByName(id.toUpperCase());
                 if (enchantment != null) {
-                    int level = item.getEnchantments().getInt(enchantName, 1);
+                    int level = ((Number) enchantData.get("lvl")).intValue();
                     meta.addEnchant(enchantment, level, true);
                 }
             }
         }
 
-        // 添加数据
+        if (meta instanceof PotionMeta potionMeta) {
+            if (type.startsWith("minecraft:potion{")) {
+                String nbt = type.substring("minecraft:potion{".length(), type.length() - 1);
+                String[] parts = nbt.split(":");
+                if (parts.length >= 2) {
+                    String potionType = parts[1];
+                    
+                    if (potionType.endsWith("2")) {
+                        potionType = potionType.substring(0, potionType.length() - 1);
+                    }
+                    if (potionType.startsWith("long_")) {
+                        potionType = potionType.substring(5);
+                    }
+                    
+                    try {
+                        // 我去你妈的 Bukkit PotionType
+                        String bukkitPotionType = switch (potionType.toLowerCase()) {
+                            case "swiftness" -> "SPEED";
+                            case "slowness" -> "SLOWNESS";
+                            case "strength" -> "STRENGTH";
+                            case "weakness" -> "WEAKNESS";
+                            case "poison" -> "POISON";
+                            case "regeneration" -> "REGEN";
+                            case "fire_resistance" -> "FIRE_RESISTANCE";
+                            case "water_breathing" -> "WATER_BREATHING";
+                            case "invisibility" -> "INVISIBILITY";
+                            case "night_vision" -> "NIGHT_VISION";
+                            case "healing" -> "INSTANT_HEAL";
+                            case "harming" -> "INSTANT_DAMAGE";
+                            case "leaping" -> "JUMP";
+                            case "slow_falling" -> "SLOW_FALLING";
+                            case "luck" -> "LUCK";
+                            default -> potionType.toUpperCase();
+                        };
+                        
+                        PotionType potionTypeEnum = PotionType.valueOf(bukkitPotionType);
+                        boolean extended = item.getPotionDuration() > 600;
+                        boolean upgraded = item.getPotionLevel() > 1;
+                        
+                        potionMeta.setBasePotionData(new PotionData(potionTypeEnum, extended, upgraded));
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
         PersistentDataContainer data = meta.getPersistentDataContainer();
         data.set(shopItemKey, PersistentDataType.BYTE, (byte) 1);
         data.set(priceKey, PersistentDataType.INTEGER, item.getPricing());

@@ -1,30 +1,54 @@
 items:
   wool:
     index: 0
-    type: minecraft:white_wool
+    type: "minecraft:white_wool"
     name: "§f羊毛"
     lore:
       - "§7这是羊毛"
-    pricing_type: minecraft:iron_ingot
+    pricing_type: "minecraft:iron_ingot"
     pricing: 4
 
   stone_sword:
     index: 1
-    type: minecraft:stone_sword
+    type: "minecraft:stone_sword"
     name: "§f石剑"
     lore:
       - "§7这是石剑"
-    pricing_type: minecraft:iron_ingot
+    pricing_type: "minecraft:iron_ingot"
     pricing: 10
 
   diamond_sword:
     index: 2
-    type: minecraft:diamond_sword
+    type: "minecraft:diamond_sword"
     name: "§b钻石剑"
     lore:
       - "§e这是钻石剑"
-    pricing_type: minecraft:iron_ingot
+    pricing_type: "minecraft:iron_ingot"
     pricing: 1
     enchantments:
-      sharpness: 5
-      unbreaking: 3
+      - id: "minecraft:sharpness"
+        lvl: 5
+      - id: "minecraft:unbreaking"
+        lvl: 3
+
+  speed_potion:
+    index: 3
+    type: "minecraft:potion{Potion:swiftness}"
+    name: "§b速度药水"
+    lore:
+      - "§7这是速度药水"
+    pricing_type: "minecraft:emerald"
+    pricing: 1
+    potion_level: 1
+    potion_duration: 30
+
+  strength_potion:
+    index: 4
+    type: "minecraft:potion{Potion:strength}"
+    name: "§c力量药水"
+    lore:
+      - "§7这是力量药水"
+    pricing_type: "minecraft:emerald"
+    pricing: 2
+    potion_level: 2
+    potion_duration: 10

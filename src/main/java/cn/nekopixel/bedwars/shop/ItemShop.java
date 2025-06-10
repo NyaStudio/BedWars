@@ -34,11 +34,22 @@ public class ItemShop {
 
     public void setupShop(Map<String, ShopItem> items) {
         for (ShopItem item : items.values()) {
-            String[] typeParts = item.getType().split(":");
-            if (typeParts.length != 2) continue;
-
-            Material material = Material.getMaterial(typeParts[1].toUpperCase());
-            if (material == null) continue;
+            String type = item.getType();
+            Material material;
+            
+            if (type.startsWith("minecraft:potion{")) {
+                material = Material.POTION;
+            } else if (type.startsWith("minecraft:")) {
+                String materialName = type.substring(10).toUpperCase();
+                material = Material.getMaterial(materialName);
+                if (material == null) {
+                    plugin.getLogger().warning("未知的物品类型: " + materialName);
+                    continue;
+                }
+            } else {
+                plugin.getLogger().warning("无效的物品类型格式: " + type);
+                continue;
+            }
 
             ItemStack shopItem = ((ShopManager) plugin.getShopManager())
                 .createShopItem(material, item, shopItemKey, priceKey, currencyKey, shopTypeKey, "item_shop");
