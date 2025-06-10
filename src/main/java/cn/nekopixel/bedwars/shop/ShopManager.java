@@ -170,9 +170,13 @@ public class ShopManager implements Listener {
         int price = data.getOrDefault(itemShop.getPriceKey(), PersistentDataType.INTEGER, 0);
         String currency = data.getOrDefault(itemShop.getCurrencyKey(), PersistentDataType.STRING, "iron");
 
+        if (currency.startsWith("minecraft:")) {
+            currency = currency.substring(10);  // im baka and i just can do this
+        }
+
         Material costMaterial = switch (currency.toLowerCase()) {
-            case "iron" -> Material.IRON_INGOT;
-            case "gold" -> Material.GOLD_INGOT;
+            case "iron_ingot" -> Material.IRON_INGOT;
+            case "gold_ingot" -> Material.GOLD_INGOT;
             case "diamond" -> Material.DIAMOND;
             case "emerald" -> Material.EMERALD;
             default -> null;
@@ -235,9 +239,13 @@ public class ShopManager implements Listener {
     }
 
     private String translateCurrency(String currency) {
+        if (currency.startsWith("minecraft:")) {
+            currency = currency.substring(10);
+        }
+
         return switch (currency.toLowerCase()) {
-            case "iron" -> "铁锭";
-            case "gold" -> "金锭";
+            case "iron_ingot" -> "铁锭";
+            case "gold_ingot" -> "金锭";
             case "diamond" -> "钻石";
             case "emerald" -> "绿宝石";
             default -> currency;
