@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.game;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.player.FoodLock;
 import cn.nekopixel.bedwars.player.RemoveItems;
 import cn.nekopixel.bedwars.spawner.Diamond;
 import cn.nekopixel.bedwars.spawner.Emerald;
@@ -15,12 +16,14 @@ public class GameManager {
     private final Main plugin;
     private final SpawnerManager spawnerManager;
     private final RemoveItems removeItems;
+    private final FoodLock foodLock;
 
     private GameManager(Main plugin) {
         this.plugin = plugin;
         this.currentStatus = GameStatus.WAITING;
         this.spawnerManager = new SpawnerManager(plugin);
         this.removeItems = new RemoveItems(plugin);
+        this.foodLock = new FoodLock(plugin);
         Bukkit.getPluginManager().registerEvents(spawnerManager, plugin);
     }
 
@@ -56,11 +59,13 @@ public class GameManager {
             }
             eventManager.start();
             removeItems.start();
+            foodLock.start();
         } else if (status == GameStatus.ENDING) {
             if (eventManager != null) {
                 eventManager.stop();
             }
             removeItems.stop();
+            foodLock.stop();
         }
     }
 
