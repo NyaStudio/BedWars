@@ -271,7 +271,7 @@ public class ShopManager implements Listener {
         }
 
         removeMaterial(player, costMaterial, price);
-        ItemStack reward = new ItemStack(clickedItem.getType());
+        ItemStack reward = clickedItem.clone();
         reward.setAmount(1);
 
         player.getInventory().addItem(reward);
