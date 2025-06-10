@@ -77,4 +77,8 @@ public final class Main extends JavaPlugin {
     public ShopManager getShopManager() {
         return shopManager;
     }
+
+    public void setShopManager(ShopManager shopManager) {
+        this.shopManager = shopManager;
+    }
 }

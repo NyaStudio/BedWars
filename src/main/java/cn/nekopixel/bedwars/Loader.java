@@ -34,6 +34,11 @@ public class Loader {
                 mapSetup = new Map(plugin);
                 mapSetup.reloadMapConfig();
             }
+            
+            if (plugin.getShopManager() != null) {
+                plugin.getShopManager().reloadConfigs();
+            }
+            
             plugin.getLogger().info("所有配置文件已重新加载！");
         } catch (Exception e) {
             plugin.getLogger().severe("重载配置文件时发生错误: " + e.getMessage());

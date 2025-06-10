@@ -1,0 +1,30 @@
+items:
+  wool:
+    index: 0
+    type: minecraft:white_wool
+    name: "§f羊毛"
+    lore:
+      - "§7这是羊毛"
+    pricing_type: minecraft:iron_ingot
+    pricing: 4
+
+  stone_sword:
+    index: 1
+    type: minecraft:stone_sword
+    name: "§f石剑"
+    lore:
+      - "§7这是石剑"
+    pricing_type: minecraft:iron_ingot
+    pricing: 10
+
+  diamond_sword:
+    index: 2
+    type: minecraft:diamond_sword
+    name: "§b钻石剑"
+    lore:
+      - "§e这是钻石剑"
+    pricing_type: minecraft:iron_ingot
+    pricing: 1
+    enchantments:
+      sharpness: 5
+      unbreaking: 3

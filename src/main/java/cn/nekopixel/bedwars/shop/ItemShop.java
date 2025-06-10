@@ -11,8 +11,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 public class ItemShop {
     private final Main plugin;
@@ -31,41 +30,20 @@ public class ItemShop {
         this.priceKey = new NamespacedKey(plugin, "shop_price");
         this.currencyKey = new NamespacedKey(plugin, "shop_currency");
         this.shopTypeKey = new NamespacedKey(plugin, "shop_type");
-        setupShop();
     }
 
-    private void setupShop() {
-        inventory.setItem(0, createShopItem(Material.WHITE_WOOL, "§f羊毛", 4, "iron"));
-        inventory.setItem(1, createShopItem(Material.STONE_SWORD, "§f石剑", 10, "iron"));
-    }
+    public void setupShop(Map<String, ShopItem> items) {
+        for (ShopItem item : items.values()) {
+            String[] typeParts = item.getType().split(":");
+            if (typeParts.length != 2) continue;
 
-    private ItemStack createShopItem(Material material, String name, int price, String currency) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(name);
+            Material material = Material.getMaterial(typeParts[1].toUpperCase());
+            if (material == null) continue;
 
-        List<String> lore = new ArrayList<>();
-        lore.add("§7价格: §e" + price + " " + translateCurrency(currency));
-        meta.setLore(lore);
-
-        PersistentDataContainer data = meta.getPersistentDataContainer();
-        data.set(shopItemKey, PersistentDataType.BYTE, (byte) 1);
-        data.set(priceKey, PersistentDataType.INTEGER, price);
-        data.set(currencyKey, PersistentDataType.STRING, currency);
-        data.set(shopTypeKey, PersistentDataType.STRING, "item_shop");
-
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private String translateCurrency(String currency) {
-        return switch (currency.toLowerCase()) {
-            case "iron" -> "铁锭";
-            case "gold" -> "金锭";
-            case "diamond" -> "钻石";
-            case "emerald" -> "绿宝石";
-            default -> currency;
-        };
+            ItemStack shopItem = ((ShopManager) plugin.getShopManager())
+                .createShopItem(material, item, shopItemKey, priceKey, currencyKey, shopTypeKey, "item_shop");
+            inventory.setItem(item.getIndex(), shopItem);
+        }
     }
 
     public void openShop(Player player) {

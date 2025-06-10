@@ -3,6 +3,11 @@ package cn.nekopixel.bedwars.shop;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -16,6 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -28,12 +34,92 @@ public class ShopManager implements Listener {
     private final Map<UUID, Long> lastPurchaseTime = new HashMap<>();
     private static final long PURCHASE_COOLDOWN = 150;
 
+    private final File itemShopConfigFile;
+    private FileConfiguration itemShopConfig;
+    private final Map<String, ShopItem> itemShopItems = new HashMap<>();
+
     public ShopManager(Main plugin, NPCManager npcManager) {
         this.plugin = plugin;
         this.npcManager = npcManager;
+        this.itemShopConfigFile = new File(plugin.getDataFolder(), "item_shop.yml");
         this.itemShop = new ItemShop(plugin);
         this.upgradeShop = new UpgradeShop(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        plugin.setShopManager(this);
+        loadConfigs();
+    }
+
+    private void loadConfigs() {
+        loadItemShopConfig();
+        itemShop.setupShop(itemShopItems);
+    }
+
+    private void loadItemShopConfig() {
+        if (!itemShopConfigFile.exists()) {
+            plugin.saveResource(itemShopConfigFile.getName(), false);
+        }
+        itemShopConfig = YamlConfiguration.loadConfiguration(itemShopConfigFile);
+        loadItemShopItems();
+    }
+
+    private void loadItemShopItems() {
+        itemShopItems.clear();
+        ConfigurationSection itemsSection = itemShopConfig.getConfigurationSection("items");
+        if (itemsSection == null) return;
+
+        for (String key : itemsSection.getKeys(false)) {
+            ConfigurationSection itemSection = itemsSection.getConfigurationSection(key);
+            if (itemSection == null) continue;
+
+            ShopItem item = new ShopItem(
+                itemSection.getInt("index", 0),
+                itemSection.getString("type", ""),
+                itemSection.getString("name", ""),
+                itemSection.getStringList("lore"),
+                itemSection.getString("pricing_type", ""),
+                itemSection.getInt("pricing", 0),
+                itemSection.getConfigurationSection("enchantments")
+            );
+            itemShopItems.put(key, item);
+        }
+    }
+
+    public void reloadConfigs() {
+        if (!itemShopConfigFile.exists()) {
+            plugin.saveResource(itemShopConfigFile.getName(), false);
+            plugin.getLogger().info("配置文件不存在，已重新生成 item_shop.yml");
+        }
+        loadConfigs();
+    }
+
+    public ItemStack createShopItem(Material material, ShopItem item, NamespacedKey shopItemKey, 
+                                  NamespacedKey priceKey, NamespacedKey currencyKey, 
+                                  NamespacedKey shopTypeKey, String shopType) {
+        ItemStack itemStack = new ItemStack(material);
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.setDisplayName(item.getName());
+        meta.setLore(item.getLore());
+
+        // 添加附魔
+        if (item.getEnchantments() != null) {
+            for (String enchantName : item.getEnchantments().getKeys(false)) {
+                Enchantment enchantment = Enchantment.getByName(enchantName.toUpperCase());
+                if (enchantment != null) {
+                    int level = item.getEnchantments().getInt(enchantName, 1);
+                    meta.addEnchant(enchantment, level, true);
+                }
+            }
+        }
+
+        // 添加数据
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        data.set(shopItemKey, PersistentDataType.BYTE, (byte) 1);
+        data.set(priceKey, PersistentDataType.INTEGER, item.getPricing());
+        data.set(currencyKey, PersistentDataType.STRING, item.getPricingType());
+        data.set(shopTypeKey, PersistentDataType.STRING, shopType);
+
+        itemStack.setItemMeta(meta);
+        return itemStack;
     }
 
     @EventHandler
@@ -56,6 +142,7 @@ public class ShopManager implements Listener {
 
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+
         if (!itemShop.isShopItem(clickedItem) && !upgradeShop.isShopItem(clickedItem)) return;
 
         event.setCancelled(true);
