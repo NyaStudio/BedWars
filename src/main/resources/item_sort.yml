@@ -1,7 +1,7 @@
 categories:
   quick_buy:
     name: "§b快速购买"
-    type: "minecraft:white_wool"
+    type: "minecraft:nether_star"
     index: 0
   blocks:
     name: "§a方块"

@@ -27,6 +27,12 @@ public class ItemSort {
         this.sortConfigFile = new File(plugin.getDataFolder(), "item_sort.yml");
         instance = this;
         loadConfig();
+        
+        Map<String, SortCategory> sortedCategories = getCategories();
+        if (!sortedCategories.isEmpty()) {
+            String firstCategory = sortedCategories.keySet().iterator().next();
+            setCurrentCategory(firstCategory);
+        }
     }
 
     public static ItemSort getInstance() {
@@ -44,7 +50,7 @@ public class ItemSort {
         loadCategories();
     }
 
-    private void loadCategories() {
+    public void loadCategories() {
         categories.clear();
         ConfigurationSection categoriesSection = sortConfig.getConfigurationSection("categories");
         if (categoriesSection == null) {
@@ -64,12 +70,10 @@ public class ItemSort {
                 categorySection.getInt("index", 0)
             );
             categories.put(key, category);
-            // plugin.getLogger().info("加载分类: " + key + ", 名称: " + category.getName() + ", 索引: " + category.getIndex());
         }
     }
 
     public void setCurrentCategory(String category) {
-        // plugin.getLogger().info("切换分类: " + category);
         this.currentCategory = category;
     }
 
@@ -110,7 +114,7 @@ public class ItemSort {
     public ItemStack createSeparator() {
         ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(" ");
+        meta.setDisplayName("§r");
         item.setItemMeta(meta);
         return item;
     }
@@ -118,7 +122,7 @@ public class ItemSort {
     public ItemStack createSelectedSeparator() {
         ItemStack item = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(" ");
+        meta.setDisplayName("§r");
         item.setItemMeta(meta);
         return item;
     }

@@ -52,6 +52,12 @@ public class ShopManager implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         plugin.setShopManager(this);
         loadConfigs();
+
+        Map<String, ItemSort.SortCategory> categories = ItemSort.getInstance().getCategories();
+        if (!categories.isEmpty()) {
+            String firstCategory = categories.keySet().iterator().next();
+            ItemSort.getInstance().setCurrentCategory(firstCategory);
+        }
     }
 
     private void loadConfigs() {
@@ -84,7 +90,6 @@ public class ShopManager implements Listener {
             List<Map<String, Object>> enchantments = (List<Map<String, Object>>) itemSection.getList("enchantments", List.of());
 
             String category = itemSection.getString("category", "default");
-            // plugin.getLogger().info("加载物品: " + key + ", 分类: " + category);
 
             ShopItem item = new ShopItem(
                 itemSection.getInt("index", 0),
@@ -235,10 +240,10 @@ public class ShopManager implements Listener {
             event.setCancelled(true);
             player.setItemOnCursor(null);
             String category = itemShop.getCategoryFromItem(clickedItem);
-            if (category != null) {
-                // plugin.getLogger().info("点击分类: " + category);
+            if (category != null && !category.equals(ItemSort.getInstance().getCurrentCategory())) {
                 ItemSort.getInstance().setCurrentCategory(category);
-                itemShop.openShop(player);
+                Inventory inv = event.getView().getTopInventory();
+                itemShop.updateInventory(inv, player);
             }
             return;
         }
