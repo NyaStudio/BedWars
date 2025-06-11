@@ -36,5 +36,6 @@ public class Diamond extends ResourceSpawner {
                 setSpawnInterval(320L); // 16 secs
                 break;
         }
+        super.upgrade();
     }
 }

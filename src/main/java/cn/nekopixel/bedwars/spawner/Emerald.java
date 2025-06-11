@@ -36,5 +36,6 @@ public class Emerald extends ResourceSpawner {
                 setSpawnInterval(600L); // 30 secs
                 break;
         }
+        super.upgrade();
     }
 }
