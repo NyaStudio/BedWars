@@ -343,6 +343,16 @@ public class ShopManager implements Listener {
         ItemStack reward = clickedItem.clone();
         reward.setAmount(clickedItem.getAmount());
 
+        // 移除商店物品的 NBT 标签
+        ItemMeta metaReward = reward.getItemMeta();
+        if (metaReward != null) {
+            metaReward.getPersistentDataContainer().remove(itemShop.getShopItemKey());
+            metaReward.getPersistentDataContainer().remove(itemShop.getPriceKey());
+            metaReward.getPersistentDataContainer().remove(itemShop.getCurrencyKey());
+            metaReward.getPersistentDataContainer().remove(itemShop.getShopTypeKey());
+            reward.setItemMeta(metaReward);
+        }
+
         player.getInventory().addItem(reward);
         player.sendMessage("§a购买成功: §f" + meta.getDisplayName() + " §7（花费 " + price + " " + translateCurrency(currency) + "）");
     }

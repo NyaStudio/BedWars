@@ -164,6 +164,14 @@ public class ItemShop {
         return currencyKey;
     }
 
+    public NamespacedKey getShopItemKey() {
+        return shopItemKey;
+    }
+
+    public NamespacedKey getShopTypeKey() {
+        return shopTypeKey;
+    }
+
     public void updateInventory(Inventory inv, Player player) {
         int categoryIndex = 0;
         int selectedIndex = -1;
