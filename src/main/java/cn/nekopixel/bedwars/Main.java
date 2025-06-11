@@ -20,6 +20,7 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.GameRule;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -51,13 +52,39 @@ public final class Main extends JavaPlugin {
         this.shopManager = new ShopManager(this, npcManager);
         getServer().getPluginManager().registerEvents(shopManager, this);
 
-        Bukkit.getScheduler().runTaskTimer(this, () -> {
-            for (World world : Bukkit.getWorlds()) {
-                world.setTime(6000);
-            }
-        }, 0L, 100L); 
+        // 加载世界设置
+        loadWorldSettings();
         
         getLogger().info("加载完成！");
+    }
+
+    private void loadWorldSettings() {
+        boolean lockTime = getConfig().getBoolean("world.lock_time", true);
+        int lockedTime = getConfig().getInt("world.locked_time", 6000);
+        boolean disableWeather = getConfig().getBoolean("world.disable_weather", true);
+        boolean disableDaylightCycle = getConfig().getBoolean("world.disable_daylight_cycle", true);
+
+        for (World world : getServer().getWorlds()) {
+            if (lockTime) {
+                world.setTime(lockedTime);
+            }
+            if (disableWeather) {
+                world.setStorm(false);
+                world.setThundering(false);
+            }
+            if (disableDaylightCycle) {
+                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            }
+        }
+
+        // 如果启用了时间锁定，启动定时任务
+        if (lockTime) {
+            Bukkit.getScheduler().runTaskTimer(this, () -> {
+                for (World world : Bukkit.getWorlds()) {
+                    world.setTime(lockedTime);
+                }
+            }, 0L, 100L);
+        }
     }
 
     @Override

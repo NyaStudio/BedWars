@@ -1,1 +1,70 @@
-config:
+# 游戏设置
+game:
+  # 游戏开始前等待时间（秒）
+  waiting_time: 60
+  # 游戏开始倒计时（秒）
+  countdown_time: 10
+  # 游戏结束倒计时（秒）
+  ending_time: 10
+  # 游戏重置时间（秒）
+  reset_time: 5
+
+# 资源生成器设置
+spawner:
+  # 清理间隔（tick，20tick=1秒）
+  cleanup_interval: 6000
+  # 最大等级
+  max_level: 3
+  # 资源生成器类型
+  types:
+    iron:
+      interval: 20
+      max_amount: 48
+    gold:
+      interval: 160
+      max_amount: 8
+    diamond:
+      interval: 400
+      max_amount: 4
+      upgrade:
+        level2:
+          interval: 360
+        level3:
+          interval: 320
+    emerald:
+      interval: 1200
+      max_amount: 2
+      upgrade:
+        level2:
+          interval: 900
+        level3:
+          interval: 600
+
+# 商店设置
+shop:
+  # 购买冷却时间（tick）
+  purchase_cooldown: 150
+  # 最大堆叠数量
+  max_stack_size: 64
+  # 最大背包物品数量（每个物品）
+  max_inventory_amount: 2304  # 64 * 36
+
+# NPC设置
+npc:
+  # 位置校正间隔（tick）
+  correction_interval: 100
+  # 位置偏差阈值
+  correction_threshold: 0.1
+  # 全息图高度
+  hologram_height: 2.3
+
+# 世界设置
+world:
+  # 是否锁定时间
+  lock_time: true
+  # 锁定时间值（tick，0-24000）
+  locked_time: 6000
+  # 是否禁用天气
+  disable_weather: true
+  # 是否禁用昼夜循环
+  disable_daylight_cycle: true

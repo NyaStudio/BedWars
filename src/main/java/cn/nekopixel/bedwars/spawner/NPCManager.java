@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.spawner;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.GameStatusChange;
 import cn.nekopixel.bedwars.setup.Map;
@@ -24,6 +25,11 @@ public class NPCManager implements Listener {
     private final Set<Villager> upgradeNPCs = new HashSet<>();
     private final java.util.Map<Villager, List<ArmorStand>> npcNameStands = new HashMap<>();
     private BukkitRunnable correctionTask;
+
+    private static final int CORRECTION_INTERVAL = 100;
+    private static final double CORRECTION_THRESHOLD = 0.1;
+    private static final double HOLOGRAM_HEIGHT = 2.3;
+    private final Set<Location> lastPositions = new HashSet<>();
 
     public NPCManager(Main plugin) {
         this.plugin = plugin;
@@ -140,18 +146,20 @@ public class NPCManager implements Listener {
     }
 
     private void startCorrectionTask() {
-        if (correctionTask != null) correctionTask.cancel();
+        if (correctionTask != null) {
+            correctionTask.cancel();
+        }
 
         correctionTask = new BukkitRunnable() {
             @Override
             public void run() {
-                if (plugin.getGameManager().getCurrentStatus() != GameStatus.INGAME) return;
-
-                correctNPCs(shopNPCs, true);
-                correctNPCs(upgradeNPCs, false);
+                if (GameManager.getInstance().isStatus(GameStatus.INGAME)) {
+                    correctNPCs(shopNPCs, true);
+                    correctNPCs(upgradeNPCs, false);
+                }
             }
         };
-        correctionTask.runTaskTimer(plugin, 0L, 100L); // 每 5 秒一次
+        correctionTask.runTaskTimer(plugin, CORRECTION_INTERVAL, CORRECTION_INTERVAL);
     }
 
     private void stopCorrectionTask() {
@@ -162,24 +170,43 @@ public class NPCManager implements Listener {
     }
 
     private void correctNPCs(Set<Villager> npcSet, boolean isShop) {
-        List<Villager> toRemove = new ArrayList<>();
-        
         for (Villager npc : npcSet) {
-            if (npc == null || npc.isDead() || !npc.isValid()) {
-                toRemove.add(npc);
+            if (npc == null || !npc.isValid()) continue;
+
+            Location currentLoc = npc.getLocation();
+            Location targetLoc = getTargetLocation(npc, isShop);
+
+            if (targetLoc == null) continue;
+
+            // 检查位置是否在阈值范围内
+            if (isLocationChanged(currentLoc, targetLoc)) {
+                // 使用teleport而不是setLocation以提高性能
+                npc.teleport(targetLoc);
+                updateNameStands(npc, targetLoc);
             }
         }
+    }
 
-        for (Villager npc : toRemove) {
-            if (npcNameStands.containsKey(npc)) {
-                npcNameStands.get(npc).forEach(ArmorStand::remove);
-                npcNameStands.remove(npc);
+    private boolean isLocationChanged(Location current, Location target) {
+        return Math.abs(current.getX() - target.getX()) > CORRECTION_THRESHOLD ||
+               Math.abs(current.getY() - target.getY()) > CORRECTION_THRESHOLD ||
+               Math.abs(current.getZ() - target.getZ()) > CORRECTION_THRESHOLD;
+    }
+
+    private Location getTargetLocation(Villager npc, boolean isShop) {
+        // 从配置中获取目标位置
+        // 这里需要根据你的具体实现来获取正确的目标位置
+        return null; // 临时返回null，需要根据实际情况实现
+    }
+
+    private void updateNameStands(Villager npc, Location newLoc) {
+        List<ArmorStand> stands = npcNameStands.get(npc);
+        if (stands != null) {
+            for (ArmorStand stand : stands) {
+                if (stand != null && stand.isValid()) {
+                    stand.teleport(newLoc.clone().add(0, HOLOGRAM_HEIGHT, 0));
+                }
             }
-            
-            npc.remove();
-            npcSet.remove(npc);
-            Location loc = npc.getLocation();
-            spawnNPC(loc, isShop ? "§b道具商店" : "§b升级", "§e右键点击", isShop);
         }
     }
 

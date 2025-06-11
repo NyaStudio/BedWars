@@ -37,6 +37,9 @@ public class ShopManager implements Listener {
     private final UpgradeShop upgradeShop;
     private final Map<UUID, Long> lastPurchaseTime = new HashMap<>();
     private static final long PURCHASE_COOLDOWN = 150;
+    private static final int MAX_STACK_SIZE = 64;
+    private static final String CONFIG_COOLDOWN_PATH = "shop.purchase_cooldown";
+    private static final String CONFIG_MAX_STACK_PATH = "shop.max_stack_size";
 
     private final File itemShopConfigFile;
     private FileConfiguration itemShopConfig;
@@ -52,6 +55,7 @@ public class ShopManager implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         plugin.setShopManager(this);
         loadConfigs();
+        loadShopSettings();
 
         Map<String, ItemSort.SortCategory> categories = ItemSort.getInstance().getCategories();
         if (!categories.isEmpty()) {
@@ -215,6 +219,29 @@ public class ShopManager implements Listener {
         return itemStack;
     }
 
+    private void loadShopSettings() {
+        plugin.getConfig().addDefault(CONFIG_COOLDOWN_PATH, 150);
+        plugin.getConfig().addDefault(CONFIG_MAX_STACK_PATH, 64);
+        plugin.getConfig().options().copyDefaults(true);
+        plugin.saveConfig();
+    }
+
+    private boolean hasEnoughSpace(Player player, ItemStack item) {
+        int maxStackSize = plugin.getConfig().getInt(CONFIG_MAX_STACK_PATH, MAX_STACK_SIZE);
+        int amount = item.getAmount();
+        int maxAmount = maxStackSize * 36; // 36个槽位
+
+        // 检查玩家背包中的物品数量
+        int currentAmount = 0;
+        for (ItemStack invItem : player.getInventory().getContents()) {
+            if (invItem != null && invItem.isSimilar(item)) {
+                currentAmount += invItem.getAmount();
+            }
+        }
+
+        return (currentAmount + amount) <= maxAmount;
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEntityEvent event) {
         if (!(event.getRightClicked() instanceof Villager villager)) return;
@@ -272,9 +299,18 @@ public class ShopManager implements Listener {
         // 防止买两次
         long currentTime = System.currentTimeMillis();
         Long lastPurchase = lastPurchaseTime.get(player.getUniqueId());
-        if (lastPurchase != null && currentTime - lastPurchase < PURCHASE_COOLDOWN) {
+        long cooldown = plugin.getConfig().getLong(CONFIG_COOLDOWN_PATH, PURCHASE_COOLDOWN);
+        if (lastPurchase != null && currentTime - lastPurchase < cooldown) {
+            player.sendMessage("§c购买太频繁，请稍后再试！");
             return;
         }
+
+        // 检查背包空间
+        if (!hasEnoughSpace(player, clickedItem)) {
+            player.sendMessage("§c背包空间不足！");
+            return;
+        }
+
         // 更新购买时间
         lastPurchaseTime.put(player.getUniqueId(), currentTime);
 

@@ -31,6 +31,9 @@ public abstract class ResourceSpawner implements Listener {
     private final java.util.Map<Location, List<Entity>> hologramEntities = new HashMap<>();
     private final java.util.Map<Location, BukkitRunnable> countdownTasks = new HashMap<>();
     private int level = 1;
+    private static final int MAX_LEVEL = 3;
+    private static final int CLEANUP_INTERVAL = 6000;
+    private BukkitRunnable cleanupTask;
 
     private static class HologramText {
         final String prefix;
@@ -71,9 +74,39 @@ public abstract class ResourceSpawner implements Listener {
     public ResourceSpawner(Main plugin, String type, long interval) {
         this.plugin = plugin;
         this.type = type;
-        this.interval = interval;
+        this.interval = plugin.getConfig().getLong("spawner.types." + type + ".interval", interval);
         this.mapSetup = new Map(plugin);
+        startCleanupTask();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    private void startCleanupTask() {
+        cleanupTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                cleanupResources();
+            }
+        };
+        cleanupTask.runTaskTimer(plugin, CLEANUP_INTERVAL, CLEANUP_INTERVAL);
+    }
+
+    private void cleanupResources() {
+        activeDrops.entrySet().removeIf(entry -> {
+            Item item = entry.getValue();
+            return item == null || item.isDead() || !item.isValid();
+        });
+
+        hologramEntities.entrySet().removeIf(entry -> {
+            List<Entity> entities = entry.getValue();
+            if (entities == null) return true;
+            entities.removeIf(entity -> entity == null || !entity.isValid());
+            return entities.isEmpty();
+        });
+
+        countdownTasks.entrySet().removeIf(entry -> {
+            BukkitRunnable task = entry.getValue();
+            return task == null || task.isCancelled();
+        });
     }
 
     public void setSpawnInterval(long interval) {
@@ -121,13 +154,12 @@ public abstract class ResourceSpawner implements Listener {
             task.cancel();
             task = null;
         }
-        for (Item item : activeDrops.values()) {
-            item.remove();
+        if (cleanupTask != null) {
+            cleanupTask.cancel();
+            cleanupTask = null;
         }
-        activeDrops.clear();
-        pausedPoints.clear();
-        
         removeHolograms();
+        cleanupResources();
     }
 
     protected abstract ItemStack getItem();
@@ -176,7 +208,7 @@ public abstract class ResourceSpawner implements Listener {
             if (nearest != null) {
                 center = nearest.clone().add(0.5, 1.0, 0.5);
                 
-                List<Entity> hologramEntities = this.hologramEntities.get(baseLoc);
+                List<Entity> hologramEntities = ResourceSpawner.this.hologramEntities.get(baseLoc);
                 if (hologramEntities != null && hologramEntities.size() > 3) {
                     ArmorStand blockStand = (ArmorStand) hologramEntities.get(3);
                     if (blockStand != null && !blockStand.isDead()) {
@@ -271,19 +303,15 @@ public abstract class ResourceSpawner implements Listener {
     }
 
     private void createHologramEntities(World world, Location hologramLoc, HologramConfig config, List<Entity> entities) {
-        // 等级
         entities.add(createTextStand(world, hologramLoc.clone().add(0, 0.8, 0), 
             new HologramText("§e等级 ", "§c" + getRomanNumeral(level), "")));
 
-        // 资源名称
         entities.add(createTextStand(world, hologramLoc.clone().add(0, 0.5, 0),
             new HologramText(config.resourceColor, config.resourceName, "")));
 
-        // 倒计时
         entities.add(createTextStand(world, hologramLoc.clone().add(0, 0.2, 0),
             new HologramText("§e将在 ", "§c" + (interval / 20), "§e 秒后产出")));
 
-        // 会转圈圈的方块
         ArmorStand blockStand = (ArmorStand) world.spawnEntity(hologramLoc.clone().add(0, -1.0, 0), EntityType.ARMOR_STAND);
         blockStand.setVisible(false);
         blockStand.setGravity(false);
@@ -305,7 +333,6 @@ public abstract class ResourceSpawner implements Listener {
     }
 
     private void startHologramAnimations(World world, List<Entity> entities, HologramConfig config) {
-        // 转圈圈动画
         ArmorStand blockStand = (ArmorStand) entities.get(3);
         Location baseLoc = blockStand.getLocation().clone();
         new BukkitRunnable() {
@@ -332,7 +359,6 @@ public abstract class ResourceSpawner implements Listener {
             }
         }.runTaskTimer(plugin, 0L, 1L);
 
-        // 倒计时动画
         ArmorStand countdownStand = (ArmorStand) entities.get(2);
         BukkitRunnable countdownTask = new BukkitRunnable() {
             private long remainingTicks = interval;
@@ -380,16 +406,13 @@ public abstract class ResourceSpawner implements Listener {
     }
 
     public void upgrade() {
-        level++;
-        switch (level) {
-            case 2:
-                setSpawnInterval(900L); // 45 secs
-                break;
-            case 3:
-                setSpawnInterval(600L); // 30 secs
-                break;
+        if (level >= MAX_LEVEL) {
+            return;
         }
-
+        level++;
+        String upgradePath = "spawner.types." + type + ".upgrade.level" + level + ".interval";
+        long newInterval = plugin.getConfig().getLong(upgradePath, interval);
+        setSpawnInterval(newInterval);
         updateHologramDisplays();
     }
 
