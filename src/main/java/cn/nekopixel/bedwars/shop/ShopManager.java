@@ -45,10 +45,15 @@ public class ShopManager implements Listener {
     private FileConfiguration itemShopConfig;
     private final Map<String, ShopItem> itemShopItems = new HashMap<>();
 
+    private final File quickBuyConfigFile;
+    private FileConfiguration quickBuyConfig;
+    private final Map<String, ShopItem> quickBuyItems = new HashMap<>();
+
     public ShopManager(Main plugin, NPCManager npcManager) {
         this.plugin = plugin;
         this.npcManager = npcManager;
         this.itemShopConfigFile = new File(plugin.getDataFolder(), "item_shop.yml");
+        this.quickBuyConfigFile = new File(plugin.getDataFolder(), "quick_buy.yml");
         new ItemSort(plugin);
         this.itemShop = new ItemShop(plugin);
         this.upgradeShop = new UpgradeShop(plugin);
@@ -66,6 +71,7 @@ public class ShopManager implements Listener {
 
     private void loadConfigs() {
         loadItemShopConfig();
+        loadQuickBuyConfig();
         itemShop.setupShop(itemShopItems);
     }
 
@@ -114,9 +120,57 @@ public class ShopManager implements Listener {
         }
     }
 
+    private void loadQuickBuyConfig() {
+        if (!quickBuyConfigFile.exists()) {
+            plugin.saveResource(quickBuyConfigFile.getName(), false);
+        }
+        quickBuyConfig = YamlConfiguration.loadConfiguration(quickBuyConfigFile);
+        loadQuickBuyItems();
+    }
+
+    private void loadQuickBuyItems() {
+        quickBuyItems.clear();
+        ConfigurationSection itemsSection = quickBuyConfig.getConfigurationSection("items");
+        if (itemsSection == null) {
+            return;
+        }
+
+        for (String key : itemsSection.getKeys(false)) {
+            ConfigurationSection itemSection = itemsSection.getConfigurationSection(key);
+            if (itemSection == null) {
+                continue;
+            }
+
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> enchantments = (List<Map<String, Object>>) itemSection.getList("enchantments", List.of());
+
+            String category = itemSection.getString("category", "quick_buy");
+
+            ShopItem item = new ShopItem(
+                itemSection.getInt("index", 0),
+                itemSection.getString("type", ""),
+                itemSection.getString("name", ""),
+                itemSection.getStringList("lore"),
+                itemSection.getString("pricing_type", ""),
+                itemSection.getInt("pricing", 0),
+                enchantments,
+                itemSection.getInt("potion_level", 1),
+                itemSection.getInt("potion_duration", 0),
+                itemSection.getInt("amount", 1),
+                category,
+                itemSection.getInt("row", 0),
+                itemSection.getInt("column", 0)
+            );
+            quickBuyItems.put(key, item);
+        }
+    }
+
     public void reloadConfigs() {
         if (!itemShopConfigFile.exists()) {
             plugin.saveResource(itemShopConfigFile.getName(), false);
+        }
+        if (!quickBuyConfigFile.exists()) {
+            plugin.saveResource(quickBuyConfigFile.getName(), false);
         }
         loadConfigs();
         ItemSort.getInstance().loadConfig();
@@ -406,5 +460,9 @@ public class ShopManager implements Listener {
             case "emerald" -> "绿宝石";
             default -> currency;
         };
+    }
+
+    public Map<String, ShopItem> getQuickBuyItems() {
+        return quickBuyItems;
     }
 }

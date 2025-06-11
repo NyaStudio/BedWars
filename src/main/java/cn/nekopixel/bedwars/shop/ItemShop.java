@@ -90,36 +90,47 @@ public class ItemShop {
             inv.setItem(selectedIndex + 9, greenSeparator);
         }
 
-        if (currentCategory != null) {
-            for (ShopItem item : items.values()) {
-                if (item.getCategory().equals(currentCategory)) {
-                    String type = item.getType();
-                    Material material;
-                    
-                    try {
-                        if (type.startsWith("minecraft:potion{")) {
-                            material = Material.POTION;
-                        } else if (type.startsWith("minecraft:")) {
-                            String materialName = type.substring(10).toUpperCase();
-                            material = Material.valueOf(materialName);
-                        } else {
-                            material = Material.valueOf(type.toUpperCase());
-                        }
-                    } catch (IllegalArgumentException e) {
-                        continue;
-                    }
+        for (int i = 18; i < 54; i++) {
+            inv.setItem(i, null);
+        }
 
-                    ItemStack shopItem = plugin.getShopManager().createShopItem(
-                        material,
-                        item,
-                        shopItemKey,
-                        priceKey,
-                        currencyKey,
-                        shopTypeKey,
-                        "item"
-                    );
-                    inv.setItem(item.getSlot(), shopItem);
+        if (currentCategory != null) {
+            Map<String, ShopItem> itemsToShow = currentCategory.equals("quick_buy") ? 
+                plugin.getShopManager().getQuickBuyItems() : items;
+
+            for (ShopItem item : itemsToShow.values()) {
+                if (currentCategory.equals("quick_buy")) {
+                    if (!item.getCategory().equals("quick_buy")) continue;
+                } else {
+                    if (!item.getCategory().equals(currentCategory)) continue;
                 }
+
+                String type = item.getType();
+                Material material;
+                
+                try {
+                    if (type.startsWith("minecraft:potion{")) {
+                        material = Material.POTION;
+                    } else if (type.startsWith("minecraft:")) {
+                        String materialName = type.substring(10).toUpperCase();
+                        material = Material.valueOf(materialName);
+                    } else {
+                        material = Material.valueOf(type.toUpperCase());
+                    }
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+
+                ItemStack shopItem = plugin.getShopManager().createShopItem(
+                    material,
+                    item,
+                    shopItemKey,
+                    priceKey,
+                    currencyKey,
+                    shopTypeKey,
+                    "item"
+                );
+                inv.setItem(item.getSlot(), shopItem);
             }
         }
 
@@ -217,35 +228,42 @@ public class ItemShop {
         }
 
         if (currentCategory != null) {
-            for (ShopItem item : items.values()) {
-                if (item.getCategory().equals(currentCategory)) {
-                    String type = item.getType();
-                    Material material;
-                    
-                    try {
-                        if (type.startsWith("minecraft:potion{")) {
-                            material = Material.POTION;
-                        } else if (type.startsWith("minecraft:")) {
-                            String materialName = type.substring(10).toUpperCase();
-                            material = Material.valueOf(materialName);
-                        } else {
-                            material = Material.valueOf(type.toUpperCase());
-                        }
-                    } catch (IllegalArgumentException e) {
-                        continue;
-                    }
+            Map<String, ShopItem> itemsToShow = currentCategory.equals("quick_buy") ? 
+                plugin.getShopManager().getQuickBuyItems() : items;
 
-                    ItemStack shopItem = plugin.getShopManager().createShopItem(
-                        material,
-                        item,
-                        shopItemKey,
-                        priceKey,
-                        currencyKey,
-                        shopTypeKey,
-                        "item"
-                    );
-                    inv.setItem(item.getSlot(), shopItem);
+            for (ShopItem item : itemsToShow.values()) {
+                if (currentCategory.equals("quick_buy")) {
+                    if (!item.getCategory().equals("quick_buy")) continue;
+                } else {
+                    if (!item.getCategory().equals(currentCategory)) continue;
                 }
+
+                String type = item.getType();
+                Material material;
+                
+                try {
+                    if (type.startsWith("minecraft:potion{")) {
+                        material = Material.POTION;
+                    } else if (type.startsWith("minecraft:")) {
+                        String materialName = type.substring(10).toUpperCase();
+                        material = Material.valueOf(materialName);
+                    } else {
+                        material = Material.valueOf(type.toUpperCase());
+                    }
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+
+                ItemStack shopItem = plugin.getShopManager().createShopItem(
+                    material,
+                    item,
+                    shopItemKey,
+                    priceKey,
+                    currencyKey,
+                    shopTypeKey,
+                    "item"
+                );
+                inv.setItem(item.getSlot(), shopItem);
             }
         }
     }

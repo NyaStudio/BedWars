@@ -1,0 +1,48 @@
+items:
+  wool:
+    type: "minecraft:white_wool"
+    name: "§f羊毛"
+    lore:
+      - "§7这是羊毛"
+    amount: 16
+    category: quick_buy
+    row: 0
+    column: 0
+    pricing_type: "minecraft:iron_ingot"
+    pricing: 4
+
+  stone:
+    type: "minecraft:stone"
+    name: "§f石头"
+    lore:
+      - "§7这是石头"
+    amount: 16
+    category: quick_buy
+    row: 0
+    column: 1
+    pricing_type: "minecraft:iron_ingot"
+    pricing: 12
+
+  iron_sword:
+    type: "minecraft:iron_sword"
+    name: "§f铁剑"
+    lore:
+      - "§7这是铁剑"
+    amount: 1
+    category: quick_buy
+    row: 0
+    column: 2
+    pricing_type: "minecraft:iron_ingot"
+    pricing: 10
+
+  chain_armor:
+    type: "minecraft:chainmail_chestplate"
+    name: "§f链甲胸甲"
+    lore:
+      - "§7这是链甲胸甲"
+    amount: 1
+    category: quick_buy
+    row: 0
+    column: 3
+    pricing_type: "minecraft:iron_ingot"
+    pricing: 40 
