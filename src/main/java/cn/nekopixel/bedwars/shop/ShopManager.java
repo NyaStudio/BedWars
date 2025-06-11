@@ -301,7 +301,6 @@ public class ShopManager implements Listener {
         Long lastPurchase = lastPurchaseTime.get(player.getUniqueId());
         long cooldown = plugin.getConfig().getLong(CONFIG_COOLDOWN_PATH, PURCHASE_COOLDOWN);
         if (lastPurchase != null && currentTime - lastPurchase < cooldown) {
-            player.sendMessage("§c购买太频繁，请稍后再试！");
             return;
         }
 
