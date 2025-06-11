@@ -60,7 +60,7 @@ public abstract class ResourceSpawner implements Listener {
             if (material == Material.DIAMOND) {
                 this.blockMaterial = Material.DIAMOND_BLOCK;
                 this.resourceName = "钻石";
-                this.resourceColor = "§3";
+                this.resourceColor = "§b";
             } else if (material == Material.EMERALD) {
                 this.blockMaterial = Material.EMERALD_BLOCK;
                 this.resourceName = "绿宝石";
