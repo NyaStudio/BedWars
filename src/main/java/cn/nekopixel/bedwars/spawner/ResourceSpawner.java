@@ -146,7 +146,7 @@ public abstract class ResourceSpawner implements Listener {
                 }
             }
         };
-        task.runTaskTimer(plugin, 0L, interval);
+        task.runTaskTimer(plugin, interval, interval);
     }
 
     public void stop() {
