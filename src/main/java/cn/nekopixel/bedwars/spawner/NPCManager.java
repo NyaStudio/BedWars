@@ -13,7 +13,6 @@ import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -24,16 +23,12 @@ public class NPCManager implements Listener {
     private final Set<Villager> shopNPCs = new HashSet<>();
     private final Set<Villager> upgradeNPCs = new HashSet<>();
     private final java.util.Map<Villager, List<ArmorStand>> npcNameStands = new HashMap<>();
-    private BukkitRunnable correctionTask;
-
-    private static final int CORRECTION_INTERVAL = 100;
-    private static final double CORRECTION_THRESHOLD = 0.1;
-    private static final double HOLOGRAM_HEIGHT = 2.3;
-    private final Set<Location> lastPositions = new HashSet<>();
+    private double hologramHeight;
 
     public NPCManager(Main plugin) {
         this.plugin = plugin;
         this.mapSetup = new Map(plugin);
+        this.hologramHeight = plugin.getConfig().getDouble("npc.hologram_height", 2.3);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         initializeNPCs();
     }
@@ -54,9 +49,7 @@ public class NPCManager implements Listener {
     public void onGameStatusChange(GameStatusChange event) {
         if (event.getNewStatus() == GameStatus.INGAME) {
             spawnNPCs();
-            startCorrectionTask();
         } else {
-            stopCorrectionTask();
             removeNPCs();
             plugin.getServer().getWorlds().forEach(world -> {
                 world.getEntities().stream()
@@ -116,7 +109,7 @@ public class NPCManager implements Listener {
         }
         
         List<ArmorStand> nameStands = new ArrayList<>();
-        Location nameLoc = location.clone().add(0, 2.1, 0);
+        Location nameLoc = location.clone().add(0, hologramHeight, 0);
         ArmorStand titleStand = createNameStand(nameLoc, title);
         nameStands.add(titleStand);
         ArmorStand subtitleStand = createNameStand(nameLoc.clone().add(0, -0.3, 0), subtitle);
@@ -143,71 +136,6 @@ public class NPCManager implements Listener {
         upgradeNPCs.forEach(Villager::remove);
         shopNPCs.clear();
         upgradeNPCs.clear();
-    }
-
-    private void startCorrectionTask() {
-        if (correctionTask != null) {
-            correctionTask.cancel();
-        }
-
-        correctionTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (GameManager.getInstance().isStatus(GameStatus.INGAME)) {
-                    correctNPCs(shopNPCs, true);
-                    correctNPCs(upgradeNPCs, false);
-                }
-            }
-        };
-        correctionTask.runTaskTimer(plugin, CORRECTION_INTERVAL, CORRECTION_INTERVAL);
-    }
-
-    private void stopCorrectionTask() {
-        if (correctionTask != null) {
-            correctionTask.cancel();
-            correctionTask = null;
-        }
-    }
-
-    private void correctNPCs(Set<Villager> npcSet, boolean isShop) {
-        for (Villager npc : npcSet) {
-            if (npc == null || !npc.isValid()) continue;
-
-            Location currentLoc = npc.getLocation();
-            Location targetLoc = getTargetLocation(npc, isShop);
-
-            if (targetLoc == null) continue;
-
-            // 检查位置是否在阈值范围内
-            if (isLocationChanged(currentLoc, targetLoc)) {
-                // 使用teleport而不是setLocation以提高性能
-                npc.teleport(targetLoc);
-                updateNameStands(npc, targetLoc);
-            }
-        }
-    }
-
-    private boolean isLocationChanged(Location current, Location target) {
-        return Math.abs(current.getX() - target.getX()) > CORRECTION_THRESHOLD ||
-               Math.abs(current.getY() - target.getY()) > CORRECTION_THRESHOLD ||
-               Math.abs(current.getZ() - target.getZ()) > CORRECTION_THRESHOLD;
-    }
-
-    private Location getTargetLocation(Villager npc, boolean isShop) {
-        // 从配置中获取目标位置
-        // 这里需要根据你的具体实现来获取正确的目标位置
-        return null; // 临时返回null，需要根据实际情况实现
-    }
-
-    private void updateNameStands(Villager npc, Location newLoc) {
-        List<ArmorStand> stands = npcNameStands.get(npc);
-        if (stands != null) {
-            for (ArmorStand stand : stands) {
-                if (stand != null && stand.isValid()) {
-                    stand.teleport(newLoc.clone().add(0, HOLOGRAM_HEIGHT, 0));
-                }
-            }
-        }
     }
 
     public boolean isShopNPC(Villager villager) {
