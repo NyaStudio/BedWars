@@ -72,4 +72,8 @@ public class GameManager {
     public boolean isStatus(GameStatus status) {
         return currentStatus == status;
     }
+
+    public SpawnerManager getSpawnerManager() {
+        return spawnerManager;
+    }
 } 
