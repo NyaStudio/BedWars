@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.config;
 
 import cn.nekopixel.bedwars.Main;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
@@ -13,12 +14,22 @@ public class Loader {
         this.plugin = plugin;
     }
 
-    public Map<String, Location> loadTeamSpawns() {
-        Map<String, Object> raw = plugin.getConfig().getConfigurationSection("spawnpoints").getValues(false);
+    public static Map<String, Location> loadTeamSpawns() {
         Map<String, Location> result = new HashMap<>();
-        for (Map.Entry<String, Object> entry : raw.entrySet()) {
-            result.put(entry.getKey().toLowerCase(), Location.deserialize((Map<String, Object>) entry.getValue()));
+        FileConfiguration config = Main.getInstance().getMapConfig();
+        
+        if (config.contains("spawnpoints")) {
+            ConfigurationSection section = config.getConfigurationSection("spawnpoints");
+            if (section != null) {
+                for (String key : section.getKeys(false)) {
+                    ConfigurationSection teamSection = section.getConfigurationSection(key);
+                    if (teamSection != null) {
+                        result.put(key.toLowerCase(), Location.deserialize(teamSection.getValues(false)));
+                    }
+                }
+            }
         }
+        
         return result;
     }
 

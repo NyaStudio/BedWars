@@ -16,20 +16,26 @@ import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
+import cn.nekopixel.bedwars.setup.Map;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.GameRule;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.configuration.file.FileConfiguration;
 
 public final class Main extends JavaPlugin {
+    private static Main instance;
     private GameManager gameManager;
     private NPCManager npcManager;
     private ShopManager shopManager;
+    private Map mapSetup;
 
     @Override
     public void onEnable() {
+        instance = this;
+        
         // 初始化 PacketEvents
         PacketEvents.getAPI().getSettings()
                 .reEncodeByDefault(false)
@@ -52,10 +58,17 @@ public final class Main extends JavaPlugin {
         this.shopManager = new ShopManager(this, npcManager);
         getServer().getPluginManager().registerEvents(shopManager, this);
 
-        // 加载世界设置
+        this.mapSetup = new Map(this);
         loadWorldSettings();
         
         getLogger().info("加载完成！");
+    }
+
+    public static Main getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("插件未初始化");
+        }
+        return instance;
     }
 
     private void loadWorldSettings() {
@@ -77,7 +90,6 @@ public final class Main extends JavaPlugin {
             }
         }
 
-        // 如果启用了时间锁定，启动定时任务
         if (lockTime) {
             Bukkit.getScheduler().runTaskTimer(this, () -> {
                 for (World world : Bukkit.getWorlds()) {
@@ -107,5 +119,9 @@ public final class Main extends JavaPlugin {
 
     public void setShopManager(ShopManager shopManager) {
         this.shopManager = shopManager;
+    }
+
+    public FileConfiguration getMapConfig() {
+        return mapSetup.getMapConfig();
     }
 }
