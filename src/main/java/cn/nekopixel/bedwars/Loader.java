@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars;
 
 import cn.nekopixel.bedwars.commands.CommandManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
+import cn.nekopixel.bedwars.listener.ChatListener;
 import cn.nekopixel.bedwars.listener.WorldEvents;
 import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.plugin.Plugin;
@@ -15,6 +16,7 @@ public class Loader {
 
         pm.registerEvents(new CancelEvents(), plugin);
         pm.registerEvents(new WorldEvents(), plugin);
+        pm.registerEvents(new ChatListener((Main) plugin), plugin);
 
         plugin.getLogger().info("功能加载完成！");
     }
@@ -37,6 +39,13 @@ public class Loader {
             
             if (plugin.getShopManager() != null) {
                 plugin.getShopManager().reloadConfigs();
+            }
+
+            if (plugin.getChatManager() != null) {
+                plugin.getChatManager().reloadConfig();
+            }
+            if (plugin.getTabListManager() != null) {
+                plugin.getTabListManager().reloadConfig();
             }
             
             plugin.getLogger().info("所有配置文件已重新加载！");

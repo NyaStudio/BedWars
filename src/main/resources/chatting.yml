@@ -1,0 +1,46 @@
+chat:
+  format: "%team_color%[%team_name%]&r %player%&r: %message%"
+  team_names:
+    red: "红队"
+    blue: "蓝队"
+    green: "绿队"
+    yellow: "黄队"
+    aqua: "青队"
+    white: "白队"
+    pink: "粉队"
+    gray: "灰队"
+    spectator: "观察者"
+  team_colors:
+    red: "&c"
+    blue: "&9"
+    green: "&a"
+    yellow: "&e"
+    aqua: "&b"
+    white: "&f"
+    pink: "&d"
+    gray: "&7"
+    spectator: "&8"
+
+tablist:
+  format: "%team_color%%team_name% %player%"
+  update_interval: 20 # 更新间隔（tick）
+  team_names:
+    red: "红"
+    blue: "蓝"
+    green: "绿"
+    yellow: "黄"
+    aqua: "青"
+    white: "白"
+    pink: "粉"
+    gray: "灰"
+    spectator: "观察者"
+  team_colors:
+    red: "&c"
+    blue: "&9"
+    green: "&a"
+    yellow: "&e"
+    aqua: "&b"
+    white: "&f"
+    pink: "&d"
+    gray: "&7"
+    spectator: "&8" 

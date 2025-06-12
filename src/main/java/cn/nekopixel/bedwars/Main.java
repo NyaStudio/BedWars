@@ -17,6 +17,8 @@ import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
 import cn.nekopixel.bedwars.setup.Map;
+import cn.nekopixel.bedwars.chat.ChatManager;
+import cn.nekopixel.bedwars.tab.TabListManager;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import org.bukkit.Bukkit;
@@ -31,6 +33,8 @@ public final class Main extends JavaPlugin {
     private NPCManager npcManager;
     private ShopManager shopManager;
     private Map mapSetup;
+    private ChatManager chatManager;
+    private TabListManager tabListManager;
 
     @Override
     public void onEnable() {
@@ -60,6 +64,9 @@ public final class Main extends JavaPlugin {
 
         this.mapSetup = new Map(this);
         loadWorldSettings();
+
+        this.chatManager = new ChatManager(this);
+        this.tabListManager = new TabListManager(this);
         
         getLogger().info("加载完成！");
     }
@@ -123,5 +130,13 @@ public final class Main extends JavaPlugin {
 
     public FileConfiguration getMapConfig() {
         return mapSetup.getMapConfig();
+    }
+
+    public ChatManager getChatManager() {
+        return chatManager;
+    }
+
+    public TabListManager getTabListManager() {
+        return tabListManager;
     }
 }
