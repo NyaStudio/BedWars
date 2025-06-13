@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.tab;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.team.TeamManager;
+import cn.nekopixel.bedwars.game.GameStatus;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -76,24 +77,28 @@ public class TabListManager {
     }
 
     public void updatePlayer(Player player) {
+        if (!plugin.getGameManager().isStatus(GameStatus.INGAME)) {
+            player.setPlayerListName(player.getName());
+            return;
+        }
+
         String team = teamManager.getPlayerTeam(player);
         if (team == null) team = "spectator";
 
         String teamColor = teamColors.getOrDefault(team.toLowerCase(), "&7");
         String teamName = teamNames.getOrDefault(team.toLowerCase(), "未知队伍");
 
-        String displayName = tabFormat
+        String formattedName = tabFormat
                 .replace("%team_color%", teamColor)
                 .replace("%team_name%", teamName)
                 .replace("%player%", player.getName());
 
-        player.setPlayerListName(displayName);
+        player.setPlayerListName(formattedName);
     }
 
     public void reloadConfig() {
         teamColors.clear();
         teamNames.clear();
         loadConfig();
-        startUpdateTask();
     }
 } 

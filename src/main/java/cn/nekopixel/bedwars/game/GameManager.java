@@ -7,6 +7,7 @@ import cn.nekopixel.bedwars.spawner.Diamond;
 import cn.nekopixel.bedwars.spawner.Emerald;
 import cn.nekopixel.bedwars.spawner.SpawnerManager;
 import cn.nekopixel.bedwars.team.TeamManager;
+import cn.nekopixel.bedwars.player.NameTag;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -19,6 +20,7 @@ public class GameManager {
     private final RemoveItems removeItems;
     private final FoodLock foodLock;
     private final TeamManager teamManager;
+    private final NameTag nameTag;
 
     private GameManager(Main plugin) {
         this.plugin = plugin;
@@ -27,6 +29,7 @@ public class GameManager {
         this.removeItems = new RemoveItems(plugin);
         this.foodLock = new FoodLock(plugin);
         this.teamManager = new TeamManager(plugin);
+        this.nameTag = new NameTag(plugin);
         Bukkit.getPluginManager().registerEvents(spawnerManager, plugin);
     }
 
@@ -64,12 +67,14 @@ public class GameManager {
             removeItems.start();
             foodLock.start();
             teamManager.assignTeams();
+            nameTag.startUpdateTask();
         } else if (status == GameStatus.ENDING) {
             if (eventManager != null) {
                 eventManager.stop();
             }
             removeItems.stop();
             foodLock.stop();
+            nameTag.stop();
         }
     }
 
@@ -83,5 +88,9 @@ public class GameManager {
 
     public TeamManager getTeamManager() {
         return teamManager;
+    }
+
+    public NameTag getNameTag() {
+        return nameTag;
     }
 } 
