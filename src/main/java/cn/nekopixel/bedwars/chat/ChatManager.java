@@ -53,10 +53,12 @@ public class ChatManager {
 
     public String formatMessage(Player player, String message) {
         if (!plugin.getGameManager().isStatus(GameStatus.INGAME)) {
-            return "&7%player%&8: &f%message%"
+            return "%player%: %message%"
                     .replace("%player%", player.getName())
                     .replace("%message%", message);
         }
+
+        // TODO: 联动 LuckPerms 的 prefix 和 suffix
 
         String team = teamManager.getPlayerTeam(player);
         if (team == null) team = "spectator";

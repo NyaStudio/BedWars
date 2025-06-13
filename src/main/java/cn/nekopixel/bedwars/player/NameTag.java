@@ -86,11 +86,6 @@ public class NameTag {
             }
         }
 
-        if (!plugin.getGameManager().isStatus(GameStatus.INGAME)) {
-            NametagEdit.getApi().setPrefix(player, "");
-            return;
-        }
-
         String team = teamManager.getPlayerTeam(player);
         if (team == null) team = "spectator";
 
