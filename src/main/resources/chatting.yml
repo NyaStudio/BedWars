@@ -43,4 +43,8 @@ tablist:
     white: "&f"
     pink: "&d"
     gray: "&7"
-    spectator: "&8" 
+    spectator: "&8"
+
+nametag:
+  format: "%team_color%%team_name% %player%"
+  update_interval: 20  # 更新间隔（tick）

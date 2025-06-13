@@ -47,6 +47,9 @@ public class Loader {
             if (plugin.getTabListManager() != null) {
                 plugin.getTabListManager().reloadConfig();
             }
+            if (plugin.getGameManager() != null && plugin.getGameManager().getNameTag() != null) {
+                plugin.getGameManager().getNameTag().reloadConfig();
+            }
             
             plugin.getLogger().info("所有配置文件已重新加载！");
         } catch (Exception e) {

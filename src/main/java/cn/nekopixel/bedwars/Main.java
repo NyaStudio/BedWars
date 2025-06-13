@@ -13,6 +13,7 @@ package cn.nekopixel.bedwars;
 //└── util/          # 工具类（位置、颜色、声音、NBT 等）
 
 import cn.nekopixel.bedwars.game.GameManager;
+import cn.nekopixel.bedwars.player.NameTag;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
@@ -35,6 +36,7 @@ public final class Main extends JavaPlugin {
     private Map mapSetup;
     private ChatManager chatManager;
     private TabListManager tabListManager;
+    private NameTag nameTag;
 
     @Override
     public void onEnable() {
@@ -49,12 +51,12 @@ public final class Main extends JavaPlugin {
         PacketEvents.getAPI().getEventManager().registerListener(new CancelEvents(), PacketListenerPriority.HIGH);
         PacketEvents.getAPI().init();
 
-        Loader.registerAllEvents(this);
-        Loader.registerCommands(this);
         saveDefaultConfig();
-
         GameManager.initialize(this);
         this.gameManager = GameManager.getInstance();
+        
+        Loader.registerAllEvents(this);
+        Loader.registerCommands(this);
         
         this.npcManager = new NPCManager(this);
         getServer().getPluginManager().registerEvents(npcManager, this);
@@ -67,6 +69,7 @@ public final class Main extends JavaPlugin {
 
         this.chatManager = new ChatManager(this);
         this.tabListManager = new TabListManager(this);
+        this.nameTag = new NameTag(this);
         
         getLogger().info("加载完成！");
     }
@@ -138,5 +141,9 @@ public final class Main extends JavaPlugin {
 
     public TabListManager getTabListManager() {
         return tabListManager;
+    }
+
+    public NameTag getNameTag() {
+        return nameTag;
     }
 }
