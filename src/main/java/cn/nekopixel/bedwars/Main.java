@@ -16,12 +16,9 @@ import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.player.NameTag;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.shop.ShopManager;
-import cn.nekopixel.bedwars.listener.CancelEvents;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.tab.TabListManager;
-import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.GameRule;
@@ -41,15 +38,6 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        
-        // 初始化 PacketEvents
-        PacketEvents.getAPI().getSettings()
-                .reEncodeByDefault(false)
-                .checkForUpdates(false)
-                .bStats(false);
-        PacketEvents.getAPI().load();
-        PacketEvents.getAPI().getEventManager().registerListener(new CancelEvents(), PacketListenerPriority.HIGH);
-        PacketEvents.getAPI().init();
 
         saveDefaultConfig();
         GameManager.initialize(this);
@@ -111,7 +99,6 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        PacketEvents.getAPI().terminate();
         getLogger().info("卸载完成！");
     }
     

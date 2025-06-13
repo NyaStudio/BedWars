@@ -14,7 +14,7 @@ public class Loader {
     public static void registerAllEvents(Plugin plugin) {
         PluginManager pm = plugin.getServer().getPluginManager();
 
-        pm.registerEvents(new CancelEvents(), plugin);
+        pm.registerEvents(new CancelEvents(plugin), plugin);
         pm.registerEvents(new WorldEvents(), plugin);
         pm.registerEvents(new ChatListener((Main) plugin), plugin);
 

@@ -1,20 +1,26 @@
 package cn.nekopixel.bedwars.listener;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerAdvancementDoneEvent;
-import com.github.retrooper.packetevents.event.PacketListener;
-import com.github.retrooper.packetevents.event.PacketReceiveEvent;
-import com.github.retrooper.packetevents.event.PacketSendEvent;
+import org.bukkit.plugin.Plugin;
 
-public class CancelEvents implements PacketListener, Listener {
+public class CancelEvents implements Listener {
+    private final Plugin plugin;
+    private final ProtocolManager protocolManager;
 
-    public CancelEvents() {
-        super();
+    public CancelEvents(Plugin plugin) {
+        this.plugin = plugin;
+        this.protocolManager = ProtocolLibrary.getProtocolManager();
+        advancementCanceller();
     }
 
     // cancel bed events
@@ -31,23 +37,14 @@ public class CancelEvents implements PacketListener, Listener {
     }
 
     // cancel advancements
-    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
-    public void onAdvancementDone(PlayerAdvancementDoneEvent event) {
-        // event.getPlayer().sendMessage("Cancelled 1 Packet");
-    }
-
-    @Override
-    public void onPacketReceive(PacketReceiveEvent event) {
-        if (event.getPacketType().toString().contains("ADVANCEMENT")) {
-            event.setCancelled(true);
-        }
-    }
-
-    @Override
-    public void onPacketSend(PacketSendEvent event) {
-        if (event.getPacketType().toString().contains("ADVANCEMENT")) {
-            event.setCancelled(true);
-        }
+    // idk, maybe i cant fix this
+    private void advancementCanceller() {
+        protocolManager.addPacketListener(new PacketAdapter(plugin, PacketType.Play.Server.ADVANCEMENTS) {
+            @Override
+            public void onPacketSending(PacketEvent event) {
+                event.setCancelled(true);
+            }
+        });
     }
 
     // 雪豹闭嘴
