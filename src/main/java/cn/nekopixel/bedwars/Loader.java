@@ -5,17 +5,23 @@ import cn.nekopixel.bedwars.listener.CancelEvents;
 import cn.nekopixel.bedwars.listener.ChatListener;
 import cn.nekopixel.bedwars.listener.WorldEvents;
 import cn.nekopixel.bedwars.setup.Map;
+import cn.nekopixel.bedwars.player.NameTag;
+import cn.nekopixel.bedwars.chat.ChatManager;
+import cn.nekopixel.bedwars.tab.TabListManager;
+import cn.nekopixel.bedwars.spawner.NPCManager;
+import cn.nekopixel.bedwars.shop.ShopManager;
+import cn.nekopixel.bedwars.game.GameManager;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 public class Loader {
     private static Map mapSetup;
 
-    public static void registerAllEvents(Plugin plugin) {
+    public static void registerEvents(Plugin plugin) {
         PluginManager pm = plugin.getServer().getPluginManager();
 
         pm.registerEvents(new CancelEvents(plugin), plugin);
-        pm.registerEvents(new WorldEvents(), plugin);
+        pm.registerEvents(new WorldEvents((Main) plugin), plugin);
         pm.registerEvents(new ChatListener((Main) plugin), plugin);
 
         plugin.getLogger().info("功能加载完成！");
@@ -24,6 +30,24 @@ public class Loader {
     public static void registerCommands(Main plugin) {
         mapSetup = new Map(plugin);
         plugin.getCommand("bw").setExecutor(new CommandManager(plugin));
+    }
+
+    public static void initializeManagers(Main plugin) {
+        GameManager.initialize(plugin);
+        plugin.setGameManager(GameManager.getInstance());
+
+        NPCManager npcManager = new NPCManager(plugin);
+        plugin.setNPCManager(npcManager);
+        plugin.getServer().getPluginManager().registerEvents(npcManager, plugin);
+
+        ShopManager shopManager = new ShopManager(plugin, npcManager);
+        plugin.setShopManager(shopManager);
+        plugin.getServer().getPluginManager().registerEvents(shopManager, plugin);
+
+        plugin.setMapSetup(new Map(plugin));
+        plugin.setChatManager(new ChatManager(plugin));
+        plugin.setTabListManager(new TabListManager(plugin));
+        plugin.setNameTag(new NameTag(plugin));
     }
 
     public static void reloadAll(Main plugin) {

@@ -19,9 +19,6 @@ import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.tab.TabListManager;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.GameRule;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -38,26 +35,11 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-
         saveDefaultConfig();
-        GameManager.initialize(this);
-        this.gameManager = GameManager.getInstance();
         
-        Loader.registerAllEvents(this);
+        Loader.initializeManagers(this);
+        Loader.registerEvents(this);
         Loader.registerCommands(this);
-        
-        this.npcManager = new NPCManager(this);
-        getServer().getPluginManager().registerEvents(npcManager, this);
-
-        this.shopManager = new ShopManager(this, npcManager);
-        getServer().getPluginManager().registerEvents(shopManager, this);
-
-        this.mapSetup = new Map(this);
-        loadWorldSettings();
-
-        this.chatManager = new ChatManager(this);
-        this.tabListManager = new TabListManager(this);
-        this.nameTag = new NameTag(this);
         
         getLogger().info("加载完成！");
     }
@@ -69,34 +51,6 @@ public final class Main extends JavaPlugin {
         return instance;
     }
 
-    private void loadWorldSettings() {
-        boolean lockTime = getConfig().getBoolean("world.lock_time", true);
-        int lockedTime = getConfig().getInt("world.locked_time", 6000);
-        boolean disableWeather = getConfig().getBoolean("world.disable_weather", true);
-        boolean disableDaylightCycle = getConfig().getBoolean("world.disable_daylight_cycle", true);
-
-        for (World world : getServer().getWorlds()) {
-            if (lockTime) {
-                world.setTime(lockedTime);
-            }
-            if (disableWeather) {
-                world.setStorm(false);
-                world.setThundering(false);
-            }
-            if (disableDaylightCycle) {
-                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-            }
-        }
-
-        if (lockTime) {
-            Bukkit.getScheduler().runTaskTimer(this, () -> {
-                for (World world : Bukkit.getWorlds()) {
-                    world.setTime(lockedTime);
-                }
-            }, 0L, 100L);
-        }
-    }
-
     @Override
     public void onDisable() {
         getLogger().info("卸载完成！");
@@ -106,8 +60,16 @@ public final class Main extends JavaPlugin {
         return gameManager;
     }
     
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+    
     public NPCManager getNPCManager() {
         return npcManager;
+    }
+    
+    public void setNPCManager(NPCManager npcManager) {
+        this.npcManager = npcManager;
     }
     
     public ShopManager getShopManager() {
@@ -118,6 +80,14 @@ public final class Main extends JavaPlugin {
         this.shopManager = shopManager;
     }
 
+    public Map getMapSetup() {
+        return mapSetup;
+    }
+
+    public void setMapSetup(Map mapSetup) {
+        this.mapSetup = mapSetup;
+    }
+
     public FileConfiguration getMapConfig() {
         return mapSetup.getMapConfig();
     }
@@ -126,11 +96,23 @@ public final class Main extends JavaPlugin {
         return chatManager;
     }
 
+    public void setChatManager(ChatManager chatManager) {
+        this.chatManager = chatManager;
+    }
+
     public TabListManager getTabListManager() {
         return tabListManager;
     }
 
+    public void setTabListManager(TabListManager tabListManager) {
+        this.tabListManager = tabListManager;
+    }
+
     public NameTag getNameTag() {
         return nameTag;
+    }
+
+    public void setNameTag(NameTag nameTag) {
+        this.nameTag = nameTag;
     }
 }

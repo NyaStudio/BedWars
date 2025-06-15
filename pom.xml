@@ -80,7 +80,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>net.kyori</pattern>
-                                    <shadedPattern>cn.xcnya.libs.kyori</shadedPattern>
+                                    <shadedPattern>net.kyori</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
