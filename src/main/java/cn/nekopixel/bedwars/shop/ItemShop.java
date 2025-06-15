@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.shop;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -96,7 +97,7 @@ public class ItemShop {
 
         if (currentCategory != null) {
             Map<String, ShopItem> itemsToShow = currentCategory.equals("quick_buy") ? 
-                plugin.getShopManager().getQuickBuyItems() : items;
+                Plugin.getInstance().getShopManager().getQuickBuyItems() : items;
 
             for (ShopItem item : itemsToShow.values()) {
                 if (currentCategory.equals("quick_buy")) {
@@ -121,7 +122,7 @@ public class ItemShop {
                     continue;
                 }
 
-                ItemStack shopItem = plugin.getShopManager().createShopItem(
+                ItemStack shopItem = Plugin.getInstance().getShopManager().createShopItem(
                     material,
                     item,
                     shopItemKey,
@@ -229,7 +230,7 @@ public class ItemShop {
 
         if (currentCategory != null) {
             Map<String, ShopItem> itemsToShow = currentCategory.equals("quick_buy") ? 
-                plugin.getShopManager().getQuickBuyItems() : items;
+                Plugin.getInstance().getShopManager().getQuickBuyItems() : items;
 
             for (ShopItem item : itemsToShow.values()) {
                 if (currentCategory.equals("quick_buy")) {
@@ -254,7 +255,7 @@ public class ItemShop {
                     continue;
                 }
 
-                ItemStack shopItem = plugin.getShopManager().createShopItem(
+                ItemStack shopItem = Plugin.getInstance().getShopManager().createShopItem(
                     material,
                     item,
                     shopItemKey,

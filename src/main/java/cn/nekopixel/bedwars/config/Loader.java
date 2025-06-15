@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.config;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,7 +17,7 @@ public class Loader {
 
     public static Map<String, Location> loadTeamSpawns() {
         Map<String, Location> result = new HashMap<>();
-        FileConfiguration config = Main.getInstance().getMapConfig();
+        FileConfiguration config = Plugin.getInstance().getMapConfig();
         
         if (config.contains("spawnpoints")) {
             ConfigurationSection section = config.getConfigurationSection("spawnpoints");

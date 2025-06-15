@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.shop;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -58,7 +59,7 @@ public class ShopManager implements Listener {
         this.itemShop = new ItemShop(plugin);
         this.upgradeShop = new UpgradeShop(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        plugin.setShopManager(this);
+        Plugin.getInstance().setShopManager(this);
         loadConfigs();
         loadShopSettings();
 

@@ -1,8 +1,8 @@
 package cn.nekopixel.bedwars.player;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.team.TeamManager;
-import cn.nekopixel.bedwars.game.GameStatus;
 import com.nametagedit.plugin.NametagEdit;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,7 +30,7 @@ public class NameTag {
         loadConfig();
         
         Bukkit.getScheduler().runTask(plugin, () -> {
-            this.teamManager = plugin.getGameManager().getTeamManager();
+            this.teamManager = Plugin.getInstance().getGameManager().getTeamManager();
         });
     }
 
@@ -80,7 +80,7 @@ public class NameTag {
 
     public void updatePlayer(Player player) {
         if (teamManager == null) {
-            teamManager = plugin.getGameManager().getTeamManager();
+            teamManager = Plugin.getInstance().getGameManager().getTeamManager();
             if (teamManager == null) {
                 return;
             }

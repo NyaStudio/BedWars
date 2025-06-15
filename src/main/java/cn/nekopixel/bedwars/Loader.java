@@ -1,5 +1,6 @@
 package cn.nekopixel.bedwars;
 
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.commands.CommandManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
 import cn.nekopixel.bedwars.listener.ChatListener;
@@ -11,13 +12,12 @@ import cn.nekopixel.bedwars.tab.TabListManager;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.game.GameManager;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 public class Loader {
     private static Map mapSetup;
 
-    public static void registerEvents(Plugin plugin) {
+    public static void registerEvents(org.bukkit.plugin.Plugin plugin) {
         PluginManager pm = plugin.getServer().getPluginManager();
 
         pm.registerEvents(new CancelEvents(plugin), plugin);
@@ -33,21 +33,23 @@ public class Loader {
     }
 
     public static void initializeManagers(Main plugin) {
+        Plugin bedWarsPlugin = Plugin.getInstance();
+        
         GameManager.initialize(plugin);
-        plugin.setGameManager(GameManager.getInstance());
+        bedWarsPlugin.setGameManager(GameManager.getInstance());
 
         NPCManager npcManager = new NPCManager(plugin);
-        plugin.setNPCManager(npcManager);
+        bedWarsPlugin.setNPCManager(npcManager);
         plugin.getServer().getPluginManager().registerEvents(npcManager, plugin);
 
         ShopManager shopManager = new ShopManager(plugin, npcManager);
-        plugin.setShopManager(shopManager);
+        bedWarsPlugin.setShopManager(shopManager);
         plugin.getServer().getPluginManager().registerEvents(shopManager, plugin);
 
-        plugin.setMapSetup(new Map(plugin));
-        plugin.setChatManager(new ChatManager(plugin));
-        plugin.setTabListManager(new TabListManager(plugin));
-        plugin.setNameTag(new NameTag(plugin));
+        bedWarsPlugin.setMapSetup(new Map(plugin));
+        bedWarsPlugin.setChatManager(new ChatManager(plugin));
+        bedWarsPlugin.setTabListManager(new TabListManager(plugin));
+        bedWarsPlugin.setNameTag(new NameTag(plugin));
     }
 
     public static void reloadAll(Main plugin) {
@@ -56,23 +58,23 @@ public class Loader {
             if (mapSetup != null) {
                 mapSetup.reloadMapConfig();
             } else {
-                // plugin.getLogger().warning("mapSetup 为空，无法重载地图配置");
                 mapSetup = new Map(plugin);
                 mapSetup.reloadMapConfig();
             }
             
-            if (plugin.getShopManager() != null) {
-                plugin.getShopManager().reloadConfigs();
+            Plugin bedWarsPlugin = Plugin.getInstance();
+            if (bedWarsPlugin.getShopManager() != null) {
+                bedWarsPlugin.getShopManager().reloadConfigs();
             }
 
-            if (plugin.getChatManager() != null) {
-                plugin.getChatManager().reloadConfig();
+            if (bedWarsPlugin.getChatManager() != null) {
+                bedWarsPlugin.getChatManager().reloadConfig();
             }
-            if (plugin.getTabListManager() != null) {
-                plugin.getTabListManager().reloadConfig();
+            if (bedWarsPlugin.getTabListManager() != null) {
+                bedWarsPlugin.getTabListManager().reloadConfig();
             }
-            if (plugin.getGameManager() != null && plugin.getGameManager().getNameTag() != null) {
-                plugin.getGameManager().getNameTag().reloadConfig();
+            if (bedWarsPlugin.getGameManager() != null && bedWarsPlugin.getGameManager().getNameTag() != null) {
+                bedWarsPlugin.getGameManager().getNameTag().reloadConfig();
             }
             
             plugin.getLogger().info("所有配置文件已重新加载！");

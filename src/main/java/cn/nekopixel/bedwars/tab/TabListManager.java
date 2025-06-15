@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.tab;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import org.bukkit.ChatColor;
@@ -24,7 +25,7 @@ public class TabListManager {
 
     public TabListManager(Main plugin) {
         this.plugin = plugin;
-        this.teamManager = plugin.getGameManager().getTeamManager();
+        this.teamManager = Plugin.getInstance().getGameManager().getTeamManager();
         this.teamColors = new HashMap<>();
         this.teamNames = new HashMap<>();
         loadConfig();
@@ -77,7 +78,7 @@ public class TabListManager {
     }
 
     public void updatePlayer(Player player) {
-        if (!plugin.getGameManager().isStatus(GameStatus.INGAME)) {
+        if (!Plugin.getInstance().getGameManager().isStatus(GameStatus.INGAME)) {
             player.setPlayerListName(player.getName());
             return;
         }

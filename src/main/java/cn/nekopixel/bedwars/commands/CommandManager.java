@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.commands;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.ChatColor;
@@ -60,10 +61,10 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 if (type.equals("diamond")) {
-                    plugin.getGameManager().getSpawnerManager().getDiamondSpawner().upgrade();
+                    Plugin.getInstance().getGameManager().getSpawnerManager().getDiamondSpawner().upgrade();
                     sender.sendMessage(ChatColor.GREEN + "钻石生成点已升级");
                 } else {
-                    plugin.getGameManager().getSpawnerManager().getEmeraldSpawner().upgrade();
+                    Plugin.getInstance().getGameManager().getSpawnerManager().getEmeraldSpawner().upgrade();
                     sender.sendMessage(ChatColor.GREEN + "绿宝石生成点已升级");
                 }
                 return true;

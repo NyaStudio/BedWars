@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.chat;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import org.bukkit.ChatColor;
@@ -21,7 +22,7 @@ public class ChatManager {
 
     public ChatManager(Main plugin) {
         this.plugin = plugin;
-        this.teamManager = plugin.getGameManager().getTeamManager();
+        this.teamManager = Plugin.getInstance().getGameManager().getTeamManager();
         this.teamColors = new HashMap<>();
         this.teamNames = new HashMap<>();
         loadConfig();
@@ -52,7 +53,7 @@ public class ChatManager {
     }
 
     public String formatMessage(Player player, String message) {
-        if (!plugin.getGameManager().isStatus(GameStatus.INGAME)) {
+        if (!Plugin.getInstance().getGameManager().isStatus(GameStatus.INGAME)) {
             return "%player%: %message%"
                     .replace("%player%", player.getName())
                     .replace("%message%", message);

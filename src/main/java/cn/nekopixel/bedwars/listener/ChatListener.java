@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.listener;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -14,7 +15,7 @@ public class ChatListener implements Listener {
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        String formattedMessage = plugin.getChatManager().formatMessage(event.getPlayer(), event.getMessage());
+        String formattedMessage = Plugin.getInstance().getChatManager().formatMessage(event.getPlayer(), event.getMessage());
         event.setFormat(formattedMessage);
     }
 } 
