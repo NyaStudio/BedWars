@@ -1,6 +1,8 @@
 package cn.nekopixel.bedwars.setup;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.commands.HelpCommand;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,6 +24,9 @@ public class Map implements CommandExecutor, TabCompleter {
     private final Set<String> validTeams = Set.of("red", "blue", "green", "yellow", "aqua", "white", "pink", "gray");
     private FileConfiguration mapConfig;
     private File mapFile;
+    
+    private final java.util.Map<Player, Location> pos1Map = new HashMap<>();
+    private final java.util.Map<Player, Location> pos2Map = new HashMap<>();
 
     public Map(Main plugin) {
         this.plugin = plugin;
@@ -42,17 +47,7 @@ public class Map implements CommandExecutor, TabCompleter {
 
     private void saveMapConfig() {
         try {
-            FileConfiguration fileConfig = YamlConfiguration.loadConfiguration(mapFile);
-            
-            Set<String> memoryKeys = new HashSet<>(mapConfig.getKeys(true));
-            
-            Set<String> fileKeys = new HashSet<>(fileConfig.getKeys(true));
-            
-            for (String key : memoryKeys) {
-                fileConfig.set(key, mapConfig.get(key));
-            }
-            
-            fileConfig.save(mapFile);
+            mapConfig.save(mapFile);
             plugin.getLogger().info("地图配置文件已保存");
         } catch (IOException e) {
             plugin.getLogger().severe("无法保存 map.yml 文件: " + e.getMessage());
@@ -94,10 +89,15 @@ public class Map implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 1) {
-            return false;
+            HelpCommand.sendMainHelp(sender);
+            return true;
         }
 
         switch (args[0].toLowerCase()) {
+            case "help" -> {
+                HelpCommand.sendMainHelp(sender);
+            }
+
             case "setjoin" -> {
                 if (args.length < 1) {
                     sender.sendMessage(ChatColor.RED + "用法: /bw setjoin [x] [y] [z] [yaw] [pitch]");
@@ -189,6 +189,48 @@ public class Map implements CommandExecutor, TabCompleter {
                 sender.sendMessage(ChatColor.GREEN + "已添加一个 " + ChatColor.YELLOW + type + ChatColor.GREEN + " 生成点");
             }
 
+            case "pos1" -> {
+                if (args.length < 1) {
+                    sender.sendMessage(ChatColor.RED + "用法: /bw pos1 [x] [y] [z]");
+                    return true;
+                }
+                Location pos1 = getLocationFromArgs(p, args, 1);
+                pos1Map.put(p, pos1);
+                sender.sendMessage(ChatColor.GREEN + "已设置第一个坐标点: " + 
+                    String.format("(%.1f, %.1f, %.1f)", pos1.getX(), pos1.getY(), pos1.getZ()));
+            }
+
+            case "pos2" -> {
+                if (args.length < 1) {
+                    sender.sendMessage(ChatColor.RED + "用法: /bw pos2 [x] [y] [z]");
+                    return true;
+                }
+                Location pos2 = getLocationFromArgs(p, args, 1);
+                pos2Map.put(p, pos2);
+                sender.sendMessage(ChatColor.GREEN + "已设置第二个坐标点: " + 
+                    String.format("(%.1f, %.1f, %.1f)", pos2.getX(), pos2.getY(), pos2.getZ()));
+            }
+
+            case "addprotect" -> {
+                if (args.length < 2) {
+                    sender.sendMessage(ChatColor.RED + "用法: /bw addprotect <name>");
+                    return true;
+                }
+                handleAddProtectArea(p, args);
+            }
+
+            case "removeprotect" -> {
+                if (args.length < 2) {
+                    sender.sendMessage(ChatColor.RED + "用法: /bw removeprotect <name>");
+                    return true;
+                }
+                handleRemoveProtectArea(p, args[1]);
+            }
+
+            case "listprotect" -> {
+                handleListProtectAreas(p);
+            }
+
             case "save" -> {
                 saveMapConfig();
                 sender.sendMessage(ChatColor.GREEN + "配置文件已保存！");
@@ -196,6 +238,106 @@ public class Map implements CommandExecutor, TabCompleter {
         }
 
         return true;
+    }
+
+    private void handleAddProtectArea(Player player, String[] args) {
+        Location pos1 = pos1Map.get(player);
+        Location pos2 = pos2Map.get(player);
+
+        if (pos1 == null || pos2 == null) {
+            player.sendMessage(ChatColor.RED + "请先设置两个坐标点 (pos1 和 pos2)");
+            return;
+        }
+
+        if (!pos1.getWorld().equals(pos2.getWorld())) {
+            player.sendMessage(ChatColor.RED + "两个坐标点必须在同一个世界");
+            return;
+        }
+
+        String areaName = args[1];
+
+        try {
+            var areasSection = mapConfig.getConfigurationSection("protection");
+            if (areasSection == null) {
+                areasSection = mapConfig.createSection("protection");
+            }
+
+            var areaSection = areasSection.createSection(areaName);
+            areaSection.set("world", pos1.getWorld().getName());
+            
+            var pos1Section = areaSection.createSection("pos1");
+            pos1Section.set("x", pos1.getX());
+            pos1Section.set("y", pos1.getY());
+            pos1Section.set("z", pos1.getZ());
+            
+            var pos2Section = areaSection.createSection("pos2");
+            pos2Section.set("x", pos2.getX());
+            pos2Section.set("y", pos2.getY());
+            pos2Section.set("z", pos2.getZ());
+            
+            saveMapConfig();
+            
+            if (Plugin.getInstance().getMapManager() != null) {
+                Plugin.getInstance().getMapManager().loadProtectedAreas();
+            }
+            
+            player.sendMessage(ChatColor.GREEN + "成功添加保护区域: " + areaName);
+            
+        } catch (Exception e) {
+            player.sendMessage(ChatColor.RED + "添加保护区域失败: " + e.getMessage());
+        }
+    }
+
+    private void handleRemoveProtectArea(Player player, String areaName) {
+        try {
+            var areasSection = mapConfig.getConfigurationSection("protection");
+            if (areasSection != null && areasSection.contains(areaName)) {
+                areasSection.set(areaName, null);
+                saveMapConfig();
+                
+                if (Plugin.getInstance().getMapManager() != null) {
+                    Plugin.getInstance().getMapManager().loadProtectedAreas();
+                }
+                
+                player.sendMessage(ChatColor.GREEN + "成功移除保护区域: " + areaName);
+            } else {
+                player.sendMessage(ChatColor.RED + "保护区域不存在");
+            }
+        } catch (Exception e) {
+            player.sendMessage(ChatColor.RED + "移除保护区域失败: " + e.getMessage());
+        }
+    }
+
+    private void handleListProtectAreas(Player player) {
+        var areasSection = mapConfig.getConfigurationSection("protection");
+        if (areasSection == null || areasSection.getKeys(false).isEmpty()) {
+            player.sendMessage(ChatColor.YELLOW + "当前没有配置任何保护区域");
+            return;
+        }
+        
+        player.sendMessage(ChatColor.GOLD + "=== 保护区域列表 ===");
+        for (String areaName : areasSection.getKeys(false)) {
+            var areaSection = areasSection.getConfigurationSection(areaName);
+            if (areaSection != null) {
+                var pos1Section = areaSection.getConfigurationSection("pos1");
+                var pos2Section = areaSection.getConfigurationSection("pos2");
+                
+                if (pos1Section != null && pos2Section != null) {
+                    double x1 = pos1Section.getDouble("x");
+                    double y1 = pos1Section.getDouble("y");
+                    double z1 = pos1Section.getDouble("z");
+                    double x2 = pos2Section.getDouble("x");
+                    double y2 = pos2Section.getDouble("y");
+                    double z2 = pos2Section.getDouble("z");
+                    
+                    player.sendMessage(String.format("§e%s: §7(%.1f, %.1f, %.1f) 到 (%.1f, %.1f, %.1f)",
+                        areaName,
+                        Math.min(x1, x2), Math.min(y1, y2), Math.min(z1, z2),
+                        Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2)
+                    ));
+                }
+            }
+        }
     }
 
     public FileConfiguration getMapConfig() {
@@ -207,11 +349,17 @@ public class Map implements CommandExecutor, TabCompleter {
         List<String> completions = new ArrayList<>();
         
         if (args.length == 1) {
+            completions.add("help");
             completions.add("setjoin");
             completions.add("setbed");
             completions.add("setspawn");
             completions.add("setnpc");
             completions.add("setspawner");
+            completions.add("pos1");
+            completions.add("pos2");
+            completions.add("addprotect");
+            completions.add("removeprotect");
+            completions.add("listprotect");
             completions.add("save");
         } else if (args.length == 2) {
             switch (args[0].toLowerCase()) {
@@ -225,6 +373,14 @@ public class Map implements CommandExecutor, TabCompleter {
                     completions.add("gold");
                     completions.add("diamond");
                     completions.add("emerald");
+                }
+                case "addprotect" -> {
+                }
+                case "removeprotect" -> {
+                    var areasSection = mapConfig.getConfigurationSection("protection");
+                    if (areasSection != null) {
+                        completions.addAll(areasSection.getKeys(false));
+                    }
                 }
             }
         }

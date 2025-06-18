@@ -16,5 +16,12 @@ public class HelpCommand {
         sender.sendMessage(ChatColor.YELLOW + "/bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置商店/升级NPC");
         sender.sendMessage(ChatColor.YELLOW + "/bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置资源生成点");
         sender.sendMessage(ChatColor.YELLOW + "/bw save " + ChatColor.GRAY + "- 保存配置文件");
+        sender.sendMessage("");
+        sender.sendMessage(ChatColor.GOLD + "=== 保护区域命令 ===");
+        sender.sendMessage(ChatColor.YELLOW + "/bw pos1 [x] [y] [z]" + ChatColor.WHITE + " - 设置第一个坐标点");
+        sender.sendMessage(ChatColor.YELLOW + "/bw pos2 [x] [y] [z]" + ChatColor.WHITE + " - 设置第二个坐标点");
+        sender.sendMessage(ChatColor.YELLOW + "/bw addprotect <name>" + ChatColor.WHITE + " - 添加保护区域");
+        sender.sendMessage(ChatColor.YELLOW + "/bw removeprotect <name>" + ChatColor.WHITE + " - 移除保护区域");
+        sender.sendMessage(ChatColor.YELLOW + "/bw listprotect" + ChatColor.WHITE + " - 列出所有保护区域");
     }
 }

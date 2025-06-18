@@ -12,6 +12,7 @@ import cn.nekopixel.bedwars.tab.TabListManager;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.game.GameManager;
+import cn.nekopixel.bedwars.map.MapManager;
 import org.bukkit.plugin.PluginManager;
 
 public class Loader {
@@ -50,6 +51,11 @@ public class Loader {
         bedWarsPlugin.setChatManager(new ChatManager(plugin));
         bedWarsPlugin.setTabListManager(new TabListManager(plugin));
         bedWarsPlugin.setNameTag(new NameTag(plugin));
+
+        MapManager mapManager = new MapManager(plugin);
+        bedWarsPlugin.setMapManager(mapManager);
+        plugin.getServer().getPluginManager().registerEvents(mapManager, plugin);
+        mapManager.loadProtectedAreas();
     }
 
     public static void reloadAll(Main plugin) {
@@ -75,6 +81,10 @@ public class Loader {
             }
             if (bedWarsPlugin.getGameManager() != null && bedWarsPlugin.getGameManager().getNameTag() != null) {
                 bedWarsPlugin.getGameManager().getNameTag().reloadConfig();
+            }
+            
+            if (bedWarsPlugin.getMapManager() != null) {
+                bedWarsPlugin.getMapManager().loadProtectedAreas();
             }
             
             plugin.getLogger().info("所有配置文件已重新加载！");

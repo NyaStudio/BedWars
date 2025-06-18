@@ -18,7 +18,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     private final Main plugin;
     private final Map setup;
     private final LoadConfig loadConfig;
-    private final Set<String> validCommands = Set.of("help", "reload", "switch", "setjoin", "setbed", "setspawn", "setnpc", "setspawner", "save", "upgrade");
+    private final Set<String> validCommands = Set.of("help", "reload", "switch", "setjoin", "setbed", "setspawn", "setnpc", "setspawner", "save", "upgrade", "pos1", "pos2", "addprotect", "removeprotect", "listprotect");
 
     public CommandManager(Main plugin) {
         this.plugin = plugin;
@@ -89,6 +89,12 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         } else if (args.length > 1) {
             if (args[0].equalsIgnoreCase("switch")) {
                 return SwitchStatus.onTabComplete(args);
+            } else if (args[0].equalsIgnoreCase("pos1") || args[0].equalsIgnoreCase("pos2") || 
+                       args[0].equalsIgnoreCase("addprotect") || args[0].equalsIgnoreCase("removeprotect") ||
+                       args[0].equalsIgnoreCase("setjoin") || args[0].equalsIgnoreCase("setbed") ||
+                       args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("setnpc") ||
+                       args[0].equalsIgnoreCase("setspawner")) {
+                return setup.onTabComplete(sender, command, alias, args);
             }
         }
         

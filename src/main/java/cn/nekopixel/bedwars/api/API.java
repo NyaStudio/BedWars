@@ -7,6 +7,7 @@ import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.tab.TabListManager;
+import cn.nekopixel.bedwars.map.MapManager;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public interface API {
@@ -18,4 +19,5 @@ public interface API {
     ChatManager getChatManager();
     TabListManager getTabListManager();
     NameTag getNameTag();
+    MapManager getMapManager();
 } 

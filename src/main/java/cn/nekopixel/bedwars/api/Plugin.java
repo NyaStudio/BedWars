@@ -7,6 +7,7 @@ import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.tab.TabListManager;
+import cn.nekopixel.bedwars.map.MapManager;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class Plugin implements API {
@@ -18,6 +19,7 @@ public class Plugin implements API {
     private ChatManager chatManager;
     private TabListManager tabListManager;
     private NameTag nameTag;
+    private MapManager mapManager;
 
     public static Plugin getInstance() {
         if (instance == null) {
@@ -96,5 +98,14 @@ public class Plugin implements API {
 
     public void setNameTag(NameTag nameTag) {
         this.nameTag = nameTag;
+    }
+
+    @Override
+    public MapManager getMapManager() {
+        return mapManager;
+    }
+
+    public void setMapManager(MapManager mapManager) {
+        this.mapManager = mapManager;
     }
 } 
