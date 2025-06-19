@@ -4,11 +4,13 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.game.GameStatus;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.*;
 
 import java.io.File;
 import java.util.HashMap;
@@ -22,6 +24,7 @@ public class TabListManager {
     private String tabFormat;
     private int updateInterval;
     private BukkitRunnable updateTask;
+    private Objective healthObjective;
 
     public TabListManager(Main plugin) {
         this.plugin = plugin;
@@ -29,6 +32,7 @@ public class TabListManager {
         this.teamColors = new HashMap<>();
         this.teamNames = new HashMap<>();
         loadConfig();
+        setupScoreboard();
         startUpdateTask();
     }
 
@@ -57,6 +61,17 @@ public class TabListManager {
         }
     }
 
+    private void setupScoreboard() {
+        Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
+        healthObjective = board.getObjective("HealthTab");
+
+        if (healthObjective == null) {
+            healthObjective = board.registerNewObjective("HealthTab", "dummy", ChatColor.YELLOW + ""); // 空标题
+        }
+
+        healthObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+    }
+
     private void startUpdateTask() {
         if (updateTask != null) {
             updateTask.cancel();
@@ -80,6 +95,9 @@ public class TabListManager {
     public void updatePlayer(Player player) {
         if (!Plugin.getInstance().getGameManager().isStatus(GameStatus.INGAME)) {
             player.setPlayerListName(player.getName());
+            if (healthObjective != null) {
+                healthObjective.getScore(player.getName()).setScore(0); // 清除显示
+            }
             return;
         }
 
@@ -95,6 +113,11 @@ public class TabListManager {
                 .replace("%player%", player.getName());
 
         player.setPlayerListName(formattedName);
+
+        if (healthObjective != null) {
+            int health = (int) Math.round(player.getHealth());
+            healthObjective.getScore(player.getName()).setScore(health);
+        }
     }
 
     public void reloadConfig() {
@@ -102,4 +125,4 @@ public class TabListManager {
         teamNames.clear();
         loadConfig();
     }
-} 
+}
