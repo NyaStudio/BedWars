@@ -8,8 +8,11 @@ import cn.nekopixel.bedwars.spawner.Emerald;
 import cn.nekopixel.bedwars.spawner.SpawnerManager;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.player.NameTag;
+import cn.nekopixel.bedwars.listener.WaitingListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.GameMode;
 
 public class GameManager {
     private static GameManager instance;
@@ -21,16 +24,20 @@ public class GameManager {
     private final FoodLock foodLock;
     private final TeamManager teamManager;
     private final NameTag nameTag;
+    private final QueueManager queueManager;
 
     private GameManager(Main plugin) {
         this.plugin = plugin;
-        this.currentStatus = GameStatus.WAITING;
+        this.currentStatus = null;
         this.spawnerManager = new SpawnerManager(plugin);
         this.removeItems = new RemoveItems(plugin);
         this.foodLock = new FoodLock(plugin);
         this.teamManager = new TeamManager(plugin);
         this.nameTag = new NameTag(plugin);
+        this.queueManager = new QueueManager(plugin);
+        
         Bukkit.getPluginManager().registerEvents(spawnerManager, plugin);
+        Bukkit.getPluginManager().registerEvents(new WaitingListener(plugin), plugin);
     }
 
     public static GameManager getInstance() {
@@ -52,6 +59,10 @@ public class GameManager {
     }
 
     public void setStatus(GameStatus status) {
+        if (this.currentStatus == status) {
+            return;
+        }
+
         GameStatus oldStatus = this.currentStatus;
         this.currentStatus = status;
         Bukkit.getPluginManager().callEvent(new GameStatusChange(oldStatus, status));
@@ -68,6 +79,10 @@ public class GameManager {
             foodLock.start();
             teamManager.assignTeams();
             nameTag.startUpdateTask();
+            
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.setGameMode(GameMode.SURVIVAL);
+            }
         } else if (status == GameStatus.ENDING) {
             if (eventManager != null) {
                 eventManager.stop();
@@ -92,5 +107,9 @@ public class GameManager {
 
     public NameTag getNameTag() {
         return nameTag;
+    }
+
+    public QueueManager getQueueManager() {
+        return queueManager;
     }
 } 
