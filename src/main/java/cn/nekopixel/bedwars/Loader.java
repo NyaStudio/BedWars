@@ -6,6 +6,7 @@ import cn.nekopixel.bedwars.listener.CancelEvents;
 import cn.nekopixel.bedwars.listener.ChatListener;
 import cn.nekopixel.bedwars.listener.WorldEvents;
 import cn.nekopixel.bedwars.setup.Map;
+import cn.nekopixel.bedwars.setup.Init;
 import cn.nekopixel.bedwars.player.NameTag;
 import cn.nekopixel.bedwars.player.HealthBar;
 import cn.nekopixel.bedwars.chat.ChatManager;
@@ -35,6 +36,8 @@ public class Loader {
     }
 
     public static void initializeManagers(Main plugin) {
+        Init.initialize();
+        
         Plugin bedWarsPlugin = Plugin.getInstance();
         
         GameManager.initialize(plugin);
