@@ -17,15 +17,15 @@ public class Init {
             return;
         }
         
-        Scoreboard mainScoreboard = manager.getMainScoreboard();
-        
-        for (Objective objective : mainScoreboard.getObjectives()) {
-            objective.unregister();
+        Scoreboard scoreboard = manager.getNewScoreboard();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.setScoreboard(scoreboard);
         }
 
         // 玩家名
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setDisplayName(player.getName());
+            player.setPlayerListName(player.getName());
         }
 
         // 游戏状态

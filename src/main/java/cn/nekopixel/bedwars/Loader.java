@@ -36,13 +36,17 @@ public class Loader {
     }
 
     public static void initializeManagers(Main plugin) {
-        Init.initialize();
-        
         Plugin bedWarsPlugin = Plugin.getInstance();
         
+        // 1. 初始化地图配置
+        mapSetup = new Map(plugin);
+        bedWarsPlugin.setMapSetup(mapSetup);
+        
+        // 2. 初始化GameManager
         GameManager.initialize(plugin);
         bedWarsPlugin.setGameManager(GameManager.getInstance());
 
+        // 3. 初始化其他管理器
         NPCManager npcManager = new NPCManager(plugin);
         bedWarsPlugin.setNPCManager(npcManager);
         plugin.getServer().getPluginManager().registerEvents(npcManager, plugin);
@@ -51,7 +55,6 @@ public class Loader {
         bedWarsPlugin.setShopManager(shopManager);
         plugin.getServer().getPluginManager().registerEvents(shopManager, plugin);
 
-        bedWarsPlugin.setMapSetup(new Map(plugin));
         bedWarsPlugin.setChatManager(new ChatManager(plugin));
         bedWarsPlugin.setTabListManager(new TabListManager(plugin));
         bedWarsPlugin.setNameTag(new NameTag(plugin));
@@ -63,6 +66,9 @@ public class Loader {
 
         HealthBar healthBar = new HealthBar(plugin);
         plugin.getServer().getPluginManager().registerEvents(healthBar, plugin);
+
+        // 4. 最后执行Init初始化
+        Init.initialize();
     }
 
     public static void reloadAll(Main plugin) {

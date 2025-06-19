@@ -13,6 +13,7 @@ package cn.nekopixel.bedwars;
 //└── util/          # 工具类（位置、颜色、声音、NBT 等）
 
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.setup.Init;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -22,6 +23,8 @@ public final class Main extends JavaPlugin {
         saveDefaultConfig();
         
         Loader.initializeManagers(this);
+        Init.initialize();
+        
         Loader.registerEvents(this);
         Loader.registerCommands(this);
         
