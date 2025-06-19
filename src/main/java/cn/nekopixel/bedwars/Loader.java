@@ -7,6 +7,7 @@ import cn.nekopixel.bedwars.listener.ChatListener;
 import cn.nekopixel.bedwars.listener.WorldEvents;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.player.NameTag;
+import cn.nekopixel.bedwars.player.HealthBar;
 import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.tab.TabListManager;
 import cn.nekopixel.bedwars.spawner.NPCManager;
@@ -56,6 +57,9 @@ public class Loader {
         bedWarsPlugin.setMapManager(mapManager);
         plugin.getServer().getPluginManager().registerEvents(mapManager, plugin);
         mapManager.loadProtectedAreas();
+
+        HealthBar healthBar = new HealthBar(plugin);
+        plugin.getServer().getPluginManager().registerEvents(healthBar, plugin);
     }
 
     public static void reloadAll(Main plugin) {
