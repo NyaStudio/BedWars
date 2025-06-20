@@ -1,8 +1,9 @@
 package cn.nekopixel.bedwars.team;
 
 import cn.nekopixel.bedwars.Main;
-import cn.nekopixel.bedwars.config.Loader;
+import cn.nekopixel.bedwars.config.ConfigLoader;
 import cn.nekopixel.bedwars.setup.Map;
+import cn.nekopixel.bedwars.api.Plugin;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -15,20 +16,19 @@ import java.util.*;
 
 public class TeamManager {
     private final Main plugin;
-    private final Map mapSetup;
     private final java.util.Map<String, Set<UUID>> teams = new HashMap<>();
     private final java.util.Map<UUID, String> playerTeams = new HashMap<>();
     private Set<String> availableTeams;
 
     public TeamManager(Main plugin) {
         this.plugin = plugin;
-        this.mapSetup = new Map(plugin);
         updateAvailableTeams();
     }
 
     private void updateAvailableTeams() {
         Set<String> configTeams = new HashSet<>();
-        if (mapSetup.getMapConfig().contains("spawnpoints")) {
+        Map mapSetup = Plugin.getInstance().getMapSetup();
+        if (mapSetup != null && mapSetup.getMapConfig().contains("spawnpoints")) {
             configTeams.addAll(mapSetup.getMapConfig().getConfigurationSection("spawnpoints").getKeys(false));
         }
         this.availableTeams = configTeams;
@@ -74,7 +74,7 @@ public class TeamManager {
         setupTeamArmor(player, team);
         setupTeamItems(player);
 
-        java.util.Map<String, Location> spawnPoints = Loader.loadTeamSpawns();
+        java.util.Map<String, Location> spawnPoints = ConfigLoader.loadTeamSpawns();
         Location spawnPoint = spawnPoints.get(team);
         if (spawnPoint != null) {
             Location safeLocation = LocationUtils.findSafeLocation(spawnPoint, 3);

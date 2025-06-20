@@ -1,10 +1,10 @@
 package cn.nekopixel.bedwars.spawner;
 
 import cn.nekopixel.bedwars.Main;
-import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.GameStatusChange;
 import cn.nekopixel.bedwars.setup.Map;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.utils.LocationUtils;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,7 +19,6 @@ import java.util.*;
 
 public class NPCManager implements Listener {
     private final Main plugin;
-    private final Map mapSetup;
 
     private final Set<Villager> shopNPCs = new HashSet<>();
     private final Set<Villager> upgradeNPCs = new HashSet<>();
@@ -28,7 +27,6 @@ public class NPCManager implements Listener {
 
     public NPCManager(Main plugin) {
         this.plugin = plugin;
-        this.mapSetup = new Map(plugin);
         this.hologramHeight = plugin.getConfig().getDouble("npc.hologram_height", 2.3);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         initializeNPCs();
@@ -69,6 +67,8 @@ public class NPCManager implements Listener {
 
     @SuppressWarnings("unchecked")
     private void spawnNPCs() {
+        Map mapSetup = Plugin.getInstance().getMapSetup();
+        if (mapSetup == null) return;
         ConfigurationSection mapConfig = mapSetup.getMapConfig();
         if (mapConfig == null) return;
 

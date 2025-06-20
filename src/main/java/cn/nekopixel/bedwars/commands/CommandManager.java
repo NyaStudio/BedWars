@@ -16,13 +16,11 @@ import java.util.Set;
 
 public class CommandManager implements CommandExecutor, TabCompleter {
     private final Main plugin;
-    private final Map setup;
     private final LoadConfig loadConfig;
     private final Set<String> validCommands = Set.of("help", "reload", "switch", "setjoin", "setbed", "setspawn", "setnpc", "setspawner", "save", "upgrade", "pos1", "pos2", "addprotect", "removeprotect", "listprotect");
 
     public CommandManager(Main plugin) {
         this.plugin = plugin;
-        this.setup = new Map(plugin);
         this.loadConfig = new LoadConfig(plugin);
     }
 
@@ -69,7 +67,12 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 }
                 return true;
             default:
-                return setup.onCommand(sender, cmd, label, args);
+                Map mapSetup = Plugin.getInstance().getMapSetup();
+                if (mapSetup == null) {
+                    sender.sendMessage(ChatColor.RED + "MapSetup 未初始化");
+                    return true;
+                }
+                return mapSetup.onCommand(sender, cmd, label, args);
         }
     }
 
@@ -94,7 +97,10 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                        args[0].equalsIgnoreCase("setjoin") || args[0].equalsIgnoreCase("setbed") ||
                        args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("setnpc") ||
                        args[0].equalsIgnoreCase("setspawner")) {
-                return setup.onTabComplete(sender, command, alias, args);
+                Map mapSetup = Plugin.getInstance().getMapSetup();
+                if (mapSetup != null) {
+                    return mapSetup.onTabComplete(sender, command, alias, args);
+                }
             }
         }
         

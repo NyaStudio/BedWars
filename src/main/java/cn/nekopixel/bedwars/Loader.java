@@ -70,14 +70,15 @@ public class Loader {
     public static void reloadAll(Main plugin) {
         try {
             plugin.reloadConfig();
+            Plugin bedWarsPlugin = Plugin.getInstance();
+            
             if (mapSetup != null) {
                 mapSetup.reloadMapConfig();
             } else {
                 mapSetup = new Map(plugin);
+                bedWarsPlugin.setMapSetup(mapSetup);
                 mapSetup.reloadMapConfig();
             }
-            
-            Plugin bedWarsPlugin = Plugin.getInstance();
             if (bedWarsPlugin.getShopManager() != null) {
                 bedWarsPlugin.getShopManager().reloadConfigs();
             }

@@ -4,6 +4,7 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.setup.Map;
+import cn.nekopixel.bedwars.api.Plugin;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -24,7 +25,6 @@ public abstract class ResourceSpawner implements Listener {
     protected final String type;
     protected long interval;
     protected BukkitRunnable task;
-    protected final Map mapSetup;
 
     private final java.util.Map<Location, Item> activeDrops = new HashMap<>();
     private final Set<Location> pausedPoints = new HashSet<>();
@@ -75,7 +75,6 @@ public abstract class ResourceSpawner implements Listener {
         this.plugin = plugin;
         this.type = type;
         this.interval = plugin.getConfig().getLong("spawner.types." + type + ".interval", interval);
-        this.mapSetup = new Map(plugin);
         startCleanupTask();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
@@ -128,6 +127,9 @@ public abstract class ResourceSpawner implements Listener {
             public void run() {
                 if (GameManager.getInstance().getCurrentStatus() != GameStatus.INGAME) return;
 
+                Map mapSetup = Plugin.getInstance().getMapSetup();
+                if (mapSetup == null) return;
+                
                 List<java.util.Map<?, ?>> spawnerLocations = mapSetup.getMapConfig().getMapList("spawners." + type);
                 for (java.util.Map<?, ?> locMap : spawnerLocations) {
                     @SuppressWarnings("unchecked")
@@ -294,6 +296,9 @@ public abstract class ResourceSpawner implements Listener {
     }
 
     private void createHolograms() {
+        Map mapSetup = Plugin.getInstance().getMapSetup();
+        if (mapSetup == null) return;
+        
         List<java.util.Map<?, ?>> spawnerLocations = mapSetup.getMapConfig().getMapList("spawners." + type);
         for (java.util.Map<?, ?> locMap : spawnerLocations) {
             @SuppressWarnings("unchecked")

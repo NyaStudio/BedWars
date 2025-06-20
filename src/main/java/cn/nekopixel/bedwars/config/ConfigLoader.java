@@ -8,10 +8,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
 
-public class Loader {
+public class ConfigLoader {
     private final Main plugin;
 
-    public Loader(Main plugin) {
+    public ConfigLoader(Main plugin) {
         this.plugin = plugin;
     }
 
