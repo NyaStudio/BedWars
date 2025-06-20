@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.game;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.setup.Map;
+import cn.nekopixel.bedwars.utils.LocationUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -42,7 +43,8 @@ public class QueueManager implements Listener {
         if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
             Player player = event.getPlayer();
             if (joinLocation != null) {
-                player.teleport(joinLocation);
+                Location safeLocation = LocationUtils.findSafeLocation(joinLocation, 3);
+                player.teleport(safeLocation);
             }
         }
     }

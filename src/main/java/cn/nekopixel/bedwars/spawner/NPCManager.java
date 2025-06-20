@@ -5,6 +5,7 @@ import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.GameStatusChange;
 import cn.nekopixel.bedwars.setup.Map;
+import cn.nekopixel.bedwars.utils.LocationUtils;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
@@ -97,7 +98,16 @@ public class NPCManager implements Listener {
     }
 
     private void spawnNPC(Location location, String title, String subtitle, boolean isShop) {
-        Villager villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
+        Location safeLocation = LocationUtils.findSafeLocation(location, 3);
+        Location spawnLoc = new Location(safeLocation.getWorld(),
+            Math.floor(safeLocation.getX()) + 0.5,
+            Math.floor(safeLocation.getY()),
+            Math.floor(safeLocation.getZ()) + 0.5,
+            safeLocation.getYaw(),
+            safeLocation.getPitch()
+        );
+        
+        Villager villager = (Villager) spawnLoc.getWorld().spawnEntity(spawnLoc, EntityType.VILLAGER);
         villager.setAI(false);
         villager.setInvulnerable(true);
         villager.setCustomNameVisible(false);
@@ -109,9 +119,11 @@ public class NPCManager implements Listener {
         }
         
         List<ArmorStand> nameStands = new ArrayList<>();
-        Location nameLoc = location.clone().add(0, hologramHeight, 0);
+        Location nameLoc = spawnLoc.clone().add(0, hologramHeight, 0);
+        
         ArmorStand titleStand = createNameStand(nameLoc, title);
         nameStands.add(titleStand);
+        
         ArmorStand subtitleStand = createNameStand(nameLoc.clone().add(0, -0.3, 0), subtitle);
         nameStands.add(subtitleStand);
         

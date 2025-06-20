@@ -266,14 +266,14 @@ public class Map implements CommandExecutor, TabCompleter {
             areaSection.set("world", pos1.getWorld().getName());
             
             var pos1Section = areaSection.createSection("pos1");
-            pos1Section.set("x", pos1.getX());
-            pos1Section.set("y", pos1.getY());
-            pos1Section.set("z", pos1.getZ());
+            pos1Section.set("x", Math.floor(pos1.getX()));
+            pos1Section.set("y", Math.floor(pos1.getY()));
+            pos1Section.set("z", Math.floor(pos1.getZ()));
             
             var pos2Section = areaSection.createSection("pos2");
-            pos2Section.set("x", pos2.getX());
-            pos2Section.set("y", pos2.getY());
-            pos2Section.set("z", pos2.getZ());
+            pos2Section.set("x", Math.floor(pos2.getX()));
+            pos2Section.set("y", Math.floor(pos2.getY()));
+            pos2Section.set("z", Math.floor(pos2.getZ()));
             
             saveMapConfig();
             
@@ -390,19 +390,33 @@ public class Map implements CommandExecutor, TabCompleter {
 
     private Location getLocationFromArgs(Player player, String[] args, int startIndex) {
         if (args.length <= startIndex) {
-            return player.getLocation();
+            Location loc = player.getLocation();
+            return new Location(loc.getWorld(),
+                Math.floor(loc.getX()),
+                Math.floor(loc.getY()),
+                Math.floor(loc.getZ()),
+                loc.getYaw(),
+                loc.getPitch()
+            );
         }
 
         try {
-            double x = Double.parseDouble(args[startIndex]);
-            double y = Double.parseDouble(args[startIndex + 1]);
-            double z = Double.parseDouble(args[startIndex + 2]);
+            double x = Math.floor(Double.parseDouble(args[startIndex]));
+            double y = Math.floor(Double.parseDouble(args[startIndex + 1]));
+            double z = Math.floor(Double.parseDouble(args[startIndex + 2]));
             float yaw = args.length > startIndex + 3 ? Float.parseFloat(args[startIndex + 3]) : player.getLocation().getYaw();
             float pitch = args.length > startIndex + 4 ? Float.parseFloat(args[startIndex + 4]) : player.getLocation().getPitch();
 
             return new Location(player.getWorld(), x, y, z, yaw, pitch);
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            return player.getLocation();
+            Location loc = player.getLocation();
+            return new Location(loc.getWorld(),
+                Math.floor(loc.getX()),
+                Math.floor(loc.getY()),
+                Math.floor(loc.getZ()),
+                loc.getYaw(),
+                loc.getPitch()
+            );
         }
     }
 }

@@ -200,20 +200,39 @@ public abstract class ResourceSpawner implements Listener {
         World world = baseLoc.getWorld();
         if (world == null) return;
 
-        Location center = baseLoc.clone().add(0.5, 1.0, 0.5);
+        Location center = new Location(world,
+            Math.floor(baseLoc.getX()) + 0.5,
+            Math.floor(baseLoc.getY()) + 1.0,
+            Math.floor(baseLoc.getZ()) + 0.5,
+            baseLoc.getYaw(),
+            baseLoc.getPitch()
+        );
 
         Material mat = toDrop.getType();
         if (mat == Material.DIAMOND || mat == Material.EMERALD) {
             Material targetBlock = (mat == Material.DIAMOND) ? Material.DIAMOND_BLOCK : Material.EMERALD_BLOCK;
             Location nearest = findNearestBlock(baseLoc, targetBlock, 3);
             if (nearest != null) {
-                center = nearest.clone().add(0.5, 1.0, 0.5);
+                center = new Location(world,
+                    Math.floor(nearest.getX()) + 0.5,
+                    Math.floor(nearest.getY()) + 1.0,
+                    Math.floor(nearest.getZ()) + 0.5,
+                    nearest.getYaw(),
+                    nearest.getPitch()
+                );
 
                 List<Entity> hologramEntities = ResourceSpawner.this.hologramEntities.get(baseLoc);
                 if (hologramEntities != null && hologramEntities.size() > 3) {
                     ArmorStand blockStand = (ArmorStand) hologramEntities.get(3);
                     if (blockStand != null && !blockStand.isDead()) {
-                        center = blockStand.getLocation().clone();
+                        Location standLoc = blockStand.getLocation();
+                        center = new Location(world,
+                            Math.floor(standLoc.getX()) + 0.5,
+                            Math.floor(standLoc.getY()),
+                            Math.floor(standLoc.getZ()) + 0.5,
+                            standLoc.getYaw(),
+                            standLoc.getPitch()
+                        );
                     }
                 }
             }
@@ -241,15 +260,22 @@ public abstract class ResourceSpawner implements Listener {
         if (world == null) return 0;
 
         int total = 0;
-        Location center = baseLoc.clone().add(0.5, 0.5, 0.5);
+        Location center = new Location(world,
+            Math.floor(baseLoc.getX()) + 0.5,
+            Math.floor(baseLoc.getY()) + 0.5,
+            Math.floor(baseLoc.getZ()) + 0.5,
+            baseLoc.getYaw(),
+            baseLoc.getPitch()
+        );
+
         for (Item item : world.getEntitiesByClass(Item.class)) {
             if (item.isDead()) continue;
             if (!item.getItemStack().getType().equals(type)) continue;
 
             Location itemLoc = item.getLocation();
-            if (Math.abs(itemLoc.getX() - center.getX()) <= 1.5 &&
-                    Math.abs(itemLoc.getY() - center.getY()) <= 1.5 &&
-                    Math.abs(itemLoc.getZ() - center.getZ()) <= 1.5) {
+            if (Math.abs(Math.floor(itemLoc.getX()) - Math.floor(center.getX())) <= 1 &&
+                    Math.abs(Math.floor(itemLoc.getY()) - Math.floor(center.getY())) <= 1 &&
+                    Math.abs(Math.floor(itemLoc.getZ()) - Math.floor(center.getZ())) <= 1) {
                 total += item.getItemStack().getAmount();
             }
         }
@@ -291,13 +317,26 @@ public abstract class ResourceSpawner implements Listener {
     }
 
     private Location findSpawnerCenter(Location baseLoc) {
-        Location center = baseLoc.clone().add(0.5, 1.0, 0.5);
+        Location center = new Location(baseLoc.getWorld(),
+            Math.floor(baseLoc.getX()) + 0.5,
+            Math.floor(baseLoc.getY()) + 1.0,
+            Math.floor(baseLoc.getZ()) + 0.5,
+            baseLoc.getYaw(),
+            baseLoc.getPitch()
+        );
+
         Material mat = getMaterial();
         if (mat == Material.DIAMOND || mat == Material.EMERALD) {
             Material targetBlock = (mat == Material.DIAMOND) ? Material.DIAMOND_BLOCK : Material.EMERALD_BLOCK;
             Location nearest = findNearestBlock(baseLoc, targetBlock, 3);
             if (nearest != null) {
-                center = nearest.clone().add(0.5, 1.0, 0.5);
+                center = new Location(baseLoc.getWorld(),
+                    Math.floor(nearest.getX()) + 0.5,
+                    Math.floor(nearest.getY()) + 1.0,
+                    Math.floor(nearest.getZ()) + 0.5,
+                    nearest.getYaw(),
+                    nearest.getPitch()
+                );
             }
         }
         return center;

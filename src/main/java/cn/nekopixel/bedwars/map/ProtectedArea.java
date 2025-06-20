@@ -20,16 +20,24 @@ public class ProtectedArea {
             return false;
         }
 
-        double x = location.getX();
-        double y = location.getY();
-        double z = location.getZ();
+        int x = (int)Math.floor(location.getX());
+        int y = (int)Math.floor(location.getY());
+        int z = (int)Math.floor(location.getZ());
 
-        return x >= Math.min(minLocation.getX(), maxLocation.getX()) &&
-               x <= Math.max(minLocation.getX(), maxLocation.getX()) &&
-               y >= Math.min(minLocation.getY(), maxLocation.getY()) &&
-               y <= Math.max(minLocation.getY(), maxLocation.getY()) &&
-               z >= Math.min(minLocation.getZ(), maxLocation.getZ()) &&
-               z <= Math.max(minLocation.getZ(), maxLocation.getZ());
+        int minX = (int)Math.floor(minLocation.getX());
+        int minY = (int)Math.floor(minLocation.getY());
+        int minZ = (int)Math.floor(minLocation.getZ());
+
+        int maxX = (int)Math.floor(maxLocation.getX());
+        int maxY = (int)Math.floor(maxLocation.getY());
+        int maxZ = (int)Math.floor(maxLocation.getZ());
+
+        return x >= Math.min(minX, maxX) &&
+               x <= Math.max(minX, maxX) &&
+               y >= Math.min(minY, maxY) &&
+               y <= Math.max(minY, maxY) &&
+               z >= Math.min(minZ, maxZ) &&
+               z <= Math.max(minZ, maxZ);
     }
 
     public String getName() {

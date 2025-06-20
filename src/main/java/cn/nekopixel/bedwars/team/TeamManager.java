@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import cn.nekopixel.bedwars.utils.LocationUtils;
 
 import java.util.*;
 
@@ -76,7 +77,8 @@ public class TeamManager {
         java.util.Map<String, Location> spawnPoints = Loader.loadTeamSpawns();
         Location spawnPoint = spawnPoints.get(team);
         if (spawnPoint != null) {
-            player.teleport(spawnPoint);
+            Location safeLocation = LocationUtils.findSafeLocation(spawnPoint, 3);
+            player.teleport(safeLocation);
         } else {
             plugin.getLogger().warning("队伍 " + team + " 没有设置出生点！请检查配置文件");
             // 我不知道这里怎么写合适，自求多福吧
