@@ -1,7 +1,6 @@
 package cn.nekopixel.bedwars.utils;
 
 import org.bukkit.Bukkit;
-import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -32,7 +31,7 @@ public class WorldBackup {
         this.hashFile = backupDir.resolve("world.sha256");
     }
 
-    public boolean checkAndPrepareWorld() {
+    public boolean backupWorld() {
         try {
             if (!Files.exists(backupDir)) {
                 logger.info("正在创建备份目录...");
@@ -51,37 +50,43 @@ public class WorldBackup {
                     return false;
                 }
             }
+            return true;
+        } catch (Exception e) {
+            logger.severe("处理备份时发生错误：" + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-            if (verifyWorldIntegrity(backupWorldDir)) {
-                logger.info("完整性验证通过，正在还原...");
-                
-                if (!Bukkit.getOnlinePlayers().isEmpty()) {
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.kickPlayer("§c正在还原世界，请稍后重试！");
-                    }
-                    Thread.sleep(1000);
-                }
-
-                if (Files.exists(worldDir)) {
-                    if (Bukkit.getWorld("world") != null) {
-                        logger.info("正在卸载世界...");
-                        Bukkit.unloadWorld("world", false);
-                    }
-                    deleteWorld(worldDir);
-                }
-
-                copyWorld(backupWorldDir, worldDir);
-                logger.info("还原完成！");
-                
-                logger.info("正在重新加载世界...");
-                Bukkit.createWorld(new WorldCreator("world"));
-                return true;
-            } else {
+    public boolean restoreWorld() {
+        try {
+            if (!verifyWorldIntegrity(backupWorldDir)) {
                 logger.severe("备份完整性验证失败");
                 return false;
             }
+
+            logger.info("完整性验证通过，正在还原...");
+            
+            if (!Bukkit.getOnlinePlayers().isEmpty()) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.kickPlayer("§c正在还原世界，请稍后重试！");
+                }
+                Thread.sleep(1000);
+            }
+
+            if (Files.exists(worldDir)) {
+                if (Bukkit.getWorld("world") != null) {
+                    logger.info("正在卸载世界...");
+                    Bukkit.unloadWorld("world", false);
+                }
+                deleteWorld(worldDir);
+            }
+
+            copyWorld(backupWorldDir, worldDir);
+            logger.info("还原完成！");
+            return true;
         } catch (Exception e) {
-            logger.severe("处理备份时发生错误：" + e.getMessage());
+            logger.severe("还原世界时发生错误：" + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -146,7 +151,6 @@ public class WorldBackup {
 
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                // .lock 你他妈别害死我
                 if (!file.getFileName().toString().endsWith(".lock")) {
                     Files.copy(file, target.resolve(source.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
                 }

@@ -19,11 +19,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
+    private WorldBackup worldBackup;
+
     @Override
     public void onEnable() {
-        WorldBackup worldBackup = new WorldBackup(this);
-        if (!worldBackup.checkAndPrepareWorld()) {
-            getLogger().severe("世界备份或验证失败，插件将被禁用！");
+        worldBackup = new WorldBackup(this);
+        if (!worldBackup.backupWorld()) {
+            getLogger().severe("世界备份失败，插件将被禁用！");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -42,6 +44,9 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (worldBackup != null) {
+            worldBackup.restoreWorld();
+        }
         getLogger().info("卸载完成！");
     }
 }
