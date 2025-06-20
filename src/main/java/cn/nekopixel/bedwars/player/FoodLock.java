@@ -1,51 +1,28 @@
 package cn.nekopixel.bedwars.player;
 
 import cn.nekopixel.bedwars.Main;
-import cn.nekopixel.bedwars.game.GameManager;
-import cn.nekopixel.bedwars.game.GameStatus;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 
-public class FoodLock {
+public class FoodLock implements Listener {
+
     private final Main plugin;
-    private BukkitRunnable task;
-    private static final float LOCKED_FOOD_LEVEL = 20.0f; // 最大饱食度
 
     public FoodLock(Main plugin) {
         this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    public void start() {
-        if (task != null) {
-            task.cancel();
-        }
-
-        task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (GameManager.getInstance().isStatus(GameStatus.INGAME)) {
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        lockFoodLevel(player);
-                    }
-                }
-            }
-        };
-        task.runTaskTimer(plugin, 20L, 20L); // 每秒检查一次
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent event) {
+        event.setCancelled(true);
     }
 
-    public void stop() {
-        if (task != null) {
-            task.cancel();
-            task = null;
-        }
-    }
-
-    private void lockFoodLevel(Player player) {
-        if (player.getFoodLevel() != LOCKED_FOOD_LEVEL) {
-            player.setFoodLevel((int) LOCKED_FOOD_LEVEL);
-        }
-        if (player.getSaturation() != LOCKED_FOOD_LEVEL) {
-            player.setSaturation(LOCKED_FOOD_LEVEL);
-        }
-    }
-} 
+//    @EventHandler
+//    public void onPlayerMove(PlayerMoveEvent event) {
+//        event.getPlayer().setFoodLevel(20);
+//        event.getPlayer().setSaturation(20f);
+//    }
+}

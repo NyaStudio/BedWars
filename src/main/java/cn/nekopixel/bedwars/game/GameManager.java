@@ -76,7 +76,6 @@ public class GameManager {
             }
             eventManager.start();
             removeItems.start();
-            foodLock.start();
             teamManager.assignTeams();
             nameTag.startUpdateTask();
             
@@ -88,7 +87,6 @@ public class GameManager {
                 eventManager.stop();
             }
             removeItems.stop();
-            foodLock.stop();
             nameTag.stop();
         }
     }
