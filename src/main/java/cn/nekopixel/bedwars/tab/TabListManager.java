@@ -68,8 +68,6 @@ public class TabListManager {
         if (healthObjective == null) {
             healthObjective = board.registerNewObjective("HealthTab", "dummy", ChatColor.YELLOW + ""); // 空标题
         }
-
-        healthObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
     }
 
     private void startUpdateTask() {
@@ -96,9 +94,15 @@ public class TabListManager {
         if (!Plugin.getInstance().getGameManager().isStatus(GameStatus.INGAME)) {
             player.setPlayerListName(player.getName());
             if (healthObjective != null) {
+                healthObjective.setDisplaySlot(null); // 非游戏状态时移除显示
                 healthObjective.getScore(player.getName()).setScore(0); // 清除显示
             }
             return;
+        }
+
+        // 游戏状态为INGAME时设置显示槽
+        if (healthObjective != null) {
+            healthObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         }
 
         String team = teamManager.getPlayerTeam(player);
