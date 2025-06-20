@@ -21,15 +21,14 @@ public class CancelEvents implements Listener {
         checkWorlds();
     }
 
-    // cancel bed events
+    // cancel you can sleep
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (!event.hasBlock() || event.getClickedBlock() == null) return;
 
         Block clicked = event.getClickedBlock();
         Material type = clicked.getType();
-
-        if (type.name().endsWith("_BED")) {
+        if (type.name().endsWith("_BED") && event.getAction().toString().contains("RIGHT")) {
             event.setCancelled(true);
         }
     }

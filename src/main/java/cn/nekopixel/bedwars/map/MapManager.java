@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -95,11 +96,17 @@ public class MapManager implements Listener {
         block.setMetadata("player_placed", new FixedMetadataValue(plugin, true));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent event) {
         if (!enabled) return;
         
         Block block = event.getBlock();
+        
+        if (block.getType().name().contains("BED")) {
+            event.setCancelled(false);
+            event.setDropItems(false);
+            return;
+        }
         
         if (!isPlayerPlaced(block)) {
             event.setCancelled(true);
