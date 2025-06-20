@@ -4,7 +4,6 @@ import cn.nekopixel.bedwars.Main;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 
 public class FoodLock implements Listener {
 
@@ -12,7 +11,6 @@ public class FoodLock implements Listener {
 
     public FoodLock(Main plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler

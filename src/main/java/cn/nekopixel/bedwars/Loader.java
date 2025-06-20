@@ -4,6 +4,7 @@ import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.commands.CommandManager;
 import cn.nekopixel.bedwars.listener.CancelEvents;
 import cn.nekopixel.bedwars.listener.ChatListener;
+import cn.nekopixel.bedwars.listener.PlayerHealth;
 import cn.nekopixel.bedwars.listener.WorldEvents;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.setup.Init;
@@ -26,6 +27,7 @@ public class Loader {
         pm.registerEvents(new CancelEvents(plugin), plugin);
         pm.registerEvents(new WorldEvents((Main) plugin), plugin);
         pm.registerEvents(new ChatListener((Main) plugin), plugin);
+        pm.registerEvents(new PlayerHealth((Main) plugin), plugin);
 
         plugin.getLogger().info("功能加载完成！");
     }
