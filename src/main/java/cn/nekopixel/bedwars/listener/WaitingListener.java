@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.listener;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,6 +31,10 @@ public class WaitingListener implements Listener {
             player.setFoodLevel(20);
             player.setLevel(0);
             player.setExp(0f);
+            player.setDisplayName(player.getName());
+            player.setPlayerListName(player.getName());
+            player.getInventory().clear();
+            player.getInventory().setArmorContents(null);
         }
     }
 

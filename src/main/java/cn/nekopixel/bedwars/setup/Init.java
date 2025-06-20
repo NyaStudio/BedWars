@@ -2,7 +2,6 @@ package cn.nekopixel.bedwars.setup;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import cn.nekopixel.bedwars.api.Plugin;
@@ -20,12 +19,6 @@ public class Init {
         Scoreboard scoreboard = manager.getNewScoreboard();
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setScoreboard(scoreboard);
-        }
-
-        // 玩家名
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.setDisplayName(player.getName());
-            player.setPlayerListName(player.getName());
         }
 
         // 游戏状态
