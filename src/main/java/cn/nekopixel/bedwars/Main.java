@@ -14,11 +14,20 @@ package cn.nekopixel.bedwars;
 
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.setup.Init;
+import cn.nekopixel.bedwars.utils.WorldBackup;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
+        WorldBackup worldBackup = new WorldBackup(this);
+        if (!worldBackup.checkAndPrepareWorld()) {
+            getLogger().severe("世界备份或验证失败，插件将被禁用！");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
         Plugin.setInstance(new Plugin());
         saveDefaultConfig();
         
