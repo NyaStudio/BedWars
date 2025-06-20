@@ -28,8 +28,6 @@ public class Loader {
         pm.registerEvents(new WorldEvents((Main) plugin), plugin);
         pm.registerEvents(new ChatListener((Main) plugin), plugin);
         pm.registerEvents(new PlayerHealth((Main) plugin), plugin);
-
-        plugin.getLogger().info("功能加载完成！");
     }
 
     public static void registerCommands(Main plugin) {
