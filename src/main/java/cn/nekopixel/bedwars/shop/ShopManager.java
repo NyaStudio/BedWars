@@ -395,17 +395,32 @@ public class ShopManager implements Listener {
         }
 
         removeMaterial(player, costMaterial, price);
-        ItemStack reward = clickedItem.clone();
-        reward.setAmount(clickedItem.getAmount());
-
-        // 移除商店物品的 NBT 标签
-        ItemMeta metaReward = reward.getItemMeta();
-        if (metaReward != null) {
-            metaReward.getPersistentDataContainer().remove(itemShop.getShopItemKey());
-            metaReward.getPersistentDataContainer().remove(itemShop.getPriceKey());
-            metaReward.getPersistentDataContainer().remove(itemShop.getCurrencyKey());
-            metaReward.getPersistentDataContainer().remove(itemShop.getShopTypeKey());
-            reward.setItemMeta(metaReward);
+        
+        ItemStack reward = new ItemStack(clickedItem.getType(), clickedItem.getAmount());
+        ItemMeta rewardMeta = reward.getItemMeta();
+        
+        if (rewardMeta != null) {
+            ItemMeta shopMeta = clickedItem.getItemMeta();
+            
+            if (shopMeta != null && shopMeta.hasEnchants()) {
+                for (Map.Entry<Enchantment, Integer> entry : shopMeta.getEnchants().entrySet()) {
+                    rewardMeta.addEnchant(entry.getKey(), entry.getValue(), true);
+                }
+            }
+            
+            if (shopMeta instanceof PotionMeta && rewardMeta instanceof PotionMeta) {
+                PotionMeta shopPotionMeta = (PotionMeta) shopMeta;
+                PotionMeta rewardPotionMeta = (PotionMeta) rewardMeta;
+                rewardPotionMeta.setBasePotionData(shopPotionMeta.getBasePotionData());
+                if (shopPotionMeta.hasCustomEffects()) {
+                    shopPotionMeta.getCustomEffects().forEach(effect -> 
+                        rewardPotionMeta.addCustomEffect(effect, true));
+                }
+            }
+            
+            // rewardMeta.setDisplayName(shopMeta.getDisplayName());
+            
+            reward.setItemMeta(rewardMeta);
         }
 
         player.getInventory().addItem(reward);
