@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.shop;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.spawner.NPCManager;
+import cn.nekopixel.bedwars.utils.shop.PurchaseUtils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -281,22 +282,6 @@ public class ShopManager implements Listener {
         plugin.saveConfig();
     }
 
-    private boolean hasEnoughSpace(Player player, ItemStack item) {
-        int maxStackSize = plugin.getConfig().getInt(CONFIG_MAX_STACK_PATH, MAX_STACK_SIZE);
-        int amount = item.getAmount();
-        int maxAmount = maxStackSize * 36; // 36个槽位
-
-        // 检查玩家背包中的物品数量
-        int currentAmount = 0;
-        for (ItemStack invItem : player.getInventory().getContents()) {
-            if (invItem != null && invItem.isSimilar(item)) {
-                currentAmount += invItem.getAmount();
-            }
-        }
-
-        return (currentAmount + amount) <= maxAmount;
-    }
-
     @EventHandler
     public void onPlayerInteract(PlayerInteractEntityEvent event) {
         if (!(event.getRightClicked() instanceof Villager villager)) return;
@@ -360,7 +345,8 @@ public class ShopManager implements Listener {
         }
 
         // 检查背包空间
-        if (!hasEnoughSpace(player, clickedItem)) {
+        int maxStackSize = plugin.getConfig().getInt(CONFIG_MAX_STACK_PATH, MAX_STACK_SIZE);
+        if (!PurchaseUtils.hasEnoughSpace(player, clickedItem, maxStackSize)) {
             player.sendMessage("§c背包空间不足！");
             return;
         }
@@ -371,60 +357,24 @@ public class ShopManager implements Listener {
         int price = data.getOrDefault(itemShop.getPriceKey(), PersistentDataType.INTEGER, 0);
         String currency = data.getOrDefault(itemShop.getCurrencyKey(), PersistentDataType.STRING, "iron");
 
-        if (currency.startsWith("minecraft:")) {
-            currency = currency.substring(10);
-        }
-
-        Material costMaterial = switch (currency.toLowerCase()) {
-            case "iron_ingot" -> Material.IRON_INGOT;
-            case "gold_ingot" -> Material.GOLD_INGOT;
-            case "diamond" -> Material.DIAMOND;
-            case "emerald" -> Material.EMERALD;
-            default -> null;
-        };
+        Material costMaterial = PurchaseUtils.parseCurrency(currency);
 
         if (costMaterial == null) {
             player.sendMessage("§c未知的货币类型: " + currency);
             return;
         }
 
-        int playerAmount = countMaterial(player, costMaterial);
+        int playerAmount = PurchaseUtils.countMaterial(player, costMaterial);
         if (playerAmount < price) {
-            player.sendMessage("§c你没有足够的 " + translateCurrency(currency) + "！");
+            player.sendMessage("§c你没有足够的 " + PurchaseUtils.translateCurrency(currency) + "！");
             return;
         }
 
-        removeMaterial(player, costMaterial, price);
-        
-        ItemStack reward = new ItemStack(clickedItem.getType(), clickedItem.getAmount());
-        ItemMeta rewardMeta = reward.getItemMeta();
-        
-        if (rewardMeta != null) {
-            ItemMeta shopMeta = clickedItem.getItemMeta();
-            
-            if (shopMeta != null && shopMeta.hasEnchants()) {
-                for (Map.Entry<Enchantment, Integer> entry : shopMeta.getEnchants().entrySet()) {
-                    rewardMeta.addEnchant(entry.getKey(), entry.getValue(), true);
-                }
-            }
-            
-            if (shopMeta instanceof PotionMeta && rewardMeta instanceof PotionMeta) {
-                PotionMeta shopPotionMeta = (PotionMeta) shopMeta;
-                PotionMeta rewardPotionMeta = (PotionMeta) rewardMeta;
-                rewardPotionMeta.setBasePotionData(shopPotionMeta.getBasePotionData());
-                if (shopPotionMeta.hasCustomEffects()) {
-                    shopPotionMeta.getCustomEffects().forEach(effect -> 
-                        rewardPotionMeta.addCustomEffect(effect, true));
-                }
-            }
-            
-            // rewardMeta.setDisplayName(shopMeta.getDisplayName());
-            
-            reward.setItemMeta(rewardMeta);
-        }
+        PurchaseUtils.removeMaterial(player, costMaterial, price);
+        ItemStack reward = PurchaseUtils.createPurchaseItem(clickedItem);
 
         player.getInventory().addItem(reward);
-        player.sendMessage("§a购买成功: §f" + meta.getDisplayName() + " §7（花费 " + price + " " + translateCurrency(currency) + "）");
+        player.sendMessage("§a购买成功: §f" + meta.getDisplayName() + " §7（花费 " + price + " " + PurchaseUtils.translateCurrency(currency) + "）");
     }
 
     @EventHandler
@@ -436,46 +386,6 @@ public class ShopManager implements Listener {
             event.setCancelled(true);
             player.setItemOnCursor(null);
         }
-    }
-
-    private int countMaterial(Player player, Material material) {
-        int total = 0;
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && item.getType() == material) {
-                total += item.getAmount();
-            }
-        }
-        return total;
-    }
-
-    private void removeMaterial(Player player, Material material, int amount) {
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType() != material) continue;
-
-            int amt = item.getAmount();
-            if (amt >= amount) {
-                item.setAmount(amt - amount);
-                return;
-            } else {
-                player.getInventory().clear(i);
-                amount -= amt;
-            }
-        }
-    }
-
-    private String translateCurrency(String currency) {
-        if (currency.startsWith("minecraft:")) {
-            currency = currency.substring(10);
-        }
-
-        return switch (currency.toLowerCase()) {
-            case "iron_ingot" -> "铁锭";
-            case "gold_ingot" -> "金锭";
-            case "diamond" -> "钻石";
-            case "emerald" -> "绿宝石";
-            default -> currency;
-        };
     }
 
     public Map<String, ShopItem> getQuickBuyItems() {
