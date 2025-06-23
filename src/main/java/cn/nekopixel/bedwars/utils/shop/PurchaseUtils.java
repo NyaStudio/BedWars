@@ -106,4 +106,43 @@ public class PurchaseUtils {
 
         return (currentAmount + amount) <= maxAmount;
     }
+
+    public static void giveItem(Player player, ItemStack item) {
+        Material itemType = item.getType();
+        Material woodenVersion = hasWoodenVer(itemType);
+        
+        if (woodenVersion != null) {
+            for (int i = 0; i < player.getInventory().getSize(); i++) {
+                ItemStack invItem = player.getInventory().getItem(i);
+                if (invItem != null && invItem.getType() == woodenVersion) {
+                    player.getInventory().setItem(i, item);
+                    return;
+                }
+            }
+        }
+        
+        player.getInventory().addItem(item);
+    }
+
+    private static Material hasWoodenVer(Material material) {
+        String name = material.name();
+        
+        if (name.endsWith("_SWORD") && !name.equals("WOODEN_SWORD")) {
+            return Material.WOODEN_SWORD;
+        }
+        if (name.endsWith("_AXE") && !name.equals("WOODEN_AXE")) {
+            return Material.WOODEN_AXE;
+        }
+        if (name.endsWith("_PICKAXE") && !name.equals("WOODEN_PICKAXE")) {
+            return Material.WOODEN_PICKAXE;
+        }
+        if (name.endsWith("_SHOVEL") && !name.equals("WOODEN_SHOVEL")) {
+            return Material.WOODEN_SHOVEL;
+        }
+        if (name.endsWith("_HOE") && !name.equals("WOODEN_HOE")) {
+            return Material.WOODEN_HOE;
+        }
+        
+        return null;
+    }
 } 

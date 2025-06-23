@@ -373,7 +373,7 @@ public class ShopManager implements Listener {
         PurchaseUtils.removeMaterial(player, costMaterial, price);
         ItemStack reward = PurchaseUtils.createPurchaseItem(clickedItem);
 
-        player.getInventory().addItem(reward);
+        PurchaseUtils.giveItem(player, reward);
         player.sendMessage("§a购买成功: §f" + meta.getDisplayName() + " §7（花费 " + price + " " + PurchaseUtils.translateCurrency(currency) + "）");
     }
 
