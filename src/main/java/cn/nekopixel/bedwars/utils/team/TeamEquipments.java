@@ -26,8 +26,14 @@ public class TeamEquipments {
         ItemStack item = new ItemStack(material);
         LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
         meta.setColor(color);
-        meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-        meta.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
+        meta.setUnbreakable(true);
+        
+        if (material == Material.LEATHER_HELMET) {
+//            meta.addEnchant(Enchantment.OXYGEN, 1, true);
+//            meta.addEnchant(Enchantment.DURABILITY, 3, true);
+            meta.addEnchant(Enchantment.WATER_WORKER, 1, true);
+        }
+        
         item.setItemMeta(meta);
         return item;
     }
@@ -35,7 +41,7 @@ public class TeamEquipments {
     public static void setupTeamItems(Player player) {
         ItemStack sword = new ItemStack(Material.WOODEN_SWORD);
         ItemMeta swordMeta = sword.getItemMeta();
-        swordMeta.addEnchant(Enchantment.DURABILITY, 10, true);
+        swordMeta.setUnbreakable(true);
         sword.setItemMeta(swordMeta);
         player.getInventory().setItem(0, sword);
 
