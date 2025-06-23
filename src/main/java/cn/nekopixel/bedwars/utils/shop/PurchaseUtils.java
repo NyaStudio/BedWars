@@ -33,10 +33,23 @@ public class PurchaseUtils {
                 }
             }
             
+            if (isWeapon(reward.getType())) {
+                rewardMeta.setUnbreakable(true);
+            }
+            
             reward.setItemMeta(rewardMeta);
         }
         
         return reward;
+    }
+
+    private static boolean isWeapon(Material material) {
+        String name = material.name();
+        return name.endsWith("_SWORD") || 
+               name.endsWith("_AXE") || 
+               name.endsWith("_PICKAXE") || 
+               name.endsWith("_SHOVEL") || 
+               name.endsWith("_HOE");
     }
 
     public static int countMaterial(Player player, Material material) {
