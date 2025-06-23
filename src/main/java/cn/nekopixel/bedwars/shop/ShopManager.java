@@ -350,6 +350,11 @@ public class ShopManager implements Listener {
             player.sendMessage("§c背包空间不足！");
             return;
         }
+        
+        if (!PurchaseUtils.canPurchaseArmor(player, clickedItem)) {
+            player.sendMessage("§c你已经有比这个更好的了！");
+            return;
+        }
 
         // 更新购买时间
         lastPurchaseTime.put(player.getUniqueId(), currentTime);
@@ -373,7 +378,7 @@ public class ShopManager implements Listener {
         PurchaseUtils.removeMaterial(player, costMaterial, price);
         ItemStack reward = PurchaseUtils.createPurchaseItem(clickedItem);
 
-        PurchaseUtils.giveItem(player, reward);
+        PurchaseUtils.giveItemToPlayer(player, reward);
         player.sendMessage("§a购买成功: §f" + meta.getDisplayName() + " §7（花费 " + price + " " + PurchaseUtils.translateCurrency(currency) + "）");
     }
 

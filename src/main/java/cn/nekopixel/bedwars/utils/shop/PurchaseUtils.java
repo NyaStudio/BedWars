@@ -120,9 +120,70 @@ public class PurchaseUtils {
         return (currentAmount + amount) <= maxAmount;
     }
 
-    public static void giveItem(Player player, ItemStack item) {
+    private static int getArmorTier(Material material) {
+        String name = material.name();
+        if (name.startsWith("LEATHER_")) return 1;
+        if (name.startsWith("CHAINMAIL_")) return 2;
+        if (name.startsWith("IRON_")) return 3;
+        if (name.startsWith("GOLDEN_") || name.startsWith("GOLD_")) return 4;
+        if (name.startsWith("DIAMOND_")) return 5;
+        if (name.startsWith("NETHERITE_")) return 6;
+        return 0;
+    }
+
+    public static boolean canPurchaseArmor(Player player, ItemStack purchaseItem) {
+        Material itemType = purchaseItem.getType();
+        if (!itemType.name().endsWith("_CHESTPLATE")) {
+            return true;
+        }
+        
+        int purchaseTier = getArmorTier(itemType);
+        
+        ItemStack currentLeggings = player.getInventory().getLeggings();
+        
+        if (currentLeggings == null) {
+            return true;
+        }
+        
+        int currentTier = getArmorTier(currentLeggings.getType());
+        return purchaseTier > currentTier;
+    }
+
+    private static void upgradeLeggingsAndBoots(Player player, Material chestplateMaterial) {
+        String materialPrefix = chestplateMaterial.name().replace("_CHESTPLATE", "");
+        
+        try {
+            Material leggingsMaterial = Material.valueOf(materialPrefix + "_LEGGINGS");
+            ItemStack leggings = new ItemStack(leggingsMaterial);
+            ItemMeta leggingsMeta = leggings.getItemMeta();
+            if (leggingsMeta != null) {
+                leggingsMeta.setUnbreakable(true);
+                leggings.setItemMeta(leggingsMeta);
+            }
+
+            Material bootsMaterial = Material.valueOf(materialPrefix + "_BOOTS");
+            ItemStack boots = new ItemStack(bootsMaterial);
+            ItemMeta bootsMeta = boots.getItemMeta();
+            if (bootsMeta != null) {
+                bootsMeta.setUnbreakable(true);
+                boots.setItemMeta(bootsMeta);
+            }
+            
+            player.getInventory().setLeggings(leggings);
+            player.getInventory().setBoots(boots);
+            
+        } catch (IllegalArgumentException e) {}
+    }
+
+    public static void giveItemToPlayer(Player player, ItemStack item) {
         Material itemType = item.getType();
-        Material woodenVersion = hasWoodenVer(itemType);
+        
+        if (itemType.name().endsWith("_CHESTPLATE")) {
+            upgradeLeggingsAndBoots(player, itemType);
+            return;
+        }
+        
+        Material woodenVersion = getWoodenVersion(itemType);
         
         if (woodenVersion != null) {
             for (int i = 0; i < player.getInventory().getSize(); i++) {
@@ -134,10 +195,24 @@ public class PurchaseUtils {
             }
         }
         
+        if (itemType.name().endsWith("_HELMET") || 
+            itemType.name().endsWith("_LEGGINGS") || 
+            itemType.name().endsWith("_BOOTS")) {
+            
+            if (itemType.name().endsWith("_HELMET")) {
+                player.getInventory().setHelmet(item);
+            } else if (itemType.name().endsWith("_LEGGINGS")) {
+                player.getInventory().setLeggings(item);
+            } else if (itemType.name().endsWith("_BOOTS")) {
+                player.getInventory().setBoots(item);
+            }
+            return;
+        }
+        
         player.getInventory().addItem(item);
     }
-
-    private static Material hasWoodenVer(Material material) {
+    
+    private static Material getWoodenVersion(Material material) {
         String name = material.name();
         
         if (name.endsWith("_SWORD") && !name.equals("WOODEN_SWORD")) {
