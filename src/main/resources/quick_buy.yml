@@ -1,44 +1,257 @@
 items:
   wool:
-    index: 0
+    index: 1
     type: "minecraft:white_wool"
     name: "羊毛"
     lore:
-      - "§7这是羊毛"
+      - "§7花费: {price_display}"
+      - ""
+      - "§7可用于搭桥穿越岛屿。搭出的桥的颜色会对应你都队伍颜色。"
+      - ""
+      - "{purchase_status}"
     amount: 16
     category: quick_buy
     pricing_type: "minecraft:iron_ingot"
     pricing: 4
 
-  stone:
-    index: 1
-    type: "minecraft:stone"
-    name: "石头"
-    lore:
-      - "§7这是石头"
-    amount: 16
-    category: quick_buy
-    pricing_type: "minecraft:iron_ingot"
-    pricing: 12
-
-  iron_sword:
+  stone_sword:
     index: 2
-    type: "minecraft:iron_sword"
-    name: "铁剑"
+    type: "minecraft:stone_sword"
+    name: "石剑"
     lore:
-      - "§7这是铁剑"
+      - "§7花费: {price_display}"
+      - ""
+      - "{purchase_status}"
     amount: 1
     category: quick_buy
     pricing_type: "minecraft:iron_ingot"
     pricing: 10
 
-  chain_armor:
+  chainmail_boots:
     index: 3
-    type: "minecraft:chainmail_chestplate"
-    name: "链甲胸甲"
+    type: "minecraft:chainmail_boots"
+    name: "永久的 锁链盔甲"
     lore:
-      - "§7这是链甲胸甲"
+      - "§7花费: {price_display}"
+      - ""
+      - "§7每次重生时，都会获得锁链护腿和锁链靴子。"
+      - ""
+      - "{purchase_status}"
     amount: 1
     category: quick_buy
     pricing_type: "minecraft:iron_ingot"
-    pricing: 40 
+    pricing: 24
+
+  wooden_pickaxe:
+    index: 4
+    type: "minecraft:wooden_pickaxe"
+    name: "木斧（效率I）"
+    lore:
+      - "§7花费: {price_display}"
+      - "§7等级: §eI"
+      - ""
+      - "§7该道具可升级。"
+      - "§7死亡将会导致损失一级！"
+      - ""
+      - "§7每次重生时，至少为最低等级。"
+      - ""
+      - "{purchase_status}"
+    amount: 1
+    category: quick_buy
+    pricing_type: "minecraft:iron_ingot"
+    pricing: 24
+    enchantments:
+      - id: "minecraft:efficiency"
+        lvl: 1
+
+  bow:
+    index: 5
+    type: "minecraft:bow"
+    name: "弓"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "{purchase_status}"
+    amount: 1
+    category: quick_buy
+    pricing_type: "minecraft:gold_ingot"
+    pricing: 12
+
+  speed_potion_II:
+    index: 6
+    type: "minecraft:potion{Potion:swiftness}"
+    name: "速度II药水（45秒）"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "§9速度II （00:45）."
+      - ""
+      - "{purchase_status}"
+    amount: 1
+    potion_level: 2
+    potion_duration: 45
+    category: quick_buy
+    pricing_type: "minecraft:emerald"
+    pricing: 1
+
+  TNT:
+    index: 7
+    type: "minecraft:tnt"
+    name: "TNT"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "§7瞬间点燃，适用于摧毁沿途防御工事！"
+      - ""
+      - "{purchase_status}"
+    amount: 1
+    category: quick_buy
+    pricing_type: "minecraft:gold_ingot"
+    pricing: 4
+
+  oak_planks:
+    index: 10
+    type: "minecraft:oak_planks"
+    name: "橡木木板"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "§7用于保卫床的优质方块。能有效"
+      - "§7抵御镐子的破坏。"
+      - ""
+      - "{purchase_status}"
+    amount: 16
+    category: quick_buy
+    pricing_type: "minecraft:gold_ingot"
+    pricing: 4
+
+  iron_sword:
+    index: 11
+    type: "minecraft:iron_sword"
+    name: "铁剑"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "{purchase_status}"
+    amount: 1
+    category: quick_buy
+    pricing_type: "minecraft:gold_ingot"
+    pricing: 7
+
+  iron_boots:
+    index: 12
+    type: "minecraft:iron_boots"
+    name: "永久的 铁锭盔甲"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "§7每次重生时，都会获得铁锭护腿和铁锭靴子。"
+      - ""
+      - "{purchase_status}"
+    amount: 1
+    category: quick_buy
+    pricing_type: "minecraft:gold_ingot"
+    pricing: 12
+
+  shears:
+    index: 13
+    type: "minecraft:shears"
+    name: "永久的剪刀"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "§7适用于破坏羊毛，每次重生时会获得剪刀。"
+      - ""
+      - "{purchase_status}"
+    amount: 1
+    category: quick_buy
+    pricing_type: "minecraft:iron_ingot"
+    pricing: 12
+
+  arrow:
+    index: 14
+    type: "minecraft:arrow"
+    name: "箭"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "{purchase_status}"
+    amount: 6
+    category: quick_buy
+    pricing_type: "minecraft:gold_ingot"
+    pricing: 2
+
+  invisibility_potion:
+    index: 15
+    type: "minecraft:potion{Potion:invisibility}"
+    name: "隐身药水（30秒）"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "§9完全隐身（00:30）."
+      - ""
+      - "{purchase_status}"
+    amount: 1
+    potion_level: 0
+    potion_duration: 30
+    category: quick_buy
+    pricing_type: "minecraft:emerald"
+    pricing: 2
+
+  water_bucket:
+    index: 16
+    type: "minecraft:water_bucket"
+    name: "水桶"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "§7能很好地降低来犯敌人的速度。"
+      - "§7也能抵御来自TNT的伤害。"
+      - ""
+      - "{purchase_status}"
+    amount: 1
+    category: quick_buy
+    pricing_type: "minecraft:gold_ingot"
+    pricing: 2
+
+  slot0:
+    index: 19
+    type: "quick_buy:empty_slot"
+    category: quick_buy
+    pricing: 0
+
+  slot1:
+    index: 20
+    type: "quick_buy:empty_slot"
+    category: quick_buy
+    pricing: 0
+
+  slot2:
+    index: 21
+    type: "quick_buy:empty_slot"
+    category: quick_buy
+    pricing: 0
+
+  slot3:
+    index: 22
+    type: "quick_buy:empty_slot"
+    category: quick_buy
+    pricing: 0
+
+  slot4:
+    index: 23
+    type: "quick_buy:empty_slot"
+    category: quick_buy
+    pricing: 0
+
+  slot5:
+    index: 24
+    type: "quick_buy:empty_slot"
+    category: quick_buy
+    pricing: 0
+
+  slot6:
+    index: 25
+    type: "quick_buy:empty_slot"
+    category: quick_buy
+    pricing: 0

@@ -5,7 +5,7 @@ categories:
     index: 0
   blocks:
     name: "§a方块"
-    type: "minecraft:white_wool"
+    type: "minecraft:terracotta"  # minecraft:hardened_clay 在 1.12 以后就叫 minecraft:terracotta
     index: 1
     lore:
       - "§e点击查看"
@@ -15,9 +15,39 @@ categories:
     index: 2
     lore:
       - "§e点击查看"
-  armor:
-    name: "§9防具"
-    type: "minecraft:chainmail_chestplate"
+  armors:
+    name: "§a防具"
+    type: "minecraft:chainmail_boots"
     index: 3
+    lore:
+      - "§e点击查看"
+  tools:
+    name: "§a工具"
+    type: "minecraft:stone_pickaxe"
+    index: 4
+    lore:
+      - "§e点击查看"
+  remotes:
+    name: "§a远程类"
+    type: "minecraft:bow"
+    index: 5
+    lore:
+      - "§e点击查看"
+  potions:
+    name: "§a药水类"
+    type: "minecraft:brewing_stand"
+    index: 6
+    lore:
+      - "§e点击查看"
+  utils:
+    name: "§a实用工具"
+    type: "minecraft:tnt"
+    index: 7
+    lore:
+      - "§e点击查看"
+  rotations:
+    name: "§a轮换物品"
+    type: "minecraft:redstone_torch"
+    index: 8
     lore:
       - "§e点击查看"
