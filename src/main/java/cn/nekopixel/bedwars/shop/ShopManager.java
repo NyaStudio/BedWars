@@ -235,9 +235,7 @@ public class ShopManager implements Listener {
             }
             
             if (processedLine.contains("{price_display}")) {
-                String priceDisplay = canAfford ? 
-                    "§a" + item.getPricing() + " " + currencyName : 
-                    "§c" + item.getPricing() + " " + currencyName;
+                String priceDisplay = getColoredPriceDisplay(item.getPricing(), item.getPricingType(), currencyName);
                 processedLine = processedLine.replace("{price_display}", priceDisplay);
             }
             
@@ -462,5 +460,21 @@ public class ShopManager implements Listener {
 
     public Map<String, ShopItem> getQuickBuyItems() {
         return quickBuyItems;
+    }
+
+    private String getColoredPriceDisplay(int price, String currencyType, String currencyName) {
+        if (currencyType.startsWith("minecraft:")) {
+            currencyType = currencyType.substring(10);
+        }
+        
+        String color = switch (currencyType.toLowerCase()) {
+            case "iron_ingot" -> "§f";
+            case "gold_ingot" -> "§6";
+            case "diamond" -> "§b";
+            case "emerald" -> "§2";
+            default -> "";
+        };
+        
+        return color + price + " " + currencyName;
     }
 }
