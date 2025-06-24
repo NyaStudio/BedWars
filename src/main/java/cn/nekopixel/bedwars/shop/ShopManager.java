@@ -30,6 +30,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -211,7 +212,38 @@ public class ShopManager implements Listener {
         String displayName = canAfford ? "§a" + item.getName() : "§c" + item.getName();
         meta.setDisplayName(displayName);
         
-        meta.setLore(item.getLore());
+        List<String> processedLore = new ArrayList<>();
+        String currencyName = PurchaseUtils.translateCurrency(item.getPricingType());
+        
+        for (String line : item.getLore()) {
+            String processedLine = line;
+            
+            if (processedLine.contains("{purchase_status}")) {
+                if (canAfford) {
+                    processedLine = processedLine.replace("{purchase_status}", "§6点击购买！");
+                } else {
+                    processedLine = processedLine.replace("{purchase_status}", "§c你没有足够的" + currencyName + "！");
+                }
+            }
+            
+            if (processedLine.contains("{price}")) {
+                processedLine = processedLine.replace("{price}", String.valueOf(item.getPricing()));
+            }
+            
+            if (processedLine.contains("{currency}")) {
+                processedLine = processedLine.replace("{currency}", currencyName);
+            }
+            
+            if (processedLine.contains("{price_display}")) {
+                String priceDisplay = canAfford ? 
+                    "§a" + item.getPricing() + " " + currencyName : 
+                    "§c" + item.getPricing() + " " + currencyName;
+                processedLine = processedLine.replace("{price_display}", priceDisplay);
+            }
+            
+            processedLore.add(processedLine);
+        }
+        meta.setLore(processedLore);
 
         if (item.getEnchantments() != null) {
             for (Map<String, Object> enchantData : item.getEnchantments()) {
