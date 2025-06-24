@@ -3,7 +3,6 @@ package cn.nekopixel.bedwars.shop;
 import cn.nekopixel.bedwars.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -18,19 +17,13 @@ public class UpgradeShop {
     private final Main plugin;
     private final Inventory inventory;
     private final String title;
-    private final NamespacedKey shopItemKey;
-    private final NamespacedKey priceKey;
-    private final NamespacedKey currencyKey;
-    private final NamespacedKey shopTypeKey;
+    private final NamespacedKeys namespacedKeys;
 
     public UpgradeShop(Main plugin) {
         this.plugin = plugin;
         this.title = "§b队伍升级";
         this.inventory = Bukkit.createInventory(null, 54, title);
-        this.shopItemKey = new NamespacedKey(plugin, "shop_item");
-        this.priceKey = new NamespacedKey(plugin, "shop_price");
-        this.currencyKey = new NamespacedKey(plugin, "shop_currency");
-        this.shopTypeKey = new NamespacedKey(plugin, "shop_type");
+        this.namespacedKeys = NamespacedKeys.getInstance();
         setupShop();
     }
 
@@ -49,10 +42,10 @@ public class UpgradeShop {
         meta.setLore(lore);
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        data.set(shopItemKey, PersistentDataType.BYTE, (byte) 1);
-        data.set(priceKey, PersistentDataType.INTEGER, price);
-        data.set(currencyKey, PersistentDataType.STRING, currency);
-        data.set(shopTypeKey, PersistentDataType.STRING, "upgrade_shop");
+        data.set(namespacedKeys.getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
+        data.set(namespacedKeys.getPriceKey(), PersistentDataType.INTEGER, price);
+        data.set(namespacedKeys.getCurrencyKey(), PersistentDataType.STRING, currency);
+        data.set(namespacedKeys.getShopTypeKey(), PersistentDataType.STRING, "upgrade_shop");
 
         item.setItemMeta(meta);
         return item;
@@ -81,24 +74,8 @@ public class UpgradeShop {
         if (item == null || !item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        return data.has(shopItemKey, PersistentDataType.BYTE) && 
-               data.has(shopTypeKey, PersistentDataType.STRING) &&
-               "upgrade_shop".equals(data.get(shopTypeKey, PersistentDataType.STRING));
-    }
-
-    public NamespacedKey getShopItemKey() {
-        return shopItemKey;
-    }
-
-    public NamespacedKey getPriceKey() {
-        return priceKey;
-    }
-
-    public NamespacedKey getCurrencyKey() {
-        return currencyKey;
-    }
-
-    public NamespacedKey getShopTypeKey() {
-        return shopTypeKey;
+        return data.has(namespacedKeys.getShopItemKey(), PersistentDataType.BYTE) &&
+               data.has(namespacedKeys.getShopTypeKey(), PersistentDataType.STRING) &&
+               "upgrade_shop".equals(data.get(namespacedKeys.getShopTypeKey(), PersistentDataType.STRING));
     }
 } 

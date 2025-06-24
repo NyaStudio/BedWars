@@ -4,7 +4,6 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -18,23 +17,13 @@ import java.util.Map;
 
 public class ItemShop {
     private final Main plugin;
-    private final NamespacedKey shopItemKey;
-    private final NamespacedKey priceKey;
-    private final NamespacedKey currencyKey;
-    private final NamespacedKey shopTypeKey;
-    private final NamespacedKey categoryKey;
-    private final NamespacedKey separatorKey;
+    private final NamespacedKeys namespacedKeys;
     private final Map<String, ShopItem> items = new HashMap<>();
     private final ItemCategory itemCategory;
 
     public ItemShop(Main plugin) {
         this.plugin = plugin;
-        this.shopItemKey = new NamespacedKey(plugin, "shop_item");
-        this.priceKey = new NamespacedKey(plugin, "price");
-        this.currencyKey = new NamespacedKey(plugin, "currency");
-        this.shopTypeKey = new NamespacedKey(plugin, "shop_type");
-        this.categoryKey = new NamespacedKey(plugin, "category");
-        this.separatorKey = new NamespacedKey(plugin, "separator");
+        this.namespacedKeys = NamespacedKeys.getInstance();
         this.itemCategory = ItemCategory.getInstance();
     }
 
@@ -63,7 +52,7 @@ public class ItemShop {
                 ItemStack categoryItem = itemCategory.createCategoryItem(category, isSelected);
                 ItemMeta meta = categoryItem.getItemMeta();
                 meta.getPersistentDataContainer()
-                    .set(categoryKey, PersistentDataType.STRING, category.getId());
+                    .set(namespacedKeys.getCategoryKey(), PersistentDataType.STRING, category.getId());
                 categoryItem.setItemMeta(meta);
                 inv.setItem(categoryIndex, categoryItem);
                 categoryIndex++;
@@ -74,7 +63,7 @@ public class ItemShop {
         
         ItemStack graySeparator = itemCategory.createSeparator();
         ItemMeta grayMeta = graySeparator.getItemMeta();
-        grayMeta.getPersistentDataContainer().set(separatorKey, PersistentDataType.BYTE, (byte) 1);
+        grayMeta.getPersistentDataContainer().set(namespacedKeys.getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
         grayMeta.setDisplayName("§r");
         graySeparator.setItemMeta(grayMeta);
         
@@ -85,7 +74,7 @@ public class ItemShop {
         if (selectedIndex != -1) {
             ItemStack greenSeparator = itemCategory.createSelectedSeparator();
             ItemMeta greenMeta = greenSeparator.getItemMeta();
-            greenMeta.getPersistentDataContainer().set(separatorKey, PersistentDataType.BYTE, (byte) 1);
+            greenMeta.getPersistentDataContainer().set(namespacedKeys.getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
             greenMeta.setDisplayName("§r");
             greenSeparator.setItemMeta(greenMeta);
             inv.setItem(selectedIndex + 9, greenSeparator);
@@ -110,7 +99,9 @@ public class ItemShop {
                 Material material;
                 
                 try {
-                    if (type.startsWith("minecraft:potion{")) {
+                    if (type.equals("quick_buy:empty_slot")) {
+                        material = Material.RED_STAINED_GLASS_PANE;
+                    } else if (type.startsWith("minecraft:potion{")) {
                         material = Material.POTION;
                     } else if (type.startsWith("minecraft:")) {
                         String materialName = type.substring(10).toUpperCase();
@@ -125,11 +116,6 @@ public class ItemShop {
                 ItemStack shopItem = Plugin.getInstance().getShopManager().createShopItem(
                     material,
                     item,
-                    shopItemKey,
-                    priceKey,
-                    currencyKey,
-                    shopTypeKey,
-                    "item",
                     player
                 );
                 inv.setItem(item.getSlot(), shopItem);
@@ -148,41 +134,25 @@ public class ItemShop {
     public boolean isShopItem(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
-        return meta.getPersistentDataContainer().has(shopItemKey, PersistentDataType.BYTE);
+        return meta.getPersistentDataContainer().has(namespacedKeys.getShopItemKey(), PersistentDataType.BYTE);
     }
 
     public boolean isCategoryItem(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
-        return meta.getPersistentDataContainer().has(categoryKey, PersistentDataType.STRING);
+        return meta.getPersistentDataContainer().has(namespacedKeys.getCategoryKey(), PersistentDataType.STRING);
     }
 
     public boolean isSeparator(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
-        return meta.getPersistentDataContainer().has(separatorKey, PersistentDataType.BYTE);
+        return meta.getPersistentDataContainer().has(namespacedKeys.getSeparatorKey(), PersistentDataType.BYTE);
     }
 
     public String getCategoryFromItem(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return null;
         ItemMeta meta = item.getItemMeta();
-        return meta.getPersistentDataContainer().get(categoryKey, PersistentDataType.STRING);
-    }
-
-    public NamespacedKey getPriceKey() {
-        return priceKey;
-    }
-
-    public NamespacedKey getCurrencyKey() {
-        return currencyKey;
-    }
-
-    public NamespacedKey getShopItemKey() {
-        return shopItemKey;
-    }
-
-    public NamespacedKey getShopTypeKey() {
-        return shopTypeKey;
+        return meta.getPersistentDataContainer().get(namespacedKeys.getCategoryKey(), PersistentDataType.STRING);
     }
 
     public void updateInventory(Inventory inv, Player player) {
@@ -197,7 +167,7 @@ public class ItemShop {
                 ItemStack categoryItem = itemCategory.createCategoryItem(category, isSelected);
                 ItemMeta meta = categoryItem.getItemMeta();
                 meta.getPersistentDataContainer()
-                    .set(categoryKey, PersistentDataType.STRING, category.getId());
+                    .set(namespacedKeys.getCategoryKey(), PersistentDataType.STRING, category.getId());
                 categoryItem.setItemMeta(meta);
                 inv.setItem(categoryIndex, categoryItem);
                 categoryIndex++;
@@ -208,7 +178,7 @@ public class ItemShop {
         
         ItemStack graySeparator = itemCategory.createSeparator();
         ItemMeta grayMeta = graySeparator.getItemMeta();
-        grayMeta.getPersistentDataContainer().set(separatorKey, PersistentDataType.BYTE, (byte) 1);
+        grayMeta.getPersistentDataContainer().set(namespacedKeys.getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
         grayMeta.setDisplayName("§r");
         graySeparator.setItemMeta(grayMeta);
         
@@ -219,7 +189,7 @@ public class ItemShop {
         if (selectedIndex != -1) {
             ItemStack greenSeparator = itemCategory.createSelectedSeparator();
             ItemMeta greenMeta = greenSeparator.getItemMeta();
-            greenMeta.getPersistentDataContainer().set(separatorKey, PersistentDataType.BYTE, (byte) 1);
+            greenMeta.getPersistentDataContainer().set(namespacedKeys.getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
             greenMeta.setDisplayName("§r");
             greenSeparator.setItemMeta(greenMeta);
             inv.setItem(selectedIndex + 9, greenSeparator);
@@ -244,7 +214,9 @@ public class ItemShop {
                 Material material;
                 
                 try {
-                    if (type.startsWith("minecraft:potion{")) {
+                    if (type.equals("quick_buy:empty_slot")) {
+                        material = Material.RED_STAINED_GLASS_PANE;
+                    } else if (type.startsWith("minecraft:potion{")) {
                         material = Material.POTION;
                     } else if (type.startsWith("minecraft:")) {
                         String materialName = type.substring(10).toUpperCase();
@@ -259,11 +231,6 @@ public class ItemShop {
                 ItemStack shopItem = Plugin.getInstance().getShopManager().createShopItem(
                     material,
                     item,
-                    shopItemKey,
-                    priceKey,
-                    currencyKey,
-                    shopTypeKey,
-                    "item",
                     player
                 );
                 inv.setItem(item.getSlot(), shopItem);

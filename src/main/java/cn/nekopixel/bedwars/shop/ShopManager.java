@@ -5,7 +5,6 @@ import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.utils.shop.PurchaseUtils;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -17,7 +16,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.Inventory;
@@ -41,6 +39,7 @@ public class ShopManager implements Listener {
     private final NPCManager npcManager;
     private final ItemShop itemShop;
     private final UpgradeShop upgradeShop;
+    private final NamespacedKeys namespacedKeys;
     private final Map<UUID, Long> lastPurchaseTime = new HashMap<>();
     private static final long PURCHASE_COOLDOWN = 150;
     private static final int MAX_STACK_SIZE = 64;
@@ -58,6 +57,8 @@ public class ShopManager implements Listener {
     public ShopManager(Main plugin, NPCManager npcManager) {
         this.plugin = plugin;
         this.npcManager = npcManager;
+        NamespacedKeys.initialize(plugin);
+        this.namespacedKeys = NamespacedKeys.getInstance();
         this.itemShopConfigFile = new File(plugin.getDataFolder(), "item_shop.yml");
         this.quickBuyConfigFile = new File(plugin.getDataFolder(), "quick_buy.yml");
         new ItemCategory(plugin);
@@ -178,11 +179,26 @@ public class ShopManager implements Listener {
         ItemCategory.getInstance().loadConfig();
     }
 
-    public ItemStack createShopItem(Material material, ShopItem item, NamespacedKey shopItemKey, 
-                                  NamespacedKey priceKey, NamespacedKey currencyKey, 
-                                  NamespacedKey shopTypeKey, String shopType, Player player) {
+    public ItemStack createShopItem(Material material, ShopItem item, Player player) {
         ItemStack itemStack;
         String type = item.getType();
+        
+        if (type.equals("quick_buy:empty_slot")) {
+            itemStack = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+            ItemMeta meta = itemStack.getItemMeta();
+            meta.setDisplayName("§c空的槽位！");
+            List<String> lore = new ArrayList<>();
+            lore.add("§7这是一个快速购买插槽！§b潜行点击");
+            lore.add("§7商店中的任意商品即可将其添加到此处。");
+            meta.setLore(lore);
+            
+            PersistentDataContainer data = meta.getPersistentDataContainer();
+            data.set(namespacedKeys.getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
+            data.set(namespacedKeys.getShopTypeKey(), PersistentDataType.STRING, "item");
+            
+            itemStack.setItemMeta(meta);
+            return itemStack;
+        }
         
         if (type.startsWith("minecraft:potion{")) {
             itemStack = new ItemStack(Material.POTION);
@@ -212,40 +228,8 @@ public class ShopManager implements Listener {
         String displayName = canAfford ? "§a" + item.getName() : "§c" + item.getName();
         meta.setDisplayName(displayName);
         
-        List<String> processedLore = new ArrayList<>();
-        String currencyName = PurchaseUtils.translateCurrency(item.getPricingType());
-        
-        for (String line : item.getLore()) {
-            String processedLine = line;
-            
-            if (processedLine.contains("{purchase_status}")) {
-                if (canAfford) {
-                    processedLine = processedLine.replace("{purchase_status}", "§e点击购买！");
-                } else {
-                    processedLine = processedLine.replace("{purchase_status}", "§c你没有足够的" + currencyName + "！");
-                }
-            }
-            
-            if (processedLine.contains("{price}")) {
-                processedLine = processedLine.replace("{price}", String.valueOf(item.getPricing()));
-            }
-            
-            if (processedLine.contains("{currency}")) {
-                processedLine = processedLine.replace("{currency}", currencyName);
-            }
-            
-            if (processedLine.contains("{price_display}")) {
-                String priceDisplay = getColoredPriceDisplay(item.getPricing(), item.getPricingType(), currencyName);
-                processedLine = processedLine.replace("{price_display}", priceDisplay);
-            }
-            
-            processedLore.add(processedLine);
-        }
-        
-        if (item.getCategory().equals("quick_buy") && processedLore.size() > 0) {
-            processedLore.add(processedLore.size() - 1, "§bShift 加左键从快速购买中移除！");
-        }
-        
+        // 使用 PlaceholderProcessor 处理占位符
+        List<String> processedLore = Placeholders.processPlaceholders(item.getLore(), item, player, canAfford);
         meta.setLore(processedLore);
 
         if (item.getEnchantments() != null) {
@@ -300,6 +284,18 @@ public class ShopManager implements Listener {
                         boolean extended = item.getPotionDuration() > 600;
                         boolean upgraded = item.getPotionLevel() > 1;
                         
+                        if (upgraded && !isUpgradeable(potionTypeEnum)) {
+                            plugin.getLogger().warning("药水类型 " + potionTypeEnum + " 不支持升级，但配置中设置了 potion_level: " + item.getPotionLevel() + "。物品：" + item.getName());
+                        }
+                        
+                        if (extended && !isExtendable(potionTypeEnum)) {
+                            plugin.getLogger().warning("药水类型 " + potionTypeEnum + " 不支持延长时间，但配置中设置了 potion_duration: " + item.getPotionDuration() + "。物品：" + item.getName());
+                        }
+                        
+                        if (isInstant(potionTypeEnum) && item.getPotionDuration() > 0) {
+                            plugin.getLogger().warning("药水类型 " + potionTypeEnum + " 是瞬间效果，不应该配置 potion_duration。物品：" + item.getName());
+                        }
+                        
                         potionMeta.setBasePotionData(new PotionData(potionTypeEnum, extended, upgraded));
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
@@ -309,10 +305,10 @@ public class ShopManager implements Listener {
         }
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        data.set(shopItemKey, PersistentDataType.BYTE, (byte) 1);
-        data.set(priceKey, PersistentDataType.INTEGER, item.getPricing());
-        data.set(currencyKey, PersistentDataType.STRING, item.getPricingType());
-        data.set(shopTypeKey, PersistentDataType.STRING, shopType);
+        data.set(namespacedKeys.getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
+        data.set(namespacedKeys.getPriceKey(), PersistentDataType.INTEGER, item.getPricing());
+        data.set(namespacedKeys.getCurrencyKey(), PersistentDataType.STRING, item.getPricingType());
+        data.set(namespacedKeys.getShopTypeKey(), PersistentDataType.STRING, "item");
 
         itemStack.setItemMeta(meta);
         return itemStack;
@@ -379,8 +375,8 @@ public class ShopManager implements Listener {
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
 
-        int price = data.getOrDefault(itemShop.getPriceKey(), PersistentDataType.INTEGER, 0);
-        String currency = data.getOrDefault(itemShop.getCurrencyKey(), PersistentDataType.STRING, "iron");
+        int price = data.getOrDefault(namespacedKeys.getPriceKey(), PersistentDataType.INTEGER, 0);
+        String currency = data.getOrDefault(namespacedKeys.getCurrencyKey(), PersistentDataType.STRING, "iron");
 
         if (price == 0) {
             return;
@@ -469,19 +465,26 @@ public class ShopManager implements Listener {
         return quickBuyItems;
     }
 
-    private String getColoredPriceDisplay(int price, String currencyType, String currencyName) {
-        if (currencyType.startsWith("minecraft:")) {
-            currencyType = currencyType.substring(10);
-        }
-        
-        String color = switch (currencyType.toLowerCase()) {
-            case "iron_ingot" -> "§f";
-            case "gold_ingot" -> "§6";
-            case "diamond" -> "§b";
-            case "emerald" -> "§2";
-            default -> "";
+    private boolean isUpgradeable(PotionType type) {
+        return switch (type) {
+            case SPEED, SLOWNESS, STRENGTH, JUMP, REGEN, POISON, INSTANT_DAMAGE, INSTANT_HEAL -> true;
+            default -> false;
         };
-        
-        return color + price + " " + currencyName;
+    }
+
+    private boolean isExtendable(PotionType type) {
+        return switch (type) {
+            case SPEED, SLOWNESS, STRENGTH, WEAKNESS, JUMP, POISON, REGEN, 
+                 FIRE_RESISTANCE, WATER_BREATHING, INVISIBILITY, NIGHT_VISION, 
+                 SLOW_FALLING -> true;
+            default -> false;
+        };
+    }
+
+    private boolean isInstant(PotionType type) {
+        return switch (type) {
+            case INSTANT_HEAL, INSTANT_DAMAGE -> true;
+            default -> false;
+        };
     }
 }
