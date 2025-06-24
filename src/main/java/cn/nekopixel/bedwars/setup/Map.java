@@ -189,6 +189,30 @@ public class Map implements CommandExecutor, TabCompleter {
                 sender.sendMessage(ChatColor.GREEN + "已添加一个 " + ChatColor.YELLOW + type + ChatColor.GREEN + " 生成点");
             }
 
+            case "removespawner" -> {
+                if (args.length < 3) {
+                    sender.sendMessage(ChatColor.RED + "用法: /bw removespawner <iron|gold|diamond|emerald> <index>");
+                    return true;
+                }
+                handleRemoveSpawner(p, args[1], args[2]);
+            }
+
+            case "listspawners" -> {
+                handleListSpawners(p);
+            }
+
+            case "removenpc" -> {
+                if (args.length < 3) {
+                    sender.sendMessage(ChatColor.RED + "用法: /bw removenpc <shop|upgrade> <index>");
+                    return true;
+                }
+                handleRemoveNPC(p, args[1], args[2]);
+            }
+
+            case "listnpcs" -> {
+                handleListNPCs(p);
+            }
+
             case "pos1" -> {
                 if (args.length < 1) {
                     sender.sendMessage(ChatColor.RED + "用法: /bw pos1 [x] [y] [z]");
@@ -340,6 +364,102 @@ public class Map implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void handleRemoveSpawner(Player player, String type, String indexStr) {
+        try {
+            int index = Integer.parseInt(indexStr);
+            List<java.util.Map<?, ?>> list = mapConfig.getMapList("spawners." + type);
+            
+            if (list == null || list.isEmpty()) {
+                player.sendMessage(ChatColor.RED + "没有找到任何 " + type + " 生成点");
+                return;
+            }
+            
+            if (index < 0 || index >= list.size()) {
+                player.sendMessage(ChatColor.RED + "无效的索引！有效范围: 0-" + (list.size() - 1));
+                return;
+            }
+            
+            list.remove(index);
+            mapConfig.set("spawners." + type, list);
+            saveMapConfig();
+            
+            player.sendMessage(ChatColor.GREEN + "成功移除 " + type + " 生成点 #" + index);
+            
+        } catch (NumberFormatException e) {
+            player.sendMessage(ChatColor.RED + "无效的索引号");
+        }
+    }
+
+    private void handleListSpawners(Player player) {
+        player.sendMessage(ChatColor.GOLD + "=== 资源生成点列表 ===");
+        String[] types = {"iron", "gold", "diamond", "emerald"};
+        
+        for (String type : types) {
+            List<java.util.Map<?, ?>> list = mapConfig.getMapList("spawners." + type);
+            
+            if (list == null || list.isEmpty()) {
+                player.sendMessage(ChatColor.YELLOW + type + ": 无");
+                continue;
+            }
+            
+            player.sendMessage(ChatColor.YELLOW + type + ":");
+            for (int i = 0; i < list.size(); i++) {
+                @SuppressWarnings("unchecked")
+                Location loc = Location.deserialize((java.util.Map<String, Object>) list.get(i));
+                player.sendMessage(String.format("  §7[%d] (%.1f, %.1f, %.1f)",
+                    i, loc.getX(), loc.getY(), loc.getZ()));
+            }
+        }
+    }
+
+    private void handleRemoveNPC(Player player, String type, String indexStr) {
+        try {
+            int index = Integer.parseInt(indexStr);
+            List<java.util.Map<?, ?>> list = mapConfig.getMapList("npcs." + type);
+            
+            if (list == null || list.isEmpty()) {
+                player.sendMessage(ChatColor.RED + "没有找到任何 " + type + " NPC");
+                return;
+            }
+            
+            if (index < 0 || index >= list.size()) {
+                player.sendMessage(ChatColor.RED + "无效的索引！有效范围: 0-" + (list.size() - 1));
+                return;
+            }
+            
+            list.remove(index);
+            mapConfig.set("npcs." + type, list);
+            saveMapConfig();
+            
+            player.sendMessage(ChatColor.GREEN + "成功移除 " + type + " NPC #" + index);
+            
+        } catch (NumberFormatException e) {
+            player.sendMessage(ChatColor.RED + "无效的索引号");
+        }
+    }
+
+    private void handleListNPCs(Player player) {
+        player.sendMessage(ChatColor.GOLD + "=== NPC位置列表 ===");
+        String[] types = {"shop", "upgrade"};
+        
+        for (String type : types) {
+            List<java.util.Map<?, ?>> list = mapConfig.getMapList("npcs." + type);
+            
+            if (list == null || list.isEmpty()) {
+                player.sendMessage(ChatColor.YELLOW + type + ": 无");
+                continue;
+            }
+            
+            player.sendMessage(ChatColor.YELLOW + type + ":");
+            for (int i = 0; i < list.size(); i++) {
+                @SuppressWarnings("unchecked")
+                Location loc = Location.deserialize((java.util.Map<String, Object>) list.get(i));
+                player.sendMessage(String.format("  §7[%d] (%.1f, %.1f, %.1f)",
+                    i, loc.getX(), loc.getY(), loc.getZ()));
+            }
+        }
+    }
+
     public FileConfiguration getMapConfig() {
         return mapConfig;
     }
@@ -355,6 +475,10 @@ public class Map implements CommandExecutor, TabCompleter {
             completions.add("setspawn");
             completions.add("setnpc");
             completions.add("setspawner");
+            completions.add("removenpc");
+            completions.add("removespawner");
+            completions.add("listnpcs");
+            completions.add("listspawners");
             completions.add("pos1");
             completions.add("pos2");
             completions.add("addprotect");
@@ -364,11 +488,11 @@ public class Map implements CommandExecutor, TabCompleter {
         } else if (args.length == 2) {
             switch (args[0].toLowerCase()) {
                 case "setbed", "setspawn" -> completions.addAll(validTeams);
-                case "setnpc" -> {
+                case "setnpc", "removenpc" -> {
                     completions.add("shop");
                     completions.add("upgrade");
                 }
-                case "setspawner" -> {
+                case "setspawner", "removespawner" -> {
                     completions.add("iron");
                     completions.add("gold");
                     completions.add("diamond");
@@ -380,6 +504,27 @@ public class Map implements CommandExecutor, TabCompleter {
                     var areasSection = mapConfig.getConfigurationSection("protection");
                     if (areasSection != null) {
                         completions.addAll(areasSection.getKeys(false));
+                    }
+                }
+            }
+        } else if (args.length == 3) {
+            switch (args[0].toLowerCase()) {
+                case "removenpc" -> {
+                    String type = args[1].toLowerCase();
+                    List<java.util.Map<?, ?>> list = mapConfig.getMapList("npcs." + type);
+                    if (list != null) {
+                        for (int i = 0; i < list.size(); i++) {
+                            completions.add(String.valueOf(i));
+                        }
+                    }
+                }
+                case "removespawner" -> {
+                    String type = args[1].toLowerCase();
+                    List<java.util.Map<?, ?>> list = mapConfig.getMapList("spawners." + type);
+                    if (list != null) {
+                        for (int i = 0; i < list.size(); i++) {
+                            completions.add(String.valueOf(i));
+                        }
                     }
                 }
             }
