@@ -379,7 +379,13 @@ public class ShopManager implements Listener {
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
 
-        // 防止买两次
+        int price = data.getOrDefault(itemShop.getPriceKey(), PersistentDataType.INTEGER, 0);
+        String currency = data.getOrDefault(itemShop.getCurrencyKey(), PersistentDataType.STRING, "iron");
+
+        if (price == 0) {
+            return;
+        }
+
         long currentTime = System.currentTimeMillis();
         Long lastPurchase = lastPurchaseTime.get(player.getUniqueId());
         long cooldown = plugin.getConfig().getLong(CONFIG_COOLDOWN_PATH, PURCHASE_COOLDOWN);
@@ -401,10 +407,6 @@ public class ShopManager implements Listener {
 
         // 更新购买时间
         lastPurchaseTime.put(player.getUniqueId(), currentTime);
-
-        int price = data.getOrDefault(itemShop.getPriceKey(), PersistentDataType.INTEGER, 0);
-        String currency = data.getOrDefault(itemShop.getCurrencyKey(), PersistentDataType.STRING, "iron");
-
         Material costMaterial = PurchaseUtils.parseCurrency(currency);
 
         if (costMaterial == null) {
