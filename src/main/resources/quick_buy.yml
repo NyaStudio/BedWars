@@ -2,7 +2,7 @@ items:
   wool:
     index: 0
     type: "minecraft:white_wool"
-    name: "§f羊毛"
+    name: "羊毛"
     lore:
       - "§7这是羊毛"
     amount: 16
@@ -13,7 +13,7 @@ items:
   stone:
     index: 1
     type: "minecraft:stone"
-    name: "§f石头"
+    name: "石头"
     lore:
       - "§7这是石头"
     amount: 16
@@ -24,7 +24,7 @@ items:
   iron_sword:
     index: 2
     type: "minecraft:iron_sword"
-    name: "§f铁剑"
+    name: "铁剑"
     lore:
       - "§7这是铁剑"
     amount: 1
@@ -35,7 +35,7 @@ items:
   chain_armor:
     index: 3
     type: "minecraft:chainmail_chestplate"
-    name: "§f链甲胸甲"
+    name: "链甲胸甲"
     lore:
       - "§7这是链甲胸甲"
     amount: 1

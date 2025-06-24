@@ -6,12 +6,29 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.team.TeamManager;
 
 import java.util.Map;
 
 public class PurchaseUtils {
-    public static ItemStack createPurchaseItem(ItemStack shopItem) {
-        ItemStack reward = new ItemStack(shopItem.getType(), shopItem.getAmount());
+    public static ItemStack createPurchaseItem(ItemStack shopItem, Player player) {
+        Material shopType = shopItem.getType();
+        ItemStack reward;
+        
+        if (shopType.name().endsWith("_WOOL")) {
+            TeamManager teamManager = Plugin.getInstance().getGameManager().getTeamManager();
+            String team = teamManager.getPlayerTeam(player);
+            if (team != null) {
+                Material teamWool = getTeamWool(team);
+                reward = new ItemStack(teamWool, shopItem.getAmount());
+            } else {
+                reward = new ItemStack(shopType, shopItem.getAmount());
+            }
+        } else {
+            reward = new ItemStack(shopType, shopItem.getAmount());
+        }
+        
         ItemMeta rewardMeta = reward.getItemMeta();
         
         if (rewardMeta != null) {
@@ -232,5 +249,19 @@ public class PurchaseUtils {
         }
         
         return null;
+    }
+
+    private static Material getTeamWool(String team) {
+        return switch (team.toLowerCase()) {
+            case "red" -> Material.RED_WOOL;
+            case "blue" -> Material.BLUE_WOOL;
+            case "green" -> Material.GREEN_WOOL;
+            case "yellow" -> Material.YELLOW_WOOL;
+            case "aqua" -> Material.LIGHT_BLUE_WOOL;
+            case "white" -> Material.WHITE_WOOL;
+            case "pink" -> Material.PINK_WOOL;
+            case "gray" -> Material.GRAY_WOOL;
+            default -> Material.WHITE_WOOL;
+        };
     }
 } 

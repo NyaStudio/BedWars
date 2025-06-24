@@ -129,7 +129,8 @@ public class ItemShop {
                     priceKey,
                     currencyKey,
                     shopTypeKey,
-                    "item"
+                    "item",
+                    player
                 );
                 inv.setItem(item.getSlot(), shopItem);
             }
@@ -262,7 +263,8 @@ public class ItemShop {
                     priceKey,
                     currencyKey,
                     shopTypeKey,
-                    "item"
+                    "item",
+                    player
                 );
                 inv.setItem(item.getSlot(), shopItem);
             }

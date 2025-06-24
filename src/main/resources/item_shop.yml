@@ -2,7 +2,7 @@ items:
   wool:
     index: 0
     type: "minecraft:white_wool"
-    name: "§f羊毛"
+    name: "羊毛"
     lore:
       - "§7这是羊毛"
     amount: 16
@@ -13,7 +13,7 @@ items:
   stone_sword:
     index: 1
     type: "minecraft:stone_sword"
-    name: "§f石剑"
+    name: "石剑"
     lore:
       - "§7这是石剑"
     category: weapons
@@ -23,9 +23,9 @@ items:
   diamond_sword:
     index: 2
     type: "minecraft:diamond_sword"
-    name: "§b钻石剑"
+    name: "钻石剑"
     lore:
-      - "§e这是钻石剑"
+      - "§7这是钻石剑"
     category: weapons
     pricing_type: "minecraft:iron_ingot"
     pricing: 1
@@ -38,7 +38,7 @@ items:
   speed_potion:
     index: 9
     type: "minecraft:potion{Potion:swiftness}"
-    name: "§b速度药水"
+    name: "速度药水"
     lore:
       - "§7这是速度药水"
     category: potions
@@ -50,7 +50,7 @@ items:
   strength_potion:
     index: 10
     type: "minecraft:potion{Potion:strength}"
-    name: "§c力量药水"
+    name: "力量药水"
     lore:
       - "§7这是力量药水"
     category: potions

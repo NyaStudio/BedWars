@@ -17,6 +17,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -176,7 +179,7 @@ public class ShopManager implements Listener {
 
     public ItemStack createShopItem(Material material, ShopItem item, NamespacedKey shopItemKey, 
                                   NamespacedKey priceKey, NamespacedKey currencyKey, 
-                                  NamespacedKey shopTypeKey, String shopType) {
+                                  NamespacedKey shopTypeKey, String shopType, Player player) {
         ItemStack itemStack;
         String type = item.getType();
         
@@ -197,7 +200,17 @@ public class ShopManager implements Listener {
         itemStack.setAmount(item.getAmount());
 
         ItemMeta meta = itemStack.getItemMeta();
-        meta.setDisplayName(item.getName());
+        
+        Material costMaterial = PurchaseUtils.parseCurrency(item.getPricingType());
+        boolean canAfford = false;
+        if (player != null && costMaterial != null) {
+            int playerAmount = PurchaseUtils.countMaterial(player, costMaterial);
+            canAfford = playerAmount >= item.getPricing();
+        }
+        
+        String displayName = canAfford ? "§a" + item.getName() : "§c" + item.getName();
+        meta.setDisplayName(displayName);
+        
         meta.setLore(item.getLore());
 
         if (item.getEnchantments() != null) {
@@ -229,7 +242,6 @@ public class ShopManager implements Listener {
                     }
                     
                     try {
-                        // 我去你妈的 Bukkit PotionType
                         String bukkitPotionType = switch (potionType.toLowerCase()) {
                             case "swiftness" -> "SPEED";
                             case "slowness" -> "SLOWNESS";
@@ -372,7 +384,7 @@ public class ShopManager implements Listener {
         }
 
         PurchaseUtils.removeMaterial(player, costMaterial, price);
-        ItemStack reward = PurchaseUtils.createPurchaseItem(clickedItem);
+        ItemStack reward = PurchaseUtils.createPurchaseItem(clickedItem, player);
 
         PurchaseUtils.giveItemToPlayer(player, reward);
         player.sendMessage("§a购买成功: §f" + meta.getDisplayName() + " §7（花费 " + price + " " + PurchaseUtils.translateCurrency(currency) + "）");
@@ -386,6 +398,33 @@ public class ShopManager implements Listener {
         if (cursorItem != null && (itemShop.isShopItem(cursorItem) || upgradeShop.isShopItem(cursorItem))) {
             event.setCancelled(true);
             player.setItemOnCursor(null);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerPickupItem(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            updateShopIfOpen(player);
+        }, 1L);
+    }
+    
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            updateShopIfOpen(player);
+        }, 1L);
+    }
+    
+    private void updateShopIfOpen(Player player) {
+        Inventory openInventory = player.getOpenInventory().getTopInventory();
+        String title = player.getOpenInventory().getTitle();
+        
+        if (title.equals("§8物品商店")) {
+            itemShop.updateInventory(openInventory, player);
         }
     }
 
