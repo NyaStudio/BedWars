@@ -14,17 +14,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ItemSort {
+public class ItemCategory {
     private final Main plugin;
     private final File sortConfigFile;
     private FileConfiguration sortConfig;
     private final Map<String, SortCategory> categories = new HashMap<>();
     private String currentCategory = null;
-    private static ItemSort instance;
+    private static ItemCategory instance;
 
-    public ItemSort(Main plugin) {
+    public ItemCategory(Main plugin) {
         this.plugin = plugin;
-        this.sortConfigFile = new File(plugin.getDataFolder(), "item_sort.yml");
+        this.sortConfigFile = new File(plugin.getDataFolder(), "categories.yml");
         instance = this;
         loadConfig();
         
@@ -35,9 +35,9 @@ public class ItemSort {
         }
     }
 
-    public static ItemSort getInstance() {
+    public static ItemCategory getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("ItemSort 未初始化");
+            throw new IllegalStateException("ItemCategory 未初始化");
         }
         return instance;
     }
@@ -54,7 +54,7 @@ public class ItemSort {
         categories.clear();
         ConfigurationSection categoriesSection = sortConfig.getConfigurationSection("categories");
         if (categoriesSection == null) {
-            plugin.getLogger().warning("item_sort.yml 中缺少 categories 配置项");
+            plugin.getLogger().warning("categories.yml 中缺少 categories 配置项");
             return;
         }
 

@@ -7,8 +7,6 @@ items:
       - "§7这是羊毛"
     amount: 16
     category: blocks
-    row: 0
-    column: 0
     pricing_type: "minecraft:iron_ingot"
     pricing: 4
 
@@ -19,8 +17,6 @@ items:
     lore:
       - "§7这是石剑"
     category: weapons
-    row: 0
-    column: 1
     pricing_type: "minecraft:iron_ingot"
     pricing: 10
 
@@ -31,8 +27,6 @@ items:
     lore:
       - "§e这是钻石剑"
     category: weapons
-    row: 0
-    column: 2
     pricing_type: "minecraft:iron_ingot"
     pricing: 1
     enchantments:
@@ -42,22 +36,24 @@ items:
         lvl: 3
 
   speed_potion:
-    index: 3
+    index: 9
     type: "minecraft:potion{Potion:swiftness}"
     name: "§b速度药水"
     lore:
       - "§7这是速度药水"
+    category: potions
     pricing_type: "minecraft:emerald"
     pricing: 1
     potion_level: 1
     potion_duration: 30
 
   strength_potion:
-    index: 4
+    index: 10
     type: "minecraft:potion{Potion:strength}"
     name: "§c力量药水"
     lore:
       - "§7这是力量药水"
+    category: potions
     pricing_type: "minecraft:emerald"
     pricing: 2
     potion_level: 2

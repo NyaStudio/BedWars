@@ -15,13 +15,10 @@ public class ShopItem {
     private final int potionDuration;
     private final int amount;
     private final String category;
-    private final int row;    // 行号 (0-5)
-    private final int column; // 列号 (0-8)
 
     public ShopItem(int index, String type, String name, List<String> lore, 
                    String pricingType, int pricing, List<Map<String, Object>> enchantments,
-                   int potionLevel, int potionDuration, int amount, String category,
-                   int row, int column) {
+                   int potionLevel, int potionDuration, int amount, String category) {
         this.index = index;
         this.type = type;
         this.name = name;
@@ -33,8 +30,6 @@ public class ShopItem {
         this.potionDuration = potionDuration;
         this.amount = amount;
         this.category = category;
-        this.row = Math.min(Math.max(row, 0), 5);    // 限制在 0-5
-        this.column = Math.min(Math.max(column, 0), 8); // 限制在 0-8
     }
 
     public int getIndex() {
@@ -81,15 +76,7 @@ public class ShopItem {
         return category;
     }
 
-    public int getRow() {
-        return row;
-    }
-
-    public int getColumn() {
-        return column;
-    }
-
     public int getSlot() {
-        return (row + 2) * 9 + column; // 从第三行开始，所以是 row + 2
+        return index + 18;   // 0 = 18，你们知道吗
     }
 } 

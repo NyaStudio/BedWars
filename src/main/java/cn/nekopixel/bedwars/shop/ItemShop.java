@@ -25,7 +25,7 @@ public class ItemShop {
     private final NamespacedKey categoryKey;
     private final NamespacedKey separatorKey;
     private final Map<String, ShopItem> items = new HashMap<>();
-    private final ItemSort itemSort;
+    private final ItemCategory itemCategory;
 
     public ItemShop(Main plugin) {
         this.plugin = plugin;
@@ -35,7 +35,7 @@ public class ItemShop {
         this.shopTypeKey = new NamespacedKey(plugin, "shop_type");
         this.categoryKey = new NamespacedKey(plugin, "category");
         this.separatorKey = new NamespacedKey(plugin, "separator");
-        this.itemSort = ItemSort.getInstance();
+        this.itemCategory = ItemCategory.getInstance();
     }
 
     public void setupShop(Map<String, ShopItem> items) {
@@ -44,23 +44,23 @@ public class ItemShop {
     }
 
     public void openShop(Player player) {
-        Map<String, ItemSort.SortCategory> categories = itemSort.getCategories();
+        Map<String, ItemCategory.SortCategory> categories = itemCategory.getCategories();
         if (!categories.isEmpty()) {
             String firstCategory = categories.keySet().iterator().next();
-            itemSort.setCurrentCategory(firstCategory);
+            itemCategory.setCurrentCategory(firstCategory);
         }
 
         Inventory inv = Bukkit.createInventory(null, 54, "§8物品商店");
         
         int categoryIndex = 0;
         int selectedIndex = -1;
-        for (ItemSort.SortCategory category : itemSort.getCategories().values()) {
+        for (ItemCategory.SortCategory category : itemCategory.getCategories().values()) {
             if (categoryIndex < 9) {
-                boolean isSelected = category.getId().equals(itemSort.getCurrentCategory());
+                boolean isSelected = category.getId().equals(itemCategory.getCurrentCategory());
                 if (isSelected) {
                     selectedIndex = categoryIndex;
                 }
-                ItemStack categoryItem = itemSort.createCategoryItem(category, isSelected);
+                ItemStack categoryItem = itemCategory.createCategoryItem(category, isSelected);
                 ItemMeta meta = categoryItem.getItemMeta();
                 meta.getPersistentDataContainer()
                     .set(categoryKey, PersistentDataType.STRING, category.getId());
@@ -70,9 +70,9 @@ public class ItemShop {
             }
         }
 
-        String currentCategory = itemSort.getCurrentCategory();
+        String currentCategory = itemCategory.getCurrentCategory();
         
-        ItemStack graySeparator = itemSort.createSeparator();
+        ItemStack graySeparator = itemCategory.createSeparator();
         ItemMeta grayMeta = graySeparator.getItemMeta();
         grayMeta.getPersistentDataContainer().set(separatorKey, PersistentDataType.BYTE, (byte) 1);
         grayMeta.setDisplayName("§r");
@@ -83,7 +83,7 @@ public class ItemShop {
         }
         
         if (selectedIndex != -1) {
-            ItemStack greenSeparator = itemSort.createSelectedSeparator();
+            ItemStack greenSeparator = itemCategory.createSelectedSeparator();
             ItemMeta greenMeta = greenSeparator.getItemMeta();
             greenMeta.getPersistentDataContainer().set(separatorKey, PersistentDataType.BYTE, (byte) 1);
             greenMeta.setDisplayName("§r");
@@ -187,13 +187,13 @@ public class ItemShop {
     public void updateInventory(Inventory inv, Player player) {
         int categoryIndex = 0;
         int selectedIndex = -1;
-        for (ItemSort.SortCategory category : itemSort.getCategories().values()) {
+        for (ItemCategory.SortCategory category : itemCategory.getCategories().values()) {
             if (categoryIndex < 9) {
-                boolean isSelected = category.getId().equals(itemSort.getCurrentCategory());
+                boolean isSelected = category.getId().equals(itemCategory.getCurrentCategory());
                 if (isSelected) {
                     selectedIndex = categoryIndex;
                 }
-                ItemStack categoryItem = itemSort.createCategoryItem(category, isSelected);
+                ItemStack categoryItem = itemCategory.createCategoryItem(category, isSelected);
                 ItemMeta meta = categoryItem.getItemMeta();
                 meta.getPersistentDataContainer()
                     .set(categoryKey, PersistentDataType.STRING, category.getId());
@@ -203,9 +203,9 @@ public class ItemShop {
             }
         }
 
-        String currentCategory = itemSort.getCurrentCategory();
+        String currentCategory = itemCategory.getCurrentCategory();
         
-        ItemStack graySeparator = itemSort.createSeparator();
+        ItemStack graySeparator = itemCategory.createSeparator();
         ItemMeta grayMeta = graySeparator.getItemMeta();
         grayMeta.getPersistentDataContainer().set(separatorKey, PersistentDataType.BYTE, (byte) 1);
         grayMeta.setDisplayName("§r");
@@ -216,7 +216,7 @@ public class ItemShop {
         }
         
         if (selectedIndex != -1) {
-            ItemStack greenSeparator = itemSort.createSelectedSeparator();
+            ItemStack greenSeparator = itemCategory.createSelectedSeparator();
             ItemMeta greenMeta = greenSeparator.getItemMeta();
             greenMeta.getPersistentDataContainer().set(separatorKey, PersistentDataType.BYTE, (byte) 1);
             greenMeta.setDisplayName("§r");

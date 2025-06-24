@@ -56,7 +56,7 @@ public class ShopManager implements Listener {
         this.npcManager = npcManager;
         this.itemShopConfigFile = new File(plugin.getDataFolder(), "item_shop.yml");
         this.quickBuyConfigFile = new File(plugin.getDataFolder(), "quick_buy.yml");
-        new ItemSort(plugin);
+        new ItemCategory(plugin);
         this.itemShop = new ItemShop(plugin);
         this.upgradeShop = new UpgradeShop(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -64,10 +64,10 @@ public class ShopManager implements Listener {
         loadConfigs();
         loadShopSettings();
 
-        Map<String, ItemSort.SortCategory> categories = ItemSort.getInstance().getCategories();
+        Map<String, ItemCategory.SortCategory> categories = ItemCategory.getInstance().getCategories();
         if (!categories.isEmpty()) {
             String firstCategory = categories.keySet().iterator().next();
-            ItemSort.getInstance().setCurrentCategory(firstCategory);
+            ItemCategory.getInstance().setCurrentCategory(firstCategory);
         }
     }
 
@@ -114,9 +114,7 @@ public class ShopManager implements Listener {
                 itemSection.getInt("potion_level", 1),
                 itemSection.getInt("potion_duration", 0),
                 itemSection.getInt("amount", 1),
-                category,
-                itemSection.getInt("row", 0),
-                itemSection.getInt("column", 0)
+                category
             );
             itemShopItems.put(key, item);
         }
@@ -159,9 +157,7 @@ public class ShopManager implements Listener {
                 itemSection.getInt("potion_level", 1),
                 itemSection.getInt("potion_duration", 0),
                 itemSection.getInt("amount", 1),
-                category,
-                itemSection.getInt("row", 0),
-                itemSection.getInt("column", 0)
+                category
             );
             quickBuyItems.put(key, item);
         }
@@ -175,7 +171,7 @@ public class ShopManager implements Listener {
             plugin.saveResource(quickBuyConfigFile.getName(), false);
         }
         loadConfigs();
-        ItemSort.getInstance().loadConfig();
+        ItemCategory.getInstance().loadConfig();
     }
 
     public ItemStack createShopItem(Material material, ShopItem item, NamespacedKey shopItemKey, 
@@ -307,8 +303,8 @@ public class ShopManager implements Listener {
             event.setCancelled(true);
             player.setItemOnCursor(null);
             String category = itemShop.getCategoryFromItem(clickedItem);
-            if (category != null && !category.equals(ItemSort.getInstance().getCurrentCategory())) {
-                ItemSort.getInstance().setCurrentCategory(category);
+            if (category != null && !category.equals(ItemCategory.getInstance().getCurrentCategory())) {
+                ItemCategory.getInstance().setCurrentCategory(category);
                 Inventory inv = event.getView().getTopInventory();
                 itemShop.updateInventory(inv, player);
             }
