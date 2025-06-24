@@ -150,7 +150,7 @@ public class PurchaseUtils {
 
     public static boolean canPurchaseArmor(Player player, ItemStack purchaseItem) {
         Material itemType = purchaseItem.getType();
-        if (!itemType.name().endsWith("_CHESTPLATE")) {
+        if (!itemType.name().endsWith("_BOOTS")) {
             return true;
         }
         
@@ -166,8 +166,8 @@ public class PurchaseUtils {
         return purchaseTier > currentTier;
     }
 
-    private static void upgradeLeggingsAndBoots(Player player, Material chestplateMaterial) {
-        String materialPrefix = chestplateMaterial.name().replace("_CHESTPLATE", "");
+    private static void upgradeArmor(Player player, Material bootsMaterial) {
+        String materialPrefix = bootsMaterial.name().replace("_BOOTS", "");
         
         try {
             Material leggingsMaterial = Material.valueOf(materialPrefix + "_LEGGINGS");
@@ -177,17 +177,8 @@ public class PurchaseUtils {
                 leggingsMeta.setUnbreakable(true);
                 leggings.setItemMeta(leggingsMeta);
             }
-
-            Material bootsMaterial = Material.valueOf(materialPrefix + "_BOOTS");
-            ItemStack boots = new ItemStack(bootsMaterial);
-            ItemMeta bootsMeta = boots.getItemMeta();
-            if (bootsMeta != null) {
-                bootsMeta.setUnbreakable(true);
-                boots.setItemMeta(bootsMeta);
-            }
             
             player.getInventory().setLeggings(leggings);
-            player.getInventory().setBoots(boots);
             
         } catch (IllegalArgumentException e) {}
     }
@@ -195,9 +186,8 @@ public class PurchaseUtils {
     public static void giveItemToPlayer(Player player, ItemStack item) {
         Material itemType = item.getType();
         
-        if (itemType.name().endsWith("_CHESTPLATE")) {
-            upgradeLeggingsAndBoots(player, itemType);
-            return;
+        if (itemType.name().endsWith("_BOOTS")) {
+            upgradeArmor(player, itemType);
         }
         
         Material woodenVersion = getWoodenVersion(itemType);
@@ -212,7 +202,7 @@ public class PurchaseUtils {
             }
         }
         
-        if (itemType.name().endsWith("_HELMET") || 
+        if (itemType.name().endsWith("_HELMET") ||
             itemType.name().endsWith("_LEGGINGS") || 
             itemType.name().endsWith("_BOOTS")) {
             

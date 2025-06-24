@@ -16,7 +16,7 @@ public class Placeholders {
             
             if (processedLine.contains("{purchase_status}")) {
                 if (canAfford) {
-                    processedLine = processedLine.replace("{purchase_status}", "§e点击购买！");
+                    processedLine = processedLine.replace("{purchase_status}", "§6点击购买！");
                 } else {
                     processedLine = processedLine.replace("{purchase_status}", "§c你没有足够的" + currencyName + "！");
                 }
@@ -39,7 +39,7 @@ public class Placeholders {
         }
         
         if (item.getCategory().equals("quick_buy") && processedLore.size() > 0) {
-            processedLore.add(processedLore.size() - 1, "§bShift 加左键从快速购买中移除！");
+            processedLore.add(processedLore.size() - 1, "§bShift + 左键从快速购买中移除！");
         }
         
         return processedLore;

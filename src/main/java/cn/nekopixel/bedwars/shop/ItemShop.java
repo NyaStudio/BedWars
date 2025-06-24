@@ -17,13 +17,11 @@ import java.util.Map;
 
 public class ItemShop {
     private final Main plugin;
-    private final NamespacedKeys namespacedKeys;
     private final Map<String, ShopItem> items = new HashMap<>();
     private final ItemCategory itemCategory;
 
     public ItemShop(Main plugin) {
         this.plugin = plugin;
-        this.namespacedKeys = NamespacedKeys.getInstance();
         this.itemCategory = ItemCategory.getInstance();
     }
 
@@ -52,7 +50,7 @@ public class ItemShop {
                 ItemStack categoryItem = itemCategory.createCategoryItem(category, isSelected);
                 ItemMeta meta = categoryItem.getItemMeta();
                 meta.getPersistentDataContainer()
-                    .set(namespacedKeys.getCategoryKey(), PersistentDataType.STRING, category.getId());
+                    .set(NamespacedKeys.getInstance().getCategoryKey(), PersistentDataType.STRING, category.getId());
                 categoryItem.setItemMeta(meta);
                 inv.setItem(categoryIndex, categoryItem);
                 categoryIndex++;
@@ -63,7 +61,7 @@ public class ItemShop {
         
         ItemStack graySeparator = itemCategory.createSeparator();
         ItemMeta grayMeta = graySeparator.getItemMeta();
-        grayMeta.getPersistentDataContainer().set(namespacedKeys.getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
+        grayMeta.getPersistentDataContainer().set(NamespacedKeys.getInstance().getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
         grayMeta.setDisplayName("§r");
         graySeparator.setItemMeta(grayMeta);
         
@@ -74,7 +72,7 @@ public class ItemShop {
         if (selectedIndex != -1) {
             ItemStack greenSeparator = itemCategory.createSelectedSeparator();
             ItemMeta greenMeta = greenSeparator.getItemMeta();
-            greenMeta.getPersistentDataContainer().set(namespacedKeys.getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
+            greenMeta.getPersistentDataContainer().set(NamespacedKeys.getInstance().getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
             greenMeta.setDisplayName("§r");
             greenSeparator.setItemMeta(greenMeta);
             inv.setItem(selectedIndex + 9, greenSeparator);
@@ -134,25 +132,25 @@ public class ItemShop {
     public boolean isShopItem(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
-        return meta.getPersistentDataContainer().has(namespacedKeys.getShopItemKey(), PersistentDataType.BYTE);
+        return meta.getPersistentDataContainer().has(NamespacedKeys.getInstance().getShopItemKey(), PersistentDataType.BYTE);
     }
 
     public boolean isCategoryItem(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
-        return meta.getPersistentDataContainer().has(namespacedKeys.getCategoryKey(), PersistentDataType.STRING);
+        return meta.getPersistentDataContainer().has(NamespacedKeys.getInstance().getCategoryKey(), PersistentDataType.STRING);
     }
 
     public boolean isSeparator(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
-        return meta.getPersistentDataContainer().has(namespacedKeys.getSeparatorKey(), PersistentDataType.BYTE);
+        return meta.getPersistentDataContainer().has(NamespacedKeys.getInstance().getSeparatorKey(), PersistentDataType.BYTE);
     }
 
     public String getCategoryFromItem(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return null;
         ItemMeta meta = item.getItemMeta();
-        return meta.getPersistentDataContainer().get(namespacedKeys.getCategoryKey(), PersistentDataType.STRING);
+        return meta.getPersistentDataContainer().get(NamespacedKeys.getInstance().getCategoryKey(), PersistentDataType.STRING);
     }
 
     public void updateInventory(Inventory inv, Player player) {
@@ -167,7 +165,7 @@ public class ItemShop {
                 ItemStack categoryItem = itemCategory.createCategoryItem(category, isSelected);
                 ItemMeta meta = categoryItem.getItemMeta();
                 meta.getPersistentDataContainer()
-                    .set(namespacedKeys.getCategoryKey(), PersistentDataType.STRING, category.getId());
+                    .set(NamespacedKeys.getInstance().getCategoryKey(), PersistentDataType.STRING, category.getId());
                 categoryItem.setItemMeta(meta);
                 inv.setItem(categoryIndex, categoryItem);
                 categoryIndex++;
@@ -178,7 +176,7 @@ public class ItemShop {
         
         ItemStack graySeparator = itemCategory.createSeparator();
         ItemMeta grayMeta = graySeparator.getItemMeta();
-        grayMeta.getPersistentDataContainer().set(namespacedKeys.getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
+        grayMeta.getPersistentDataContainer().set(NamespacedKeys.getInstance().getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
         grayMeta.setDisplayName("§r");
         graySeparator.setItemMeta(grayMeta);
         
@@ -189,7 +187,7 @@ public class ItemShop {
         if (selectedIndex != -1) {
             ItemStack greenSeparator = itemCategory.createSelectedSeparator();
             ItemMeta greenMeta = greenSeparator.getItemMeta();
-            greenMeta.getPersistentDataContainer().set(namespacedKeys.getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
+            greenMeta.getPersistentDataContainer().set(NamespacedKeys.getInstance().getSeparatorKey(), PersistentDataType.BYTE, (byte) 1);
             greenMeta.setDisplayName("§r");
             greenSeparator.setItemMeta(greenMeta);
             inv.setItem(selectedIndex + 9, greenSeparator);

@@ -17,13 +17,11 @@ public class UpgradeShop {
     private final Main plugin;
     private final Inventory inventory;
     private final String title;
-    private final NamespacedKeys namespacedKeys;
 
     public UpgradeShop(Main plugin) {
         this.plugin = plugin;
         this.title = "§b队伍升级";
         this.inventory = Bukkit.createInventory(null, 54, title);
-        this.namespacedKeys = NamespacedKeys.getInstance();
         setupShop();
     }
 
@@ -42,10 +40,10 @@ public class UpgradeShop {
         meta.setLore(lore);
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        data.set(namespacedKeys.getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
-        data.set(namespacedKeys.getPriceKey(), PersistentDataType.INTEGER, price);
-        data.set(namespacedKeys.getCurrencyKey(), PersistentDataType.STRING, currency);
-        data.set(namespacedKeys.getShopTypeKey(), PersistentDataType.STRING, "upgrade_shop");
+        data.set(NamespacedKeys.getInstance().getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
+        data.set(NamespacedKeys.getInstance().getPriceKey(), PersistentDataType.INTEGER, price);
+        data.set(NamespacedKeys.getInstance().getCurrencyKey(), PersistentDataType.STRING, currency);
+        data.set(NamespacedKeys.getInstance().getShopTypeKey(), PersistentDataType.STRING, "upgrade_shop");
 
         item.setItemMeta(meta);
         return item;
@@ -74,8 +72,8 @@ public class UpgradeShop {
         if (item == null || !item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        return data.has(namespacedKeys.getShopItemKey(), PersistentDataType.BYTE) &&
-               data.has(namespacedKeys.getShopTypeKey(), PersistentDataType.STRING) &&
-               "upgrade_shop".equals(data.get(namespacedKeys.getShopTypeKey(), PersistentDataType.STRING));
+        return data.has(NamespacedKeys.getInstance().getShopItemKey(), PersistentDataType.BYTE) &&
+               data.has(NamespacedKeys.getInstance().getShopTypeKey(), PersistentDataType.STRING) &&
+               "upgrade_shop".equals(data.get(NamespacedKeys.getInstance().getShopTypeKey(), PersistentDataType.STRING));
     }
 } 

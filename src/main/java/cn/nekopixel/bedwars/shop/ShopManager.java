@@ -39,7 +39,6 @@ public class ShopManager implements Listener {
     private final NPCManager npcManager;
     private final ItemShop itemShop;
     private final UpgradeShop upgradeShop;
-    private final NamespacedKeys namespacedKeys;
     private final Map<UUID, Long> lastPurchaseTime = new HashMap<>();
     private static final long PURCHASE_COOLDOWN = 150;
     private static final int MAX_STACK_SIZE = 64;
@@ -58,7 +57,6 @@ public class ShopManager implements Listener {
         this.plugin = plugin;
         this.npcManager = npcManager;
         NamespacedKeys.initialize(plugin);
-        this.namespacedKeys = NamespacedKeys.getInstance();
         this.itemShopConfigFile = new File(plugin.getDataFolder(), "item_shop.yml");
         this.quickBuyConfigFile = new File(plugin.getDataFolder(), "quick_buy.yml");
         new ItemCategory(plugin);
@@ -193,8 +191,8 @@ public class ShopManager implements Listener {
             meta.setLore(lore);
             
             PersistentDataContainer data = meta.getPersistentDataContainer();
-            data.set(namespacedKeys.getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
-            data.set(namespacedKeys.getShopTypeKey(), PersistentDataType.STRING, "item");
+            data.set(NamespacedKeys.getInstance().getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
+            data.set(NamespacedKeys.getInstance().getShopTypeKey(), PersistentDataType.STRING, "item");
             
             itemStack.setItemMeta(meta);
             return itemStack;
@@ -305,10 +303,10 @@ public class ShopManager implements Listener {
         }
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        data.set(namespacedKeys.getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
-        data.set(namespacedKeys.getPriceKey(), PersistentDataType.INTEGER, item.getPricing());
-        data.set(namespacedKeys.getCurrencyKey(), PersistentDataType.STRING, item.getPricingType());
-        data.set(namespacedKeys.getShopTypeKey(), PersistentDataType.STRING, "item");
+        data.set(NamespacedKeys.getInstance().getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
+        data.set(NamespacedKeys.getInstance().getPriceKey(), PersistentDataType.INTEGER, item.getPricing());
+        data.set(NamespacedKeys.getInstance().getCurrencyKey(), PersistentDataType.STRING, item.getPricingType());
+        data.set(NamespacedKeys.getInstance().getShopTypeKey(), PersistentDataType.STRING, "item");
 
         itemStack.setItemMeta(meta);
         return itemStack;
@@ -375,8 +373,8 @@ public class ShopManager implements Listener {
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
 
-        int price = data.getOrDefault(namespacedKeys.getPriceKey(), PersistentDataType.INTEGER, 0);
-        String currency = data.getOrDefault(namespacedKeys.getCurrencyKey(), PersistentDataType.STRING, "iron");
+        int price = data.getOrDefault(NamespacedKeys.getInstance().getPriceKey(), PersistentDataType.INTEGER, 0);
+        String currency = data.getOrDefault(NamespacedKeys.getInstance().getCurrencyKey(), PersistentDataType.STRING, "iron");
 
         if (price == 0) {
             return;
