@@ -241,6 +241,11 @@ public class ShopManager implements Listener {
             
             processedLore.add(processedLine);
         }
+        
+        if (item.getCategory().equals("quick_buy") && processedLore.size() > 0) {
+            processedLore.add(processedLore.size() - 1, "§bShift + 左键从快速购买中移除！");
+        }
+        
         meta.setLore(processedLore);
 
         if (item.getEnchantments() != null) {
