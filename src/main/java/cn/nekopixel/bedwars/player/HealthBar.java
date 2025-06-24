@@ -8,6 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -27,10 +29,11 @@ public class HealthBar implements Listener {
     
     private void initializeHealthBars() {
         if (GameManager.getInstance().isStatus(GameStatus.INGAME)) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                setupHealthBar(player);
-                player.setHealth(player.getHealth());
-            }
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    setupHealthBar(player);
+                }
+            }, 2L);
         } else {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 removeHealthBar(player);
@@ -41,10 +44,11 @@ public class HealthBar implements Listener {
     @EventHandler
     public void onGameStatusChange(GameStatusChange event) {
         if (event.getNewStatus() == GameStatus.INGAME) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                setupHealthBar(player);
-                player.setHealth(player.getHealth());
-            }
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    setupHealthBar(player);
+                }
+            }, 2L);
         } else {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 removeHealthBar(player);
@@ -54,12 +58,14 @@ public class HealthBar implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
         if (GameManager.getInstance().isStatus(GameStatus.INGAME)) {
-            Player player = event.getPlayer();
-            setupHealthBar(player);
-            player.setHealth(player.getHealth());
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (player.isOnline()) {
+                    setupHealthBar(player);
+                }
+            }, 2L);
         } else {
-            Player player = event.getPlayer();
             removeHealthBar(player);
         }
     }
@@ -68,10 +74,23 @@ public class HealthBar implements Listener {
         Scoreboard scoreboard = player.getScoreboard();
         Objective obj = scoreboard.getObjective(OBJECTIVE_NAME);
         if (obj == null) {
-            obj = scoreboard.registerNewObjective(OBJECTIVE_NAME, "health");
+            obj = scoreboard.registerNewObjective(OBJECTIVE_NAME, "dummy");
             obj.setDisplaySlot(DisplaySlot.BELOW_NAME);
         }
-        player.setScoreboard(scoreboard);
+        
+        updateAllHealthDisplays();
+    }
+    
+    private void updateAllHealthDisplays() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Scoreboard scoreboard = player.getScoreboard();
+            Objective obj = scoreboard.getObjective(OBJECTIVE_NAME);
+            if (obj != null) {
+                for (Player target : Bukkit.getOnlinePlayers()) {
+                    obj.getScore(target.getName()).setScore((int) Math.round(target.getHealth()));
+                }
+            }
+        }
     }
 
     private void removeHealthBar(Player player) {
@@ -79,6 +98,20 @@ public class HealthBar implements Listener {
         Objective obj = scoreboard.getObjective(OBJECTIVE_NAME);
         if (obj != null) {
             obj.unregister();
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player && GameManager.getInstance().isStatus(GameStatus.INGAME)) {
+            Bukkit.getScheduler().runTaskLater(plugin, this::updateAllHealthDisplays, 1L);
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerRegen(EntityRegainHealthEvent event) {
+        if (event.getEntity() instanceof Player && GameManager.getInstance().isStatus(GameStatus.INGAME)) {
+            Bukkit.getScheduler().runTaskLater(plugin, this::updateAllHealthDisplays, 1L);
         }
     }
 }
