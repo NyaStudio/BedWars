@@ -21,6 +21,21 @@ public class HealthBar implements Listener {
     public HealthBar(Main plugin) {
         this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(this, plugin);
+        
+        initializeHealthBars();
+    }
+    
+    private void initializeHealthBars() {
+        if (GameManager.getInstance().isStatus(GameStatus.INGAME)) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                setupHealthBar(player);
+                player.setHealth(player.getHealth());
+            }
+        } else {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                removeHealthBar(player);
+            }
+        }
     }
 
     @EventHandler
@@ -43,6 +58,9 @@ public class HealthBar implements Listener {
             Player player = event.getPlayer();
             setupHealthBar(player);
             player.setHealth(player.getHealth());
+        } else {
+            Player player = event.getPlayer();
+            removeHealthBar(player);
         }
     }
 
