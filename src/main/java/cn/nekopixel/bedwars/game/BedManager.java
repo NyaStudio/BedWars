@@ -106,7 +106,14 @@ public class BedManager implements Listener {
         if (team != null) {
             Player destroyer = event.getPlayer();
             TeamManager teamManager = GameManager.getInstance().getTeamManager();
-            
+            String destroyerTeam = teamManager.getPlayerTeam(destroyer);
+
+            if (team.equalsIgnoreCase(destroyerTeam)) {
+                event.setCancelled(true);
+                destroyer.sendMessage("§c你不能破坏自己队伍的床！");
+                return;
+            }
+
             teamBeds.put(team.toLowerCase(), false);
             
             String teamColor = getTeamChatColor(team);
