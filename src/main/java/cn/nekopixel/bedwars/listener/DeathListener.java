@@ -39,9 +39,22 @@ public class DeathListener implements Listener {
     private final Main plugin;
     private final Set<UUID> respawningPlayers = new HashSet<>();
     private final Set<UUID> spectatorPlayers = new HashSet<>();
+    private final java.util.Map<UUID, DeathState> disconnectedDeathStates = new HashMap<>();
     
     public DeathListener(Main plugin) {
         this.plugin = plugin;
+    }
+    
+    private static class DeathState {
+        final boolean isSpectator;
+        final String team;
+        final long disconnectTime;
+        
+        DeathState(boolean isSpectator, String team) {
+            this.isSpectator = isSpectator;
+            this.team = team;
+            this.disconnectTime = System.currentTimeMillis();
+        }
     }
     
     @EventHandler(priority = EventPriority.HIGH)
@@ -70,11 +83,29 @@ public class DeathListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player joiningPlayer = event.getPlayer();
+        UUID playerId = joiningPlayer.getUniqueId();
         
         for (UUID respawningPlayerId : respawningPlayers) {
             Player respawningPlayer = Bukkit.getPlayer(respawningPlayerId);
             if (respawningPlayer != null && respawningPlayer.isOnline()) {
                 joiningPlayer.hidePlayer(plugin, respawningPlayer);
+            }
+        }
+        
+        if (disconnectedDeathStates.containsKey(playerId) &&
+            GameManager.getInstance().isStatus(GameStatus.INGAME)) {
+            
+            DeathState deathState = disconnectedDeathStates.remove(playerId);
+            
+            if (deathState.team != null) {
+                BedManager bedManager = GameManager.getInstance().getBedManager();
+                boolean hasBed = bedManager.hasBed(deathState.team);
+                
+                if (hasBed && !deathState.isSpectator) {
+                    handleReconnectDeath(joiningPlayer, deathState.team);
+                } else {
+                    restoreSpectatorState(joiningPlayer);
+                }
             }
         }
     }
@@ -85,6 +116,12 @@ public class DeathListener implements Listener {
         UUID playerId = player.getUniqueId();
         
         if (respawningPlayers.contains(playerId)) {
+            TeamManager teamManager = GameManager.getInstance().getTeamManager();
+            String team = teamManager.getPlayerTeam(player);
+            boolean isSpectator = spectatorPlayers.contains(playerId);
+            
+            disconnectedDeathStates.put(playerId, new DeathState(isSpectator, team));
+            
             respawningPlayers.remove(playerId);
             player.setFlying(false);
             player.setAllowFlight(false);
@@ -346,11 +383,84 @@ public class DeathListener implements Listener {
                 respawningPlayers.remove(playerId);
             }
             spectatorPlayers.clear();
+            disconnectedDeathStates.clear();
             
             TabListManager tabListManager = Plugin.getInstance().getTabListManager();
             if (tabListManager != null) {
                 tabListManager.clearTemporarySpectators();
             }
         }
+    }
+    
+    private void handleReconnectDeath(Player player, String team) {
+        respawningPlayers.add(player.getUniqueId());
+        
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+        
+        player.setHealth(player.getMaxHealth());
+        player.setFoodLevel(20);
+        
+        player.setAllowFlight(true);
+        player.setFlying(true);
+        
+        Location respawningLocation = getRespawningLocation();
+        if (respawningLocation != null) {
+            player.teleport(respawningLocation);
+        }
+        
+        RespawnPacketHandler.hidePlayer(player);
+        
+        TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+        if (tabListManager != null) {
+            tabListManager.setTemporarySpectator(player, true);
+        }
+        
+        player.sendMessage("§e你将在§c10§e秒后重生！");
+        
+        new BukkitRunnable() {
+            int countdown = 10;
+            
+            @Override
+            public void run() {
+                countdown--;
+                
+                if (countdown > 0) {
+                    player.sendMessage("§e你将在§c" + countdown + "§e秒后重生！");
+                } else {
+                    respawnPlayer(player);
+                    respawningPlayers.remove(player.getUniqueId());
+                    this.cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 20L, 20L);
+    }
+    
+    private void restoreSpectatorState(Player player) {
+        respawningPlayers.add(player.getUniqueId());
+        spectatorPlayers.add(player.getUniqueId());
+        
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+        
+        player.setHealth(player.getMaxHealth());
+        player.setFoodLevel(20);
+        
+        player.setAllowFlight(true);
+        player.setFlying(true);
+        
+        Location respawningLocation = getRespawningLocation();
+        if (respawningLocation != null) {
+            player.teleport(respawningLocation);
+        }
+        
+        RespawnPacketHandler.hidePlayer(player);
+        
+        TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+        if (tabListManager != null) {
+            tabListManager.setTemporarySpectator(player, true);
+        }
+        
+        player.sendMessage("§c你现在是观察者！");
     }
 } 
