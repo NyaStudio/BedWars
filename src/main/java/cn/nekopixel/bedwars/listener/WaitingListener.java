@@ -1,10 +1,12 @@
 package cn.nekopixel.bedwars.listener;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
-import org.bukkit.Bukkit;
+import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,6 +16,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 public class WaitingListener implements Listener {
     private final Main plugin;
@@ -66,5 +69,32 @@ public class WaitingListener implements Listener {
         if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
             event.setCancelled(true);
         }
+    }
+    
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
+            Player player = event.getPlayer();
+            
+            if (player.getLocation().getY() < -100) {
+                Location joinLocation = getJoinLocation();
+                if (joinLocation != null) {
+                    player.teleport(joinLocation);
+                }
+            }
+        }
+    }
+    
+    private Location getJoinLocation() {
+        Map mapSetup = Plugin.getInstance().getMapSetup();
+        if (mapSetup == null) {
+            return null;
+        }
+        
+        if (mapSetup.getMapConfig().contains("join")) {
+            return Location.deserialize(mapSetup.getMapConfig().getConfigurationSection("join").getValues(false));
+        }
+        
+        return null;
     }
 } 

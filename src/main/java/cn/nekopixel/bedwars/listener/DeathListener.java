@@ -19,6 +19,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -77,6 +78,25 @@ public class DeathListener implements Listener {
             player.setFlying(false);
             player.setAllowFlight(false);
             RespawnPacketHandler.showPlayer(player);
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (!GameManager.getInstance().isStatus(GameStatus.INGAME)) {
+            return;
+        }
+        
+        Player player = event.getPlayer();
+        if (player.getLocation().getY() < -100) {
+            if (respawningPlayers.contains(player.getUniqueId())) {
+                Location respawningLocation = getRespawningLocation();
+                if (respawningLocation != null) {
+                    player.teleport(respawningLocation);
+                }
+            } else {
+                handlePlayerDeath(player);
+            }
         }
     }
 
