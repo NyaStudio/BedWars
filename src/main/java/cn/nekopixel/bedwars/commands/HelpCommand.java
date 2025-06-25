@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 public class HelpCommand {
     public static void sendMainHelp(CommandSender sender) {
         sender.sendMessage(ChatColor.GOLD + "=== Bedwars 命令帮助 ===");
+        sender.sendMessage(ChatColor.YELLOW + "/bw version " + ChatColor.GRAY + "- 显示插件版本信息");
         sender.sendMessage(ChatColor.YELLOW + "/bw switch <status> " + ChatColor.GRAY + "- 切换游戏状态");
         sender.sendMessage(ChatColor.YELLOW + "/bw reload " + ChatColor.GRAY + "- 重新加载配置文件");
         sender.sendMessage(ChatColor.YELLOW + "/bw save " + ChatColor.GRAY + "- 保存配置文件");

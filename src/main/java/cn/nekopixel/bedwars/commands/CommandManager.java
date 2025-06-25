@@ -17,7 +17,7 @@ import java.util.Set;
 public class CommandManager implements CommandExecutor, TabCompleter {
     private final Main plugin;
     private final LoadConfig loadConfig;
-    private final Set<String> validCommands = Set.of("help", "reload", "switch", "setjoin", "setrespawning", "setbed", "removebed", "listbeds", "setspawn", "addnpc", "setspawner", "removenpc", "removespawner", "listnpcs", "listspawners", "save", "upgrade", "pos1", "pos2", "addprotect", "removeprotect", "listprotect", "setmode");
+    private final Set<String> validCommands = Set.of("help", "reload", "switch", "setjoin", "setrespawning", "setbed", "removebed", "listbeds", "setspawn", "addnpc", "setspawner", "removenpc", "removespawner", "listnpcs", "listspawners", "save", "upgrade", "pos1", "pos2", "addprotect", "removeprotect", "listprotect", "setmode", "version", "ver");
 
     public CommandManager(Main plugin) {
         this.plugin = plugin;
@@ -65,6 +65,10 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                     Plugin.getInstance().getGameManager().getSpawnerManager().getEmeraldSpawner().upgrade();
                     sender.sendMessage(ChatColor.GREEN + "绿宝石生成点已升级");
                 }
+                return true;
+            case "version":
+            case "ver":
+                VersionCommand.showVersion(sender, plugin);
                 return true;
             default:
                 Map mapSetup = Plugin.getInstance().getMapSetup();
