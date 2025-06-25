@@ -16,7 +16,7 @@ public class Placeholders {
             
             if (processedLine.contains("{purchase_status}")) {
                 if (canAfford) {
-                    processedLine = processedLine.replace("{purchase_status}", "§6点击购买！");
+                    processedLine = processedLine.replace("{purchase_status}", "§e点击购买！");
                 } else {
                     processedLine = processedLine.replace("{purchase_status}", "§c你没有足够的" + currencyName + "！");
                 }

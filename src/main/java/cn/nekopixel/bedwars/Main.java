@@ -15,11 +15,24 @@ package cn.nekopixel.bedwars;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.setup.Init;
 import cn.nekopixel.bedwars.utils.WorldBackup;
+import cn.nekopixel.bedwars.packet.PotionPacketHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.github.retrooper.packetevents.PacketEvents;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 
 public final class Main extends JavaPlugin {
     private WorldBackup worldBackup;
+
+    @Override
+    public void onLoad() {
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        PacketEvents.getAPI().getSettings()
+            .reEncodeByDefault(false)
+            .checkForUpdates(false)
+            .bStats(false);
+        PacketEvents.getAPI().load();
+    }
 
     @Override
     public void onEnable() {
@@ -33,17 +46,23 @@ public final class Main extends JavaPlugin {
         Plugin.setInstance(new Plugin());
         saveDefaultConfig();
         
+        PacketEvents.getAPI().init();
+        
         Loader.initializeManagers(this);
         Init.initialize();
         
         Loader.registerEvents(this);
         Loader.registerCommands(this);
         
+        PacketEvents.getAPI().getEventManager().registerListener(new PotionPacketHandler(this));
+        
         getLogger().info("加载完成！");
     }
 
     @Override
     public void onDisable() {
+        PacketEvents.getAPI().terminate();
+        
         if (worldBackup != null) {
             worldBackup.restoreWorld();
         }

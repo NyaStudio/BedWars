@@ -224,11 +224,7 @@ public class ShopManager implements Listener {
         }
         
         String displayName = canAfford ? "§a" + item.getName() : "§c" + item.getName();
-        meta.setDisplayName(displayName);
-        
-        // 使用 PlaceholderProcessor 处理占位符
         List<String> processedLore = Placeholders.processPlaceholders(item.getLore(), item, player, canAfford);
-        meta.setLore(processedLore);
 
         if (item.getEnchantments() != null) {
             for (Map<String, Object> enchantData : item.getEnchantments()) {
@@ -279,22 +275,32 @@ public class ShopManager implements Listener {
                         };
                         
                         PotionType potionTypeEnum = PotionType.valueOf(bukkitPotionType);
-                        boolean extended = item.getPotionDuration() > 600;
-                        boolean upgraded = item.getPotionLevel() > 1;
+                        boolean needsCustomHandling = item.getPotionDuration() > 0 || 
+                                                     item.getPotionLevel() > 2 || 
+                                                     item.getPotionLevel() == 0;
                         
-                        if (upgraded && !isUpgradeable(potionTypeEnum)) {
-                            plugin.getLogger().warning("药水类型 " + potionTypeEnum + " 不支持升级，但配置中设置了 potion_level: " + item.getPotionLevel() + "。物品：" + item.getName());
+                        if (needsCustomHandling) {
+                            try {
+                                boolean upgraded = item.getPotionLevel() >= 2;
+                                potionMeta.setBasePotionData(new PotionData(potionTypeEnum, false, upgraded));
+                            } catch (Exception e) {
+                                potionMeta.setBasePotionData(new PotionData(PotionType.WATER));
+                            }
+                            
+                            PersistentDataContainer container = potionMeta.getPersistentDataContainer();
+                            container.set(NamespacedKeys.getInstance().getCustomPotionLevel(), PersistentDataType.INTEGER, item.getPotionLevel());
+                            container.set(NamespacedKeys.getInstance().getCustomPotionDuration(), PersistentDataType.INTEGER, item.getPotionDuration());
+                            container.set(NamespacedKeys.getInstance().getCustomPotionType(), PersistentDataType.STRING, potionTypeEnum.name());
+                        } else {
+                            boolean extended = false;
+                            boolean upgraded = item.getPotionLevel() > 1;
+                            
+                            if (upgraded && !isUpgradeable(potionTypeEnum)) {
+                                plugin.getLogger().warning("药水类型 " + potionTypeEnum + " 不支持升级，但配置中设置了 potion_level: " + item.getPotionLevel() + "。物品：" + item.getName());
+                            }
+                            
+                            potionMeta.setBasePotionData(new PotionData(potionTypeEnum, extended, upgraded));
                         }
-                        
-                        if (extended && !isExtendable(potionTypeEnum)) {
-                            plugin.getLogger().warning("药水类型 " + potionTypeEnum + " 不支持延长时间，但配置中设置了 potion_duration: " + item.getPotionDuration() + "。物品：" + item.getName());
-                        }
-                        
-                        if (isInstant(potionTypeEnum) && item.getPotionDuration() > 0) {
-                            plugin.getLogger().warning("药水类型 " + potionTypeEnum + " 是瞬间效果，不应该配置 potion_duration。物品：" + item.getName());
-                        }
-                        
-                        potionMeta.setBasePotionData(new PotionData(potionTypeEnum, extended, upgraded));
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
                     }
@@ -302,6 +308,9 @@ public class ShopManager implements Listener {
             }
         }
 
+        meta.setDisplayName(displayName);
+        meta.setLore(processedLore);
+        
         PersistentDataContainer data = meta.getPersistentDataContainer();
         data.set(NamespacedKeys.getInstance().getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
         data.set(NamespacedKeys.getInstance().getPriceKey(), PersistentDataType.INTEGER, item.getPricing());

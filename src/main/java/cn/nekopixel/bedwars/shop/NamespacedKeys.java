@@ -14,6 +14,10 @@ public class NamespacedKeys {
     private final NamespacedKey categoryKey;
     private final NamespacedKey separatorKey;
     
+    private final NamespacedKey customPotionLevel;
+    private final NamespacedKey customPotionDuration;
+    private final NamespacedKey customPotionType;
+    
     private NamespacedKeys(Plugin plugin) {
         this.shopItemKey = new NamespacedKey(plugin, "shop_item");
         this.priceKey = new NamespacedKey(plugin, "price");
@@ -21,6 +25,9 @@ public class NamespacedKeys {
         this.shopTypeKey = new NamespacedKey(plugin, "shop_type");
         this.categoryKey = new NamespacedKey(plugin, "category");
         this.separatorKey = new NamespacedKey(plugin, "separator");
+        this.customPotionLevel = new NamespacedKey(plugin, "custom_potion_level");
+        this.customPotionDuration = new NamespacedKey(plugin, "custom_potion_duration");
+        this.customPotionType = new NamespacedKey(plugin, "custom_potion_type");
     }
     
     public static void initialize(Plugin plugin) {
@@ -58,5 +65,17 @@ public class NamespacedKeys {
     
     public NamespacedKey getSeparatorKey() {
         return separatorKey;
+    }
+    
+    public NamespacedKey getCustomPotionLevel() {
+        return customPotionLevel;
+    }
+    
+    public NamespacedKey getCustomPotionDuration() {
+        return customPotionDuration;
+    }
+    
+    public NamespacedKey getCustomPotionType() {
+        return customPotionType;
     }
 } 

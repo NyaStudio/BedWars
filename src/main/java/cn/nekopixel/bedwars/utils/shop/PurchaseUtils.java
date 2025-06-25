@@ -8,6 +8,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.team.TeamManager;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
+import cn.nekopixel.bedwars.shop.NamespacedKeys;
 
 import java.util.Map;
 
@@ -43,10 +48,33 @@ public class PurchaseUtils {
             if (shopMeta instanceof PotionMeta && rewardMeta instanceof PotionMeta) {
                 PotionMeta shopPotionMeta = (PotionMeta) shopMeta;
                 PotionMeta rewardPotionMeta = (PotionMeta) rewardMeta;
-                rewardPotionMeta.setBasePotionData(shopPotionMeta.getBasePotionData());
-                if (shopPotionMeta.hasCustomEffects()) {
-                    shopPotionMeta.getCustomEffects().forEach(effect -> 
-                        rewardPotionMeta.addCustomEffect(effect, true));
+                
+                PersistentDataContainer container = shopMeta.getPersistentDataContainer();
+                Integer customLevel = container.get(NamespacedKeys.getInstance().getCustomPotionLevel(), PersistentDataType.INTEGER);
+                Integer customDuration = container.get(NamespacedKeys.getInstance().getCustomPotionDuration(), PersistentDataType.INTEGER);
+                String customType = container.get(NamespacedKeys.getInstance().getCustomPotionType(), PersistentDataType.STRING);
+                
+                if (customLevel != null && customDuration != null && customType != null) {
+                    PotionType potionType = PotionType.valueOf(customType);
+                    
+                    try {
+                        boolean upgraded = customLevel >= 2 && isUpgradeable(potionType);
+                        rewardPotionMeta.setBasePotionData(new PotionData(potionType, false, upgraded));
+                    } catch (Exception e) {
+                        rewardPotionMeta.setBasePotionData(new PotionData(PotionType.WATER));
+                    }
+                    
+                    PersistentDataContainer rewardContainer = rewardMeta.getPersistentDataContainer();
+                    rewardContainer.set(NamespacedKeys.getInstance().getCustomPotionLevel(), PersistentDataType.INTEGER, customLevel);
+                    rewardContainer.set(NamespacedKeys.getInstance().getCustomPotionDuration(), PersistentDataType.INTEGER, customDuration);
+                    rewardContainer.set(NamespacedKeys.getInstance().getCustomPotionType(), PersistentDataType.STRING, customType);
+                } else {
+                    rewardPotionMeta.setBasePotionData(shopPotionMeta.getBasePotionData());
+                    if (shopPotionMeta.hasCustomEffects()) {
+                        shopPotionMeta.getCustomEffects().forEach(effect -> {
+                            rewardPotionMeta.addCustomEffect(effect, true);
+                        });
+                    }
                 }
             }
             
@@ -252,6 +280,13 @@ public class PurchaseUtils {
             case "pink" -> Material.PINK_WOOL;
             case "gray" -> Material.GRAY_WOOL;
             default -> Material.WHITE_WOOL;
+        };
+    }
+    
+    private static boolean isUpgradeable(PotionType type) {
+        return switch (type) {
+            case SPEED, SLOWNESS, STRENGTH, JUMP, REGEN, POISON, INSTANT_DAMAGE, INSTANT_HEAL -> true;
+            default -> false;
         };
     }
 } 
