@@ -5,6 +5,8 @@ import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.commands.HelpCommand;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Bed;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -680,35 +682,41 @@ public class Map implements CommandExecutor, TabCompleter {
     }
 
     public String getTeamByBedLocation(Location location) {
+        Block clickedBlock = location.getBlock();
+        
         for (String team : validTeams) {
             Location bedLoc = getBedLocation(team);
             if (bedLoc != null) {
+                // 检查是否是记录的位置
                 if (isSameBlock(bedLoc, location)) {
                     return team;
                 }
                 
-                for (int x = -1; x <= 1; x++) {
-                    for (int z = -1; z <= 1; z++) {
-                        if (x == 0 && z == 0) continue;
-                        
-                        Location checkLoc = new Location(
-                            bedLoc.getWorld(),
-                            bedLoc.getX() + x,
-                            bedLoc.getY(),
-                            bedLoc.getZ() + z
-                        );
-                        
-                        if (isSameBlock(checkLoc, location)) {
-                            Block block = checkLoc.getBlock();
-                            if (block.getType().name().endsWith("_BED")) {
-                                return team;
-                            }
-                        }
+                // 使用 Bed BlockData 找另一半
+                if (clickedBlock.getType().name().endsWith("_BED") && 
+                    clickedBlock.getBlockData() instanceof Bed) {
+                    
+                    Bed bedData = (Bed) clickedBlock.getBlockData();
+                    Block otherHalf = getOtherBedHalf(clickedBlock, bedData);
+                    
+                    if (otherHalf != null && isSameBlock(bedLoc, otherHalf.getLocation())) {
+                        return team;
                     }
                 }
             }
         }
         return null;
+    }
+    
+    private Block getOtherBedHalf(Block bedBlock, Bed bedData) {
+        BlockFace facing = bedData.getFacing();
+        Bed.Part part = bedData.getPart();
+        
+        if (part == Bed.Part.HEAD) {
+            return bedBlock.getRelative(facing.getOppositeFace());
+        } else {
+            return bedBlock.getRelative(facing);
+        }
     }
 
     private boolean isSameBlock(Location loc1, Location loc2) {

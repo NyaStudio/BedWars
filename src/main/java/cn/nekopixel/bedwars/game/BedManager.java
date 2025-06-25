@@ -8,6 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -47,13 +49,20 @@ public class BedManager implements Listener {
         if (block.getType().name().endsWith("_BED")) {
             return true;
         }
-        // 谁给床设计的两个半截
+
         for (int x = -1; x <= 1; x++) {
             for (int z = -1; z <= 1; z++) {
                 if (x == 0 && z == 0) continue;
                 Block relative = block.getRelative(x, 0, z);
-                if (relative.getType().name().endsWith("_BED")) {
-                    return true;
+                
+                if (relative.getType().name().endsWith("_BED") && 
+                    relative.getBlockData() instanceof Bed) {
+                    Bed bedData = (Bed) relative.getBlockData();
+                    Block otherHalf = getOtherBedHalf(relative, bedData);
+                    
+                    if (otherHalf != null && otherHalf.getLocation().equals(location)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -101,15 +110,24 @@ public class BedManager implements Listener {
     }
     
     private void removeBedCompletely(Block bedBlock) {
-        // 获取另一半
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
-                if (x == 0 && z == 0) continue;
-                Block relative = bedBlock.getRelative(x, 0, z);
-                if (relative.getType().name().endsWith("_BED")) {
-                    relative.setType(Material.AIR, false);  // 我擦你哪来的掉落物
-                }
+        if (bedBlock.getBlockData() instanceof Bed) {
+            Bed bedData = (Bed) bedBlock.getBlockData();
+            Block otherHalf = getOtherBedHalf(bedBlock, bedData);
+            
+            if (otherHalf != null && otherHalf.getType().name().endsWith("_BED")) {
+                otherHalf.setType(Material.AIR, false);  // 我擦你哪来的掉落物
             }
+        }
+    }
+    
+    private Block getOtherBedHalf(Block bedBlock, Bed bedData) {
+        BlockFace facing = bedData.getFacing();
+        Bed.Part part = bedData.getPart();
+        
+        if (part == Bed.Part.HEAD) {
+            return bedBlock.getRelative(facing.getOppositeFace());
+        } else {
+            return bedBlock.getRelative(facing);
         }
     }
     
