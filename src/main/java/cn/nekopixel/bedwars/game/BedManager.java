@@ -120,7 +120,7 @@ public class BedManager implements Listener {
             String teamName = getTeamDisplayName(team);
             
             Bukkit.broadcastMessage("");
-            Bukkit.broadcastMessage("§c床被破坏了 > " + teamColor + teamName + " §7的床被 §f" + destroyer.getName() + " §7拆烂！");
+            Bukkit.broadcastMessage("§f床被破坏了 > " + teamColor + teamName + " §7的床被 §f" + destroyer.getName() + " §7拆烂！");
             Bukkit.broadcastMessage("");
 
             for (UUID playerId : teamManager.getTeamPlayers(team)) {
@@ -173,7 +173,7 @@ public class BedManager implements Listener {
         }
     }
     
-    private String getTeamChatColor(String team) {
+    public String getTeamChatColor(String team) {
         return switch (team.toLowerCase()) {
             case "red" -> "§c";
             case "blue" -> "§9";
@@ -187,7 +187,7 @@ public class BedManager implements Listener {
         };
     }
     
-    private String getTeamDisplayName(String team) {
+    public String getTeamDisplayName(String team) {
         if (chattingConfig != null) {
             String configPath = "chat.team_names." + team.toLowerCase();
             if (chattingConfig.contains(configPath)) {

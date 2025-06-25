@@ -232,6 +232,72 @@ public class DeathListener implements Listener {
 
             player.sendTitle("§c你死了！", "§7你现在是观察者！", 10, 70, 20);
         }
+        
+        checkTeamElimination(team);
+    }
+    
+    private void checkTeamElimination(String team) {
+        BedManager bedManager = GameManager.getInstance().getBedManager();
+        if (bedManager.hasBed(team)) {
+            return;
+        }
+        
+        TeamManager teamManager = GameManager.getInstance().getTeamManager();
+        Set<UUID> teamPlayers = teamManager.getTeamPlayers(team);
+        
+        for (UUID playerId : teamPlayers) {
+            Player teamPlayer = Bukkit.getPlayer(playerId);
+            if (teamPlayer != null && teamPlayer.isOnline()) {
+                if (!respawningPlayers.contains(playerId) && !spectatorPlayers.contains(playerId)) {
+                    return;
+                }
+            }
+        }
+        
+        String teamColor = getTeamChatColor(team);
+        String teamName = getTeamDisplayName(team);
+        
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage("§f团灭 > " + teamColor + teamName + " §7已被团灭！");
+        Bukkit.broadcastMessage("");
+    }
+    
+    private String getTeamChatColor(String team) {
+        BedManager bedManager = GameManager.getInstance().getBedManager();
+        if (bedManager != null) {
+            return bedManager.getTeamChatColor(team);
+        }
+        
+        return switch (team.toLowerCase()) {
+            case "red" -> "§c";
+            case "blue" -> "§9";
+            case "green" -> "§a";
+            case "yellow" -> "§e";
+            case "aqua" -> "§b";
+            case "white" -> "§f";
+            case "pink" -> "§d";
+            case "gray" -> "§7";
+            default -> "§7";
+        };
+    }
+    
+    private String getTeamDisplayName(String team) {
+        BedManager bedManager = GameManager.getInstance().getBedManager();
+        if (bedManager != null) {
+            return bedManager.getTeamDisplayName(team);
+        }
+        
+        return switch (team.toLowerCase()) {
+            case "red" -> "红队";
+            case "blue" -> "蓝队";
+            case "green" -> "绿队";
+            case "yellow" -> "黄队";
+            case "aqua" -> "青队";
+            case "white" -> "白队";
+            case "pink" -> "粉队";
+            case "gray" -> "灰队";
+            default -> team;
+        };
     }
     
     private void respawnPlayer(Player player) {
