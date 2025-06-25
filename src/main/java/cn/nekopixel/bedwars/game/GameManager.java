@@ -25,6 +25,7 @@ public class GameManager {
     private final TeamManager teamManager;
     private final NameTag nameTag;
     private final QueueManager queueManager;
+    private final BedManager bedManager;
 
     private GameManager(Main plugin) {
         this.plugin = plugin;
@@ -35,9 +36,11 @@ public class GameManager {
         this.teamManager = new TeamManager(plugin);
         this.nameTag = new NameTag(plugin);
         this.queueManager = new QueueManager(plugin);
+        this.bedManager = new BedManager(plugin);
         
         Bukkit.getPluginManager().registerEvents(spawnerManager, plugin);
         Bukkit.getPluginManager().registerEvents(new WaitingListener(plugin), plugin);
+        Bukkit.getPluginManager().registerEvents(bedManager, plugin);
     }
 
     public static GameManager getInstance() {
@@ -109,5 +112,9 @@ public class GameManager {
 
     public QueueManager getQueueManager() {
         return queueManager;
+    }
+    
+    public BedManager getBedManager() {
+        return bedManager;
     }
 } 

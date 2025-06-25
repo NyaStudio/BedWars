@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.listener;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.config.ConfigLoader;
+import cn.nekopixel.bedwars.game.BedManager;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.setup.Map;
@@ -12,6 +13,7 @@ import cn.nekopixel.bedwars.utils.LocationUtils;
 import cn.nekopixel.bedwars.utils.team.TeamEquipments;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -101,45 +103,65 @@ public class DeathListener implements Listener {
     }
 
     
-    private void handlePlayerDeath(Player player) {
-        respawningPlayers.add(player.getUniqueId());
+        private void handlePlayerDeath(Player player) {
+        TeamManager teamManager = GameManager.getInstance().getTeamManager();
+        String team = teamManager.getPlayerTeam(player);
+        
+        if (team == null) {
+            plugin.getLogger().warning("玩家 " + player.getName() + " 没有队伍！");
+            return;
+        }
+        
+        BedManager bedManager = GameManager.getInstance().getBedManager();
+        boolean hasBed = bedManager.hasBed(team);
         
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
         
-                player.setHealth(player.getMaxHealth());
+        player.setHealth(player.getMaxHealth());
         player.setFoodLevel(20);
         
-        player.setAllowFlight(true);
-        player.setFlying(true);
-        
-        Location respawningLocation = getRespawningLocation();
-        if (respawningLocation != null) {
-            player.teleport(respawningLocation);
-        }
-        
-        player.sendTitle("§c你死了！", "§e你将在§c5§e秒后重生！", 10, 70, 20);
-        player.sendMessage("§e你将在§c5§e秒后重生！");
-        
-        RespawnPacketHandler.hidePlayer(player);
-        
-        new BukkitRunnable() {
-            int countdown = 5;
+        if (hasBed) {
+            respawningPlayers.add(player.getUniqueId());
             
-            @Override
-            public void run() {
-                countdown--;
-                
-                if (countdown > 0) {
-                    player.sendTitle("§c你死了！", "§e你将在§c" + countdown + "§e秒后重生！", 0, 40, 10);
-                    player.sendMessage("§e你将在§c" + countdown + "§e秒后重生！");
-                } else {
-                    respawnPlayer(player);
-                    respawningPlayers.remove(player.getUniqueId());
-                    this.cancel();
-                }
+            player.setAllowFlight(true);
+            player.setFlying(true);
+            
+            Location respawningLocation = getRespawningLocation();
+            if (respawningLocation != null) {
+                player.teleport(respawningLocation);
             }
-        }.runTaskTimer(plugin, 20L, 20L);
+            
+            player.sendTitle("§c你死了！", "§e你将在§c5§e秒后重生！", 10, 70, 20);
+            player.sendMessage("§e你将在§c5§e秒后重生！");
+            
+            RespawnPacketHandler.hidePlayer(player);
+            
+            new BukkitRunnable() {
+                int countdown = 5;
+                
+                @Override
+                public void run() {
+                    countdown--;
+                    
+                    if (countdown > 0) {
+                        player.sendTitle("§c你死了！", "§e你将在§c" + countdown + "§e秒后重生！", 0, 40, 10);
+                        player.sendMessage("§e你将在§c" + countdown + "§e秒后重生！");
+                    } else {
+                        respawnPlayer(player);
+                        respawningPlayers.remove(player.getUniqueId());
+                        this.cancel();
+                    }
+                }
+            }.runTaskTimer(plugin, 20L, 20L);
+        } else {
+            Location respawningLocation = getRespawningLocation();
+            if (respawningLocation != null) {
+                player.teleport(respawningLocation);
+            }
+            
+            player.sendTitle("§c你死了！", "§7你现在是观察者！", 10, 70, 20);
+        }
     }
     
     private void respawnPlayer(Player player) {
