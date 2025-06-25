@@ -82,11 +82,10 @@ public class BedManager implements Listener {
                 if (x == 0 && z == 0) continue;
                 Block relative = bedBlock.getRelative(x, 0, z);
                 if (relative.getType().name().endsWith("_BED")) {
-                    relative.setType(Material.AIR);
+                    relative.setType(Material.AIR, false);  // 我擦你哪来的掉落物
                 }
             }
         }
-        bedBlock.setType(Material.AIR);
     }
     
     public boolean hasBed(String team) {
