@@ -93,7 +93,7 @@ public class NPCManager implements Listener {
                     Location loc = Location.deserialize(locMap);
                     
                     int mode = plugin.getConfig().getInt("game.mode", 1);
-                    String modeText = mode == 1 ? "§b单挑模式" : "§b团队模式";
+                    String modeText = mode == 1 ? "§b单人模式" : "§b团队模式";
                     
                     spawnUpgradeNPC(loc, "§b升级", "§e右键点击", modeText);
                 }
