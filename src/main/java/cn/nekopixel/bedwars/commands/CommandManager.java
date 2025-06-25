@@ -17,7 +17,7 @@ import java.util.Set;
 public class CommandManager implements CommandExecutor, TabCompleter {
     private final Main plugin;
     private final LoadConfig loadConfig;
-    private final Set<String> validCommands = Set.of("help", "reload", "switch", "setjoin", "setbed", "setspawn", "setnpc", "setspawner", "removenpc", "removespawner", "listnpcs", "listspawners", "save", "upgrade", "pos1", "pos2", "addprotect", "removeprotect", "listprotect");
+    private final Set<String> validCommands = Set.of("help", "reload", "switch", "setjoin", "setbed", "setspawn", "addnpc", "setspawner", "removenpc", "removespawner", "listnpcs", "listspawners", "save", "upgrade", "pos1", "pos2", "addprotect", "removeprotect", "listprotect", "setmode");
 
     public CommandManager(Main plugin) {
         this.plugin = plugin;
@@ -95,7 +95,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             } else if (args[0].equalsIgnoreCase("pos1") || args[0].equalsIgnoreCase("pos2") || 
                        args[0].equalsIgnoreCase("addprotect") || args[0].equalsIgnoreCase("removeprotect") ||
                        args[0].equalsIgnoreCase("setjoin") || args[0].equalsIgnoreCase("setbed") ||
-                       args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("setnpc") ||
+                       args[0].equalsIgnoreCase("setspawn") || args[0].equalsIgnoreCase("addnpc") ||
                        args[0].equalsIgnoreCase("setspawner") || args[0].equalsIgnoreCase("removenpc") ||
                        args[0].equalsIgnoreCase("removespawner") || args[0].equalsIgnoreCase("listnpcs") ||
                        args[0].equalsIgnoreCase("listspawners") || args[0].equalsIgnoreCase("listprotect")) {

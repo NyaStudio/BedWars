@@ -146,9 +146,9 @@ public class Map implements CommandExecutor, TabCompleter {
                 sender.sendMessage(ChatColor.GREEN + "已设置 " + ChatColor.YELLOW + team + ChatColor.GREEN + " 队出生点");
             }
 
-            case "setnpc" -> {
+            case "addnpc" -> {
                 if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw setnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch]");
+                    sender.sendMessage(ChatColor.RED + "用法: /bw addnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch]");
                     return true;
                 }
                 String type = args[1].toLowerCase();
@@ -258,6 +258,27 @@ public class Map implements CommandExecutor, TabCompleter {
             case "save" -> {
                 saveMapConfig();
                 sender.sendMessage(ChatColor.GREEN + "配置文件已保存！");
+            }
+
+            case "setmode" -> {
+                if (args.length < 2) {
+                    sender.sendMessage(ChatColor.RED + "用法: /bw setmode <1|2>");
+                    sender.sendMessage(ChatColor.YELLOW + "1 = Solo模式, 2 = 团队模式");
+                    return true;
+                }
+                try {
+                    int mode = Integer.parseInt(args[1]);
+                    if (mode != 1 && mode != 2) {
+                        sender.sendMessage(ChatColor.RED + "无效的模式！只能是 1 (Solo) 或 2 (团队)");
+                        return true;
+                    }
+                    mapConfig.set("mode", mode);
+                    saveMapConfig();
+                    String modeName = mode == 1 ? "Solo模式" : "团队模式";
+                    sender.sendMessage(ChatColor.GREEN + "已设置游戏模式为: " + ChatColor.YELLOW + modeName);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(ChatColor.RED + "无效的模式值！请输入 1 或 2");
+                }
             }
         }
 
@@ -473,7 +494,7 @@ public class Map implements CommandExecutor, TabCompleter {
             completions.add("setjoin");
             completions.add("setbed");
             completions.add("setspawn");
-            completions.add("setnpc");
+            completions.add("addnpc");
             completions.add("setspawner");
             completions.add("removenpc");
             completions.add("removespawner");
@@ -485,10 +506,11 @@ public class Map implements CommandExecutor, TabCompleter {
             completions.add("removeprotect");
             completions.add("listprotect");
             completions.add("save");
+            completions.add("setmode");
         } else if (args.length == 2) {
             switch (args[0].toLowerCase()) {
                 case "setbed", "setspawn" -> completions.addAll(validTeams);
-                case "setnpc", "removenpc" -> {
+                case "addnpc", "removenpc" -> {
                     completions.add("shop");
                     completions.add("upgrade");
                 }
@@ -505,6 +527,10 @@ public class Map implements CommandExecutor, TabCompleter {
                     if (areasSection != null) {
                         completions.addAll(areasSection.getKeys(false));
                     }
+                }
+                case "setmode" -> {
+                    completions.add("1");
+                    completions.add("2");
                 }
             }
         } else if (args.length == 3) {
