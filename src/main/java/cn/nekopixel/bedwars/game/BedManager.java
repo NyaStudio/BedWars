@@ -10,6 +10,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Bed;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -22,10 +24,23 @@ import java.util.UUID;
 public class BedManager implements Listener {
     private final Main plugin;
     private final java.util.Map<String, Boolean> teamBeds = new HashMap<>();
+    private FileConfiguration chattingConfig;
     
     public BedManager(Main plugin) {
         this.plugin = plugin;
+        loadChattingConfig();
         initializeBeds();
+    }
+    
+    private void loadChattingConfig() {
+        try {
+            java.io.File file = new java.io.File(plugin.getDataFolder(), "chatting.yml");
+            if (file.exists()) {
+                chattingConfig = YamlConfiguration.loadConfiguration(file);
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("无法加载 chatting.yml: " + e.getMessage());
+        }
     }
     
     private void initializeBeds() {
@@ -89,14 +104,18 @@ public class BedManager implements Listener {
         
         String team = mapSetup.getTeamByBedLocation(block.getLocation());
         if (team != null) {
+            Player destroyer = event.getPlayer();
+            TeamManager teamManager = GameManager.getInstance().getTeamManager();
+            
             teamBeds.put(team.toLowerCase(), false);
             
             String teamColor = getTeamChatColor(team);
+            String teamName = getTeamDisplayName(team);
+            
             Bukkit.broadcastMessage("");
-            Bukkit.broadcastMessage("床被破坏了 > " + teamColor + team + " §7的床被破坏了！");
+            Bukkit.broadcastMessage("§c床被破坏了 > " + teamColor + teamName + " §7的床被 §f" + destroyer.getName() + " §7拆烂！");
             Bukkit.broadcastMessage("");
 
-            TeamManager teamManager = GameManager.getInstance().getTeamManager();
             for (UUID playerId : teamManager.getTeamPlayers(team)) {
                 Player teamPlayer = Bukkit.getPlayer(playerId);
                 if (teamPlayer != null && teamPlayer.isOnline()) {
@@ -158,6 +177,27 @@ public class BedManager implements Listener {
             case "pink" -> "§d";
             case "gray" -> "§7";
             default -> "§7";
+        };
+    }
+    
+    private String getTeamDisplayName(String team) {
+        if (chattingConfig != null) {
+            String configPath = "chat.team_names." + team.toLowerCase();
+            if (chattingConfig.contains(configPath)) {
+                return chattingConfig.getString(configPath);
+            }
+        }
+        
+        return switch (team.toLowerCase()) {
+            case "red" -> "红队";
+            case "blue" -> "蓝队";
+            case "green" -> "绿队";
+            case "yellow" -> "黄队";
+            case "aqua" -> "青队";
+            case "white" -> "白队";
+            case "pink" -> "粉队";
+            case "gray" -> "灰队";
+            default -> team;
         };
     }
 } 
