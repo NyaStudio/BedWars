@@ -8,6 +8,7 @@ import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.packet.RespawnPacketHandler;
+import cn.nekopixel.bedwars.tab.TabListManager;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.utils.LocationUtils;
 import cn.nekopixel.bedwars.utils.team.TeamEquipments;
@@ -88,6 +89,11 @@ public class DeathListener implements Listener {
             player.setFlying(false);
             player.setAllowFlight(false);
             RespawnPacketHandler.showPlayer(player);
+            
+            TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+            if (tabListManager != null) {
+                tabListManager.setTemporarySpectator(player, false);
+            }
         }
         spectatorPlayers.remove(playerId);
     }
@@ -146,6 +152,11 @@ public class DeathListener implements Listener {
             
             RespawnPacketHandler.hidePlayer(player);
             
+            TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+            if (tabListManager != null) {
+                tabListManager.setTemporarySpectator(player, true);
+            }
+            
             new BukkitRunnable() {
                 int countdown = 5;
                 
@@ -176,6 +187,11 @@ public class DeathListener implements Listener {
             }
 
             RespawnPacketHandler.hidePlayer(player);
+            
+            TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+            if (tabListManager != null) {
+                tabListManager.setTemporarySpectator(player, true);
+            }
 
             player.sendTitle("§c你死了！", "§7你现在是观察者！", 10, 70, 20);
         }
@@ -186,6 +202,11 @@ public class DeathListener implements Listener {
         
         player.setFlying(false);
         player.setAllowFlight(false);
+        
+        TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+        if (tabListManager != null) {
+            tabListManager.setTemporarySpectator(player, false);
+        }
         
         TeamManager teamManager = GameManager.getInstance().getTeamManager();
         String team = teamManager.getPlayerTeam(player);
@@ -325,6 +346,11 @@ public class DeathListener implements Listener {
                 respawningPlayers.remove(playerId);
             }
             spectatorPlayers.clear();
+            
+            TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+            if (tabListManager != null) {
+                tabListManager.clearTemporarySpectators();
+            }
         }
     }
 } 

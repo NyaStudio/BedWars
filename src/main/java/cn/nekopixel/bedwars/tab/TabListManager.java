@@ -15,6 +15,9 @@ import org.bukkit.scoreboard.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
 
 public class TabListManager {
     private final Main plugin;
@@ -25,6 +28,7 @@ public class TabListManager {
     private int updateInterval;
     private BukkitRunnable updateTask;
     private Objective healthObjective;
+    private final Set<UUID> temporarySpectators = new HashSet<>();
 
     public TabListManager(Main plugin) {
         this.plugin = plugin;
@@ -100,13 +104,17 @@ public class TabListManager {
             return;
         }
 
-        // 游戏状态为INGAME时设置显示槽
         if (healthObjective != null) {
             healthObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         }
 
-        String team = teamManager.getPlayerTeam(player);
-        if (team == null) team = "spectator";
+        String team;
+        if (temporarySpectators.contains(player.getUniqueId())) {
+            team = "spectator";
+        } else {
+            team = teamManager.getPlayerTeam(player);
+            if (team == null) team = "spectator";
+        }
 
         String teamColor = teamColors.getOrDefault(team.toLowerCase(), "&7");
         String teamName = teamNames.getOrDefault(team.toLowerCase(), "未知队伍");
@@ -128,5 +136,18 @@ public class TabListManager {
         teamColors.clear();
         teamNames.clear();
         loadConfig();
+    }
+    
+    public void setTemporarySpectator(Player player, boolean isSpectator) {
+        if (isSpectator) {
+            temporarySpectators.add(player.getUniqueId());
+        } else {
+            temporarySpectators.remove(player.getUniqueId());
+        }
+        updatePlayer(player);
+    }
+    
+    public void clearTemporarySpectators() {
+        temporarySpectators.clear();
     }
 }
