@@ -13,6 +13,7 @@ public class HelpCommand {
         sender.sendMessage("");
         sender.sendMessage(ChatColor.GOLD + "=== 地图配置命令 ===");
         sender.sendMessage(ChatColor.YELLOW + "/bw setjoin [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置加入时位置");
+        sender.sendMessage(ChatColor.YELLOW + "/bw setrespawning [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置等待重生位置");
         sender.sendMessage(ChatColor.YELLOW + "/bw setbed <team> [x] [y] [z] " + ChatColor.GRAY + "- 设置队伍床位置");
         sender.sendMessage(ChatColor.YELLOW + "/bw setspawn <team> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置队伍出生点");
         sender.sendMessage("");

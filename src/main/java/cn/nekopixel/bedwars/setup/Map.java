@@ -109,6 +109,17 @@ public class Map implements CommandExecutor, TabCompleter {
                 sender.sendMessage(ChatColor.GREEN + "已设置加入时位置");
             }
 
+            case "setrespawning" -> {
+                if (args.length < 1) {
+                    sender.sendMessage(ChatColor.RED + "用法: /bw setrespawning [x] [y] [z] [yaw] [pitch]");
+                    return true;
+                }
+                Location loc = getLocationFromArgs(p, args, 1);
+                mapConfig.set("respawning", loc.serialize());
+                saveMapConfig();
+                sender.sendMessage(ChatColor.GREEN + "已设置等待重生位置");
+            }
+
             case "setbed" -> {
                 if (args.length < 2) {
                     sender.sendMessage(ChatColor.RED + "用法: /bw setbed <team> [x] [y] [z]");
@@ -492,6 +503,7 @@ public class Map implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             completions.add("help");
             completions.add("setjoin");
+            completions.add("setrespawning");
             completions.add("setbed");
             completions.add("setspawn");
             completions.add("addnpc");
