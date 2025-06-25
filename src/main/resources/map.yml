@@ -1,56 +1,3 @@
-npcs:
-  shop:
-    - world: world
-      x: -7.6681654017596195
-      y: 64.0
-      z: 83.46565509322394
-      pitch: -1.7999985
-      yaw: -90.90375
-    - world: world
-      x: 8.699999988079071
-      y: 64.0
-      z: -82.49751965678297
-      pitch: 4.7999988
-      yaw: 90.59624
-    - world: world
-      x: 83.52613550994519
-      y: 64.0
-      z: 8.69999998807907
-      pitch: -2.3999553
-      yaw: -179.8534
-    - world: world
-      x: -82.45562269969983
-      y: 64.0
-      z: -7.583331593467962
-      pitch: -0.5999994
-      yaw: 0.8963623
-
-  upgrade:
-    - world: world
-      x: -7.421788681917625
-      y: 64.0
-      z: -82.46282338309655
-      pitch: -2.9999053
-      yaw: -91.053406
-    - world: world
-      x: 83.53955446576092
-      y: 64.0
-      z: -7.69999998807907
-      pitch: -0.60000795
-      yaw: 0.59802246
-    - world: world
-      x: 8.696392269339427
-      y: 64.0
-      z: 83.46678568436684
-      pitch: -5.399995
-      yaw: 88.6488
-    - world: world
-      x: -82.40926294157421
-      y: 64.0
-      z: 8.69072803785093
-      pitch: -0.5999843
-      yaw: 178.19775
-
 spawners:
   iron:
     - world: world
@@ -180,3 +127,193 @@ spawnpoints:
     yaw: 2.0
 
 protection:
+  red_base:
+    world: world
+    pos1:
+      x: -11.0
+      y: 62.0
+      z: -75.0
+    pos2:
+      x: 8.0
+      y: 77.0
+      z: -89.0
+  blue_base:
+    world: world
+    pos1:
+      x: 75.0
+      y: 62.0
+      z: -11.0
+    pos2:
+      x: 89.0
+      y: 77.0
+      z: 8.0
+  yellow_base:
+    world: world
+    pos1:
+      x: -75.0
+      y: 62.0
+      z: 11.0
+    pos2:
+      x: -89.0
+      y: 77.0
+      z: -8.0
+  green_base:
+    world: world
+    pos1:
+      x: 11.0
+      y: 62.0
+      z: 75.0
+    pos2:
+      x: -8.0
+      y: 77.0
+      z: 89.0
+  emerald_1:
+    world: world
+    pos1:
+      x: -13.0
+      y: 66.0
+      z: 2.0
+    pos2:
+      x: -9.0
+      y: 60.0
+      z: -2.0
+  emerald_2:
+    world: world
+    pos1:
+      x: 13.0
+      y: 66.0
+      z: -2.0
+    pos2:
+      x: 9.0
+      y: 60.0
+      z: 2.0
+  diamond_1:
+    world: world
+    pos1:
+      x: -37.0
+      y: 66.0
+      z: 39.0
+    pos2:
+      x: -31.0
+      y: 60.0
+      z: 33.0
+  diamond_2:
+    world: world
+    pos1:
+      x: -39.0
+      y: 66.0
+      z: -37.0
+    pos2:
+      x: -33.0
+      y: 60.0
+      z: -31.0
+  diamond_3:
+    world: world
+    pos1:
+      x: 37.0
+      y: 66.0
+      z: -39.0
+    pos2:
+      x: 31.0
+      y: 60.0
+      z: -33.0
+  diamond_4:
+    world: world
+    pos1:
+      x: 33.0
+      y: 66.0
+      z: 37.0
+    pos2:
+      x: 33.0
+      y: 60.0
+      z: 31.0
+
+npcs:
+  upgrade:
+    - world: world
+      x: 83.0
+      y: 64.0
+      z: -8.0
+      pitch: 1.1999093
+      yaw: 0.44580078
+    - world: world
+      x: -8.0
+      y: 64.0
+      z: -83.0
+      pitch: -1.650081
+      yaw: -91.50513
+    - world: world
+      x: -83.0
+      y: 64.0
+      z: 8.0
+      pitch: -2.4000545
+      yaw: 179.69995
+    - world: world
+      x: 8.0
+      y: 64.0
+      z: 83.0
+      pitch: -5.250052
+      yaw: 89.25073
+  shop:
+    - world: world
+      x: -8.0
+      y: 64.0
+      z: 83.0
+      pitch: -7.2000504
+      yaw: -89.54541
+    - world: world
+      x: 83.0
+      y: 64.0
+      z: 8.0
+      pitch: -4.0500784
+      yaw: 178.80566
+    - world: world
+      x: 8.0
+      y: 64.0
+      z: -83.0
+      pitch: 1.6499729
+      yaw: 90.00244
+    - world: world
+      x: -83.0
+      y: 64.0
+      z: -8.0
+      pitch: -1.3500594
+      yaw: -1.9450684
+
+respawning:
+  world: world
+  x: 0.0
+  y: 100.0
+  z: 0.0
+  pitch: 3.9000254
+  yaw: -1.0499455
+
+beds:
+  red:
+    world: world
+    x: 0.0
+    y: 65.0
+    z: -70.0
+    pitch: 74.70007
+    yaw: -179.39996
+  blue:
+    world: world
+    x: 69.0
+    y: 65.0
+    z: 0.0
+    pitch: 85.49997
+    yaw: -97.64985
+  green:
+    world: world
+    x: 0.0
+    y: 65.0
+    z: 69.0
+    pitch: 75.29996
+    yaw: -5.2498918
+  yellow:
+    world: world
+    x: -69.0
+    y: 65.0
+    z: 0.0
+    pitch: 77.69996
+    yaw: 91.65057
