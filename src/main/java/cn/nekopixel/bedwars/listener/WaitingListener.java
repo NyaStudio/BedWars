@@ -54,6 +54,8 @@ public class WaitingListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
             event.setCancelled(true);
+            Player player = event.getPlayer();
+            player.sendBlockChange(event.getBlock().getLocation(), event.getBlock().getBlockData());
         }
     }
 

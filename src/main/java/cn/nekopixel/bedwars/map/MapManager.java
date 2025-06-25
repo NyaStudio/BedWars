@@ -9,6 +9,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -110,7 +111,10 @@ public class MapManager implements Listener {
         
         if (!isPlayerPlaced(block)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("§c你不能在这里破坏方块！");
+            Player player = event.getPlayer();
+            player.sendBlockChange(block.getLocation(), block.getBlockData());
+            
+            player.sendMessage("§c你不能在这里破坏方块！");
         }
     }
 

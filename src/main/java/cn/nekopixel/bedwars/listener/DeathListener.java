@@ -471,6 +471,8 @@ public class DeathListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         if (spectatorPlayers.contains(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
+            Player player = event.getPlayer();
+            player.sendBlockChange(event.getBlock().getLocation(), event.getBlock().getBlockData());
         }
     }
     
