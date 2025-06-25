@@ -5,6 +5,7 @@ import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -30,9 +31,33 @@ public class BedManager implements Listener {
         if (mapSetup != null) {
             List<String> teamsWithBeds = mapSetup.getTeamsWithBeds();
             for (String team : teamsWithBeds) {
-                teamBeds.put(team.toLowerCase(), true);
+                Location bedLoc = mapSetup.getBedLocation(team);
+                if (bedLoc != null && isBedExists(bedLoc)) {
+                    teamBeds.put(team.toLowerCase(), true);
+                } else {
+                    teamBeds.put(team.toLowerCase(), false);
+                    plugin.getLogger().warning("队伍 " + team + " 的床位置已配置但床不存在！");
+                }
             }
         }
+    }
+    
+    private boolean isBedExists(Location location) {
+        Block block = location.getBlock();
+        if (block.getType().name().endsWith("_BED")) {
+            return true;
+        }
+        // 谁给床设计的两个半截
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                if (x == 0 && z == 0) continue;
+                Block relative = block.getRelative(x, 0, z);
+                if (relative.getType().name().endsWith("_BED")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     @EventHandler(priority = EventPriority.HIGH)

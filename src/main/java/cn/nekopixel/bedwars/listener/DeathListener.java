@@ -13,23 +13,31 @@ import cn.nekopixel.bedwars.utils.LocationUtils;
 import cn.nekopixel.bedwars.utils.team.TeamEquipments;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import cn.nekopixel.bedwars.game.GameStatusChange;
 
 import java.util.*;
 
 public class DeathListener implements Listener {
     private final Main plugin;
     private final Set<UUID> respawningPlayers = new HashSet<>();
+    private final Set<UUID> spectatorPlayers = new HashSet<>();
     
     public DeathListener(Main plugin) {
         this.plugin = plugin;
@@ -81,6 +89,7 @@ public class DeathListener implements Listener {
             player.setAllowFlight(false);
             RespawnPacketHandler.showPlayer(player);
         }
+        spectatorPlayers.remove(playerId);
     }
     
     @EventHandler
@@ -155,11 +164,19 @@ public class DeathListener implements Listener {
                 }
             }.runTaskTimer(plugin, 20L, 20L);
         } else {
+            respawningPlayers.add(player.getUniqueId());
+            spectatorPlayers.add(player.getUniqueId());
+            
+            player.setAllowFlight(true);
+            player.setFlying(true);
+
             Location respawningLocation = getRespawningLocation();
             if (respawningLocation != null) {
                 player.teleport(respawningLocation);
             }
-            
+
+            RespawnPacketHandler.hidePlayer(player);
+
             player.sendTitle("§c你死了！", "§7你现在是观察者！", 10, 70, 20);
         }
     }
@@ -225,5 +242,89 @@ public class DeathListener implements Listener {
             case "gray" -> Color.GRAY;
             default -> Color.RED;
         };
+    }
+    
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (spectatorPlayers.contains(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+        }
+    }
+    
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (spectatorPlayers.contains(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (spectatorPlayers.contains(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+        }
+    }
+    
+    @EventHandler
+    public void onEntityPickupItem(EntityPickupItemEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            if (spectatorPlayers.contains(player.getUniqueId())) {
+                event.setCancelled(true);
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player) {
+            Player attacker = (Player) event.getDamager();
+            if (respawningPlayers.contains(attacker.getUniqueId()) || spectatorPlayers.contains(attacker.getUniqueId())) {
+                event.setCancelled(true);
+            }
+        }
+        
+        if (event.getEntity() instanceof Player) {
+            Player victim = (Player) event.getEntity();
+            if (respawningPlayers.contains(victim.getUniqueId()) || spectatorPlayers.contains(victim.getUniqueId())) {
+                event.setCancelled(true);
+            }
+        }
+        
+        if (event.getDamager() instanceof Projectile) {
+            Projectile projectile = (Projectile) event.getDamager();
+            if (projectile.getShooter() instanceof Player) {
+                Player shooter = (Player) projectile.getShooter();
+                if (respawningPlayers.contains(shooter.getUniqueId()) || spectatorPlayers.contains(shooter.getUniqueId())) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+        if (event.getEntity().getShooter() instanceof Player) {
+            Player shooter = (Player) event.getEntity().getShooter();
+            if (respawningPlayers.contains(shooter.getUniqueId()) || spectatorPlayers.contains(shooter.getUniqueId())) {
+                event.setCancelled(true);
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onGameStatusChange(GameStatusChange event) {
+        if (event.getNewStatus() == GameStatus.ENDING || event.getNewStatus() == GameStatus.RESETTING) {
+            for (UUID playerId : new HashSet<>(respawningPlayers)) {
+                Player player = Bukkit.getPlayer(playerId);
+                if (player != null && player.isOnline()) {
+                    player.setFlying(false);
+                    player.setAllowFlight(false);
+                    RespawnPacketHandler.showPlayer(player);
+                }
+                respawningPlayers.remove(playerId);
+            }
+            spectatorPlayers.clear();
+        }
     }
 } 

@@ -4,13 +4,13 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.commands.HelpCommand;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -132,7 +132,7 @@ public class Map implements CommandExecutor, TabCompleter {
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
                 Block block = loc.getBlock();
-                if (block.getType() != Material.RED_BED && block.getType() != Material.WHITE_BED) {
+                if (!block.getType().name().endsWith("_BED")) {
                     sender.sendMessage(ChatColor.RED + "错误：指定位置必须是床方块");
                     return true;
                 }
@@ -682,8 +682,30 @@ public class Map implements CommandExecutor, TabCompleter {
     public String getTeamByBedLocation(Location location) {
         for (String team : validTeams) {
             Location bedLoc = getBedLocation(team);
-            if (bedLoc != null && isSameBlock(bedLoc, location)) {
-                return team;
+            if (bedLoc != null) {
+                if (isSameBlock(bedLoc, location)) {
+                    return team;
+                }
+                
+                for (int x = -1; x <= 1; x++) {
+                    for (int z = -1; z <= 1; z++) {
+                        if (x == 0 && z == 0) continue;
+                        
+                        Location checkLoc = new Location(
+                            bedLoc.getWorld(),
+                            bedLoc.getX() + x,
+                            bedLoc.getY(),
+                            bedLoc.getZ() + z
+                        );
+                        
+                        if (isSameBlock(checkLoc, location)) {
+                            Block block = checkLoc.getBlock();
+                            if (block.getType().name().endsWith("_BED")) {
+                                return team;
+                            }
+                        }
+                    }
+                }
             }
         }
         return null;
