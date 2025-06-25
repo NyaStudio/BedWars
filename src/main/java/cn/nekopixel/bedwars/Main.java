@@ -16,6 +16,7 @@ import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.setup.Init;
 import cn.nekopixel.bedwars.utils.WorldBackup;
 import cn.nekopixel.bedwars.packet.PotionPacketHandler;
+import cn.nekopixel.bedwars.packet.RespawnPacketHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.github.retrooper.packetevents.PacketEvents;
@@ -47,6 +48,8 @@ public final class Main extends JavaPlugin {
         saveDefaultConfig();
         
         PacketEvents.getAPI().init();
+        
+        RespawnPacketHandler.init(this);
         
         Loader.initializeManagers(this);
         Init.initialize();
