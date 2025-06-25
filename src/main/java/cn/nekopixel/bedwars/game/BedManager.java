@@ -85,7 +85,7 @@ public class BedManager implements Listener {
         return false;
     }
     
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onBlockBreak(BlockBreakEvent event) {
         if (!GameManager.getInstance().isStatus(GameStatus.INGAME)) {
             return;
@@ -104,6 +104,15 @@ public class BedManager implements Listener {
         }
         
         String team = mapSetup.getTeamByBedLocation(block.getLocation());
+        
+        if (team == null && block.getBlockData() instanceof Bed) {
+            Bed bedData = (Bed) block.getBlockData();
+            Block otherHalf = getOtherBedHalf(block, bedData);
+            if (otherHalf != null) {
+                team = mapSetup.getTeamByBedLocation(otherHalf.getLocation());
+            }
+        }
+        
         if (team != null) {
             Player destroyer = event.getPlayer();
             TeamManager teamManager = GameManager.getInstance().getTeamManager();
@@ -111,7 +120,45 @@ public class BedManager implements Listener {
 
             if (team.equalsIgnoreCase(destroyerTeam)) {
                 event.setCancelled(true);
-                destroyer.sendMessage("§c你不能破坏自己队伍的床！");
+                event.setDropItems(false);
+                
+                final org.bukkit.block.data.BlockData bedData = block.getBlockData();
+                final Location bedLoc = block.getLocation();
+                
+                Block otherHalf = null;
+                org.bukkit.block.data.BlockData otherData = null;
+                Location otherLoc = null;
+                
+                if (bedData instanceof Bed) {
+                    Bed bed = (Bed) bedData;
+                    otherHalf = getOtherBedHalf(block, bed);
+                    if (otherHalf != null) {
+                        otherData = otherHalf.getBlockData();
+                        otherLoc = otherHalf.getLocation();
+                    }
+                }
+                
+                final Block finalOtherHalf = otherHalf;
+                final org.bukkit.block.data.BlockData finalOtherData = otherData;
+                final Location finalOtherLoc = otherLoc;
+                
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    bedLoc.getBlock().setBlockData(bedData, true);
+                    if (finalOtherHalf != null && finalOtherData != null) {
+                        finalOtherLoc.getBlock().setBlockData(finalOtherData, true);
+                    }
+                    
+                    for (Player p : block.getWorld().getPlayers()) {
+                        if (p.getLocation().distanceSquared(bedLoc) < 256) {
+                            p.sendBlockChange(bedLoc, bedData);
+                            if (finalOtherLoc != null && finalOtherData != null) {
+                                p.sendBlockChange(finalOtherLoc, finalOtherData);
+                            }
+                        }
+                    }
+                }, 1L);
+                
+                destroyer.sendMessage("§c你不能破坏自己的床！");
                 return;
             }
 
