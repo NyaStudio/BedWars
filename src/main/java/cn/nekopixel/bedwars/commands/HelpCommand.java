@@ -15,6 +15,8 @@ public class HelpCommand {
         sender.sendMessage(ChatColor.YELLOW + "/bw setjoin [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置加入时位置");
         sender.sendMessage(ChatColor.YELLOW + "/bw setrespawning [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置等待重生位置");
         sender.sendMessage(ChatColor.YELLOW + "/bw setbed <team> [x] [y] [z] " + ChatColor.GRAY + "- 设置队伍床位置");
+        sender.sendMessage(ChatColor.YELLOW + "/bw removebed <team> " + ChatColor.GRAY + "- 移除队伍床位置");
+        sender.sendMessage(ChatColor.YELLOW + "/bw listbeds " + ChatColor.GRAY + "- 列出所有床位置");
         sender.sendMessage(ChatColor.YELLOW + "/bw setspawn <team> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置队伍出生点");
         sender.sendMessage("");
         sender.sendMessage(ChatColor.GOLD + "=== NPC管理命令 ===");

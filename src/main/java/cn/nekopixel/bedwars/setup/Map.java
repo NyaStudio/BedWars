@@ -138,7 +138,33 @@ public class Map implements CommandExecutor, TabCompleter {
                 }
                 mapConfig.set("beds." + team, loc.serialize());
                 saveMapConfig();
+                
                 sender.sendMessage(ChatColor.GREEN + "已设置 " + ChatColor.YELLOW + team + ChatColor.GREEN + " 队的床位置");
+            }
+
+            case "removebed" -> {
+                if (args.length < 2) {
+                    sender.sendMessage(ChatColor.RED + "用法: /bw removebed <team>");
+                    return true;
+                }
+                String team = args[1].toLowerCase();
+                if (!validTeams.contains(team)) {
+                    sender.sendMessage(ChatColor.RED + "无效的队伍颜色！可用颜色: " + String.join(", ", validTeams));
+                    return true;
+                }
+                
+                if (!mapConfig.contains("beds." + team)) {
+                    sender.sendMessage(ChatColor.RED + "该队伍还没有设置床位置！");
+                    return true;
+                }
+                
+                mapConfig.set("beds." + team, null);
+                saveMapConfig();
+                sender.sendMessage(ChatColor.GREEN + "已移除 " + ChatColor.YELLOW + team + ChatColor.GREEN + " 队的床位置");
+            }
+            
+            case "listbeds" -> {
+                handleListBeds(p);
             }
 
             case "setspawn" -> {
@@ -274,18 +300,19 @@ public class Map implements CommandExecutor, TabCompleter {
             case "setmode" -> {
                 if (args.length < 2) {
                     sender.sendMessage(ChatColor.RED + "用法: /bw setmode <1|2>");
-                    sender.sendMessage(ChatColor.YELLOW + "1 = 单挑模式, 2 = 团队模式");
+                    sender.sendMessage(ChatColor.YELLOW + "1 = 单人模式, 2 = 团队模式");
                     return true;
                 }
                 try {
                     int mode = Integer.parseInt(args[1]);
                     if (mode != 1 && mode != 2) {
-                        sender.sendMessage(ChatColor.RED + "无效的模式！只能是 1 (单挑) 或 2 (团队)");
+                        sender.sendMessage(ChatColor.RED + "无效的模式！只能是 1 (单人) 或 2 (团队)");
                         return true;
                     }
-                    mapConfig.set("mode", mode);
-                    saveMapConfig();
-                    String modeName = mode == 1 ? "单挑模式" : "团队模式";
+                    // 保存到主配置文件 config.yml
+                    plugin.getConfig().set("game.mode", mode);
+                    plugin.saveConfig();
+                    String modeName = mode == 1 ? "单人模式" : "团队模式";
                     sender.sendMessage(ChatColor.GREEN + "已设置游戏模式为: " + ChatColor.YELLOW + modeName);
                 } catch (NumberFormatException e) {
                     sender.sendMessage(ChatColor.RED + "无效的模式值！请输入 1 或 2");
@@ -505,6 +532,8 @@ public class Map implements CommandExecutor, TabCompleter {
             completions.add("setjoin");
             completions.add("setrespawning");
             completions.add("setbed");
+            completions.add("removebed");
+            completions.add("listbeds");
             completions.add("setspawn");
             completions.add("addnpc");
             completions.add("setspawner");
@@ -521,7 +550,7 @@ public class Map implements CommandExecutor, TabCompleter {
             completions.add("setmode");
         } else if (args.length == 2) {
             switch (args[0].toLowerCase()) {
-                case "setbed", "setspawn" -> completions.addAll(validTeams);
+                case "setbed", "setspawn", "removebed" -> completions.addAll(validTeams);
                 case "addnpc", "removenpc" -> {
                     completions.add("shop");
                     completions.add("upgrade");
@@ -601,5 +630,62 @@ public class Map implements CommandExecutor, TabCompleter {
                 loc.getPitch()
             );
         }
+    }
+
+    private void handleListBeds(Player player) {
+        player.sendMessage(ChatColor.GOLD + "=== 床位置列表 ===");
+        
+        boolean hasAnyBed = false;
+        for (String team : validTeams) {
+            if (mapConfig.contains("beds." + team)) {
+                hasAnyBed = true;
+                @SuppressWarnings("unchecked")
+                Location loc = Location.deserialize((java.util.Map<String, Object>) mapConfig.get("beds." + team));
+                player.sendMessage(String.format("§e%s§r: §7(%.1f, %.1f, %.1f)",
+                    team, loc.getX(), loc.getY(), loc.getZ()));
+            }
+        }
+        
+        if (!hasAnyBed) {
+            player.sendMessage(ChatColor.YELLOW + "当前没有设置任何床位置");
+        }
+    }
+
+    public Location getBedLocation(String team) {
+        if (!mapConfig.contains("beds." + team)) {
+            return null;
+        }
+        @SuppressWarnings("unchecked")
+        Location loc = Location.deserialize((java.util.Map<String, Object>) mapConfig.get("beds." + team));
+        return loc;
+    }
+
+    public String getTeamByBedLocation(Location location) {
+        for (String team : validTeams) {
+            Location bedLoc = getBedLocation(team);
+            if (bedLoc != null && isSameBlock(bedLoc, location)) {
+                return team;
+            }
+        }
+        return null;
+    }
+
+    private boolean isSameBlock(Location loc1, Location loc2) {
+        if (loc1.getWorld() != loc2.getWorld()) {
+            return false;
+        }
+        return Math.floor(loc1.getX()) == Math.floor(loc2.getX()) &&
+               Math.floor(loc1.getY()) == Math.floor(loc2.getY()) &&
+               Math.floor(loc1.getZ()) == Math.floor(loc2.getZ());
+    }
+
+    public List<String> getTeamsWithBeds() {
+        List<String> teams = new ArrayList<>();
+        for (String team : validTeams) {
+            if (mapConfig.contains("beds." + team)) {
+                teams.add(team);
+            }
+        }
+        return teams;
     }
 }
