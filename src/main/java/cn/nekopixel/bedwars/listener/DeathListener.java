@@ -40,9 +40,15 @@ public class DeathListener implements Listener {
     private final Set<UUID> respawningPlayers = new HashSet<>();
     private final Set<UUID> spectatorPlayers = new HashSet<>();
     private final java.util.Map<UUID, DeathState> disconnectedDeathStates = new HashMap<>();
+    private static DeathListener instance;
     
     public DeathListener(Main plugin) {
         this.plugin = plugin;
+        instance = this;
+    }
+    
+    public static DeathListener getInstance() {
+        return instance;
     }
     
     private static class DeathState {
@@ -260,6 +266,99 @@ public class DeathListener implements Listener {
         Bukkit.broadcastMessage("");
         Bukkit.broadcastMessage("§f团灭 > " + teamColor + teamName + " §7已被团灭！");
         Bukkit.broadcastMessage("");
+        
+        checkVictory();
+    }
+    
+    public void checkVictory() {
+        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
+            return;
+        }
+        
+        BedManager bedManager = GameManager.getInstance().getBedManager();
+        TeamManager teamManager = GameManager.getInstance().getTeamManager();
+        
+        List<String> aliveTeams = new ArrayList<>();
+        String[] allTeams = {"red", "blue", "green", "yellow", "aqua", "white", "pink", "gray"};
+        
+        for (String team : allTeams) {
+            if (bedManager.hasBed(team)) {
+                aliveTeams.add(team);
+                continue;
+            }
+            
+            Set<UUID> teamPlayers = teamManager.getTeamPlayers(team);
+            if (teamPlayers == null || teamPlayers.isEmpty()) {
+                continue;
+            }
+            
+            boolean hasAlivePlayer = false;
+            for (UUID playerId : teamPlayers) {
+                Player teamPlayer = Bukkit.getPlayer(playerId);
+                if (teamPlayer != null && teamPlayer.isOnline()) {
+                    if (!respawningPlayers.contains(playerId) && !spectatorPlayers.contains(playerId)) {
+                        hasAlivePlayer = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (hasAlivePlayer) {
+                aliveTeams.add(team);
+            }
+        }
+        
+        if (aliveTeams.size() == 1) {
+            String winningTeam = aliveTeams.get(0);
+            announceVictory(winningTeam);
+        }
+    }
+    
+    private void announceVictory(String winningTeam) {
+        TeamManager teamManager = GameManager.getInstance().getTeamManager();
+        Set<UUID> winningPlayers = teamManager.getTeamPlayers(winningTeam);
+        
+        String teamColor = getTeamChatColor(winningTeam);
+        String teamName = getTeamDisplayName(winningTeam);
+        
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage("§e游戏结束！");
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage("§f获胜队伍 - " + teamColor + teamName);
+        Bukkit.broadcastMessage("");
+        
+        for (UUID playerId : winningPlayers) {
+            Player player = Bukkit.getPlayer(playerId);
+            if (player != null && player.isOnline()) {
+                player.sendTitle("§e胜利！", "", 20, 100, 20);
+            }
+        }
+        
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!winningPlayers.contains(player.getUniqueId())) {
+                player.sendTitle("§c游戏结束！", "", 20, 100, 20);
+            }
+        }
+        
+        GameManager.getInstance().setStatus(GameStatus.ENDING);
+        
+        plugin.getLogger().info("游戏结束，即将关闭服务器...");
+        
+        new BukkitRunnable() {
+            int countdown = 60;
+            
+            @Override
+            public void run() {
+                if (countdown == 0) {
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        Bukkit.getServer().shutdown();
+                    }, 20L);
+                    
+                    this.cancel();
+                }
+                countdown--;
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
     }
     
     private String getTeamChatColor(String team) {

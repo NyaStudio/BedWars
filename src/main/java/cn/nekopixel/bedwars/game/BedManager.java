@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.game;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.listener.DeathListener;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Bukkit;
@@ -132,6 +133,13 @@ public class BedManager implements Listener {
             
             event.setDropItems(false);
             removeBedCompletely(block);  // 防止你妈 bukkit 抽风只拆了一半
+            
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                DeathListener deathListener = DeathListener.getInstance();
+                if (deathListener != null) {
+                    deathListener.checkVictory();
+                }
+            }, 1L);
         }
     }
     
