@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -19,6 +20,7 @@ public class HealthBar implements Listener {
 
     private static final String OBJECTIVE_NAME = "§c❤";
     private final Main plugin;
+    private int updateTaskId = -1;
 
     public HealthBar(Main plugin) {
         this.plugin = plugin;
@@ -33,6 +35,12 @@ public class HealthBar implements Listener {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     setupHealthBar(player);
                 }
+                
+                if (updateTaskId != -1) {
+                    Bukkit.getScheduler().cancelTask(updateTaskId);
+                }
+                updateTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, 
+                    this::updateAllHealthDisplays, 10L, 10L);
             }, 2L);
         } else {
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -48,8 +56,19 @@ public class HealthBar implements Listener {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     setupHealthBar(player);
                 }
+                
+                if (updateTaskId != -1) {
+                    Bukkit.getScheduler().cancelTask(updateTaskId);
+                }
+                updateTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, 
+                    this::updateAllHealthDisplays, 10L, 10L);
             }, 2L);
         } else {
+            if (updateTaskId != -1) {
+                Bukkit.getScheduler().cancelTask(updateTaskId);
+                updateTaskId = -1;
+            }
+            
             for (Player player : Bukkit.getOnlinePlayers()) {
                 removeHealthBar(player);
             }
@@ -87,7 +106,11 @@ public class HealthBar implements Listener {
             Objective obj = scoreboard.getObjective(OBJECTIVE_NAME);
             if (obj != null) {
                 for (Player target : Bukkit.getOnlinePlayers()) {
-                    obj.getScore(target.getName()).setScore((int) Math.round(target.getHealth()));
+                    double health = target.getHealth();
+                    if (health <= 0 && target.isOnline() && !target.isDead()) {
+                        health = target.getMaxHealth();
+                    }
+                    obj.getScore(target.getName()).setScore((int) Math.round(health));
                 }
             }
         }
@@ -112,6 +135,17 @@ public class HealthBar implements Listener {
     public void onPlayerRegen(EntityRegainHealthEvent event) {
         if (event.getEntity() instanceof Player && GameManager.getInstance().isStatus(GameStatus.INGAME)) {
             Bukkit.getScheduler().runTaskLater(plugin, this::updateAllHealthDisplays, 1L);
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        if (GameManager.getInstance().isStatus(GameStatus.INGAME)) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (event.getPlayer().isOnline()) {
+                    updateAllHealthDisplays();
+                }
+            }, 5L);
         }
     }
 }
