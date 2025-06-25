@@ -639,10 +639,11 @@ public class Map implements CommandExecutor, TabCompleter {
         for (String team : validTeams) {
             if (mapConfig.contains("beds." + team)) {
                 hasAnyBed = true;
-                @SuppressWarnings("unchecked")
-                Location loc = Location.deserialize((java.util.Map<String, Object>) mapConfig.get("beds." + team));
-                player.sendMessage(String.format("§e%s§r: §7(%.1f, %.1f, %.1f)",
-                    team, loc.getX(), loc.getY(), loc.getZ()));
+                Location loc = getBedLocation(team);
+                if (loc != null) {
+                    player.sendMessage(String.format("§e%s§r: §7(%.1f, %.1f, %.1f)",
+                        team, loc.getX(), loc.getY(), loc.getZ()));
+                }
             }
         }
         
@@ -651,13 +652,31 @@ public class Map implements CommandExecutor, TabCompleter {
         }
     }
 
+    /**
+     * 获取指定队伍的床位置
+     * @param team 队伍名称
+     * @return 床的位置，如果未设置则返回null
+     */
     public Location getBedLocation(String team) {
         if (!mapConfig.contains("beds." + team)) {
             return null;
         }
-        @SuppressWarnings("unchecked")
-        Location loc = Location.deserialize((java.util.Map<String, Object>) mapConfig.get("beds." + team));
-        return loc;
+        
+        // 从配置中获取位置数据
+        org.bukkit.configuration.ConfigurationSection section = mapConfig.getConfigurationSection("beds." + team);
+        if (section == null) {
+            return null;
+        }
+        
+        // 重建位置
+        return new Location(
+            plugin.getServer().getWorld(section.getString("world")),
+            section.getDouble("x"),
+            section.getDouble("y"),
+            section.getDouble("z"),
+            (float) section.getDouble("yaw"),
+            (float) section.getDouble("pitch")
+        );
     }
 
     public String getTeamByBedLocation(Location location) {
