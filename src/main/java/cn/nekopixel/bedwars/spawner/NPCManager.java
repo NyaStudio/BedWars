@@ -27,7 +27,7 @@ public class NPCManager implements Listener {
 
     public NPCManager(Main plugin) {
         this.plugin = plugin;
-        this.hologramHeight = plugin.getConfig().getDouble("npc.hologram_height", 2.3);
+        this.hologramHeight = plugin.getConfig().getDouble("npc.hologram_height", 2.0);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         initializeNPCs();
     }
@@ -91,7 +91,11 @@ public class NPCManager implements Listener {
                 String worldName = (String) locMap.get("world");
                 if (worldName != null && plugin.getServer().getWorld(worldName) != null) {
                     Location loc = Location.deserialize(locMap);
-                    spawnNPC(loc, "§b升级", "§e右键点击", false);
+                    
+                    int mode = plugin.getConfig().getInt("game.mode", 1);
+                    String modeText = mode == 1 ? "§b单挑模式" : "§b团队模式";
+                    
+                    spawnUpgradeNPC(loc, "§b升级", "§e右键点击", modeText);
                 }
             }
         }
@@ -120,6 +124,38 @@ public class NPCManager implements Listener {
         
         List<ArmorStand> nameStands = new ArrayList<>();
         Location nameLoc = spawnLoc.clone().add(0, hologramHeight, 0);
+        
+        ArmorStand titleStand = createNameStand(nameLoc, title);
+        nameStands.add(titleStand);
+        
+        ArmorStand subtitleStand = createNameStand(nameLoc.clone().add(0, -0.3, 0), subtitle);
+        nameStands.add(subtitleStand);
+        
+        npcNameStands.put(villager, nameStands);
+    }
+
+    private void spawnUpgradeNPC(Location location, String title, String subtitle, String modeText) {
+        Location safeLocation = LocationUtils.findSafeLocation(location, 3);
+        Location spawnLoc = new Location(safeLocation.getWorld(),
+            Math.floor(safeLocation.getX()) + 0.5,
+            Math.floor(safeLocation.getY()),
+            Math.floor(safeLocation.getZ()) + 0.5,
+            safeLocation.getYaw(),
+            safeLocation.getPitch()
+        );
+        
+        Villager villager = (Villager) spawnLoc.getWorld().spawnEntity(spawnLoc, EntityType.VILLAGER);
+        villager.setAI(false);
+        villager.setInvulnerable(true);
+        villager.setCustomNameVisible(false);
+        
+        upgradeNPCs.add(villager);
+        
+        List<ArmorStand> nameStands = new ArrayList<>();
+        Location nameLoc = spawnLoc.clone().add(0, hologramHeight, 0);
+        
+        ArmorStand modeStand = createNameStand(nameLoc.clone().add(0, 0.3, 0), modeText);
+        nameStands.add(modeStand);
         
         ArmorStand titleStand = createNameStand(nameLoc, title);
         nameStands.add(titleStand);

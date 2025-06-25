@@ -1,7 +1,7 @@
 # 游戏设置
 game:
   # 游戏模式（1: 单人模式, 2: 团队模式）
-  mode: 1
+  mode: 2
   # 游戏开始前等待时间（秒）
   waiting_time: 60
   # 游戏开始倒计时（秒）
@@ -54,7 +54,7 @@ shop:
 # NPC设置
 npc:
   # 全息图高度
-  hologram_height: 2.3
+  hologram_height: 2.15
 
 # 世界设置
 world:

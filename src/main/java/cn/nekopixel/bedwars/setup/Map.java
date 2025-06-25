@@ -274,18 +274,18 @@ public class Map implements CommandExecutor, TabCompleter {
             case "setmode" -> {
                 if (args.length < 2) {
                     sender.sendMessage(ChatColor.RED + "用法: /bw setmode <1|2>");
-                    sender.sendMessage(ChatColor.YELLOW + "1 = Solo模式, 2 = 团队模式");
+                    sender.sendMessage(ChatColor.YELLOW + "1 = 单挑模式, 2 = 团队模式");
                     return true;
                 }
                 try {
                     int mode = Integer.parseInt(args[1]);
                     if (mode != 1 && mode != 2) {
-                        sender.sendMessage(ChatColor.RED + "无效的模式！只能是 1 (Solo) 或 2 (团队)");
+                        sender.sendMessage(ChatColor.RED + "无效的模式！只能是 1 (单挑) 或 2 (团队)");
                         return true;
                     }
                     mapConfig.set("mode", mode);
                     saveMapConfig();
-                    String modeName = mode == 1 ? "Solo模式" : "团队模式";
+                    String modeName = mode == 1 ? "单挑模式" : "团队模式";
                     sender.sendMessage(ChatColor.GREEN + "已设置游戏模式为: " + ChatColor.YELLOW + modeName);
                 } catch (NumberFormatException e) {
                     sender.sendMessage(ChatColor.RED + "无效的模式值！请输入 1 或 2");
