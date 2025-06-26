@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.listener;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Villager;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -10,7 +11,6 @@ import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.advancement.Advancement;
-import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
 
 public class CancelEvents implements Listener {
@@ -29,6 +29,10 @@ public class CancelEvents implements Listener {
         Block clicked = event.getClickedBlock();
         Material type = clicked.getType();
         if (type.name().endsWith("_BED") && event.getAction().toString().contains("RIGHT")) {
+            Player player = event.getPlayer();
+            if (player.isSneaking() && player.getInventory().getItemInMainHand().getType().isBlock()) {
+                return;
+            }
             event.setCancelled(true);
         }
     }
