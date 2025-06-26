@@ -4,6 +4,9 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.game.GameStatus;
+import cn.nekopixel.bedwars.game.SpectatorManager;
+import cn.nekopixel.bedwars.game.PlayerDeathManager;
+import cn.nekopixel.bedwars.game.GameManager;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -60,7 +63,16 @@ public class ChatManager {
         // TODO: 联动 LuckPerms 的 prefix 和 suffix
 
         String team = teamManager.getPlayerTeam(player);
-        if (team == null) team = "spectator";
+        
+        SpectatorManager spectatorManager = GameManager.getInstance().getSpectatorManager();
+        PlayerDeathManager deathManager = GameManager.getInstance().getPlayerDeathManager();
+        boolean isObserverState = team == null || 
+                                  spectatorManager.isSpectator(player.getUniqueId()) || 
+                                  deathManager.isRespawning(player.getUniqueId());
+        
+        if (isObserverState) {
+            team = "spectator";
+        }
 
         String teamColor = teamColors.getOrDefault(team.toLowerCase(), "&7");
         String teamName = teamNames.getOrDefault(team.toLowerCase(), "未知队伍");

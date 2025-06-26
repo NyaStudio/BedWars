@@ -4,6 +4,8 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
+import cn.nekopixel.bedwars.game.SpectatorManager;
+import cn.nekopixel.bedwars.game.PlayerDeathManager;
 import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -43,10 +45,29 @@ public class ChatListener implements Listener {
         }
         
         TeamManager teamManager = GameManager.getInstance().getTeamManager();
-        String playerTeam = teamManager.getPlayerTeam(player);
+        SpectatorManager spectatorManager = GameManager.getInstance().getSpectatorManager();
+        PlayerDeathManager deathManager = GameManager.getInstance().getPlayerDeathManager();
         
-        if (playerTeam == null) {
-            Bukkit.broadcastMessage(formattedMessage);
+        String playerTeam = teamManager.getPlayerTeam(player);
+        UUID playerId = player.getUniqueId();
+        
+        boolean isObserverState = playerTeam == null ||
+                                  spectatorManager.isSpectator(playerId) || 
+                                  deathManager.isRespawning(playerId);
+        
+        if (isObserverState) {
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                UUID onlinePlayerId = onlinePlayer.getUniqueId();
+                String onlinePlayerTeam = teamManager.getPlayerTeam(onlinePlayer);
+                
+                boolean isOnlinePlayerObserver = onlinePlayerTeam == null ||
+                                                spectatorManager.isSpectator(onlinePlayerId) ||
+                                                deathManager.isRespawning(onlinePlayerId);
+                
+                if (isOnlinePlayerObserver) {
+                    onlinePlayer.sendMessage(formattedMessage);
+                }
+            }
             return;
         }
         
@@ -54,7 +75,9 @@ public class ChatListener implements Listener {
         for (UUID teammateId : teammates) {
             Player teammate = Bukkit.getPlayer(teammateId);
             if (teammate != null && teammate.isOnline()) {
-                teammate.sendMessage(formattedMessage);
+                if (!spectatorManager.isSpectator(teammateId) && !deathManager.isRespawning(teammateId)) {
+                    teammate.sendMessage(formattedMessage);
+                }
             }
         }
     }
