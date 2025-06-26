@@ -26,6 +26,8 @@ public class GameManager {
     private final NameTag nameTag;
     private final QueueManager queueManager;
     private final BedManager bedManager;
+    private final PlayerDeathManager playerDeathManager;
+    private final SpectatorManager spectatorManager;
 
     private GameManager(Main plugin) {
         this.plugin = plugin;
@@ -37,6 +39,8 @@ public class GameManager {
         this.nameTag = new NameTag(plugin);
         this.queueManager = new QueueManager(plugin);
         this.bedManager = new BedManager(plugin);
+        this.playerDeathManager = new PlayerDeathManager(plugin);
+        this.spectatorManager = new SpectatorManager(plugin);
         
         Bukkit.getPluginManager().registerEvents(spawnerManager, plugin);
         Bukkit.getPluginManager().registerEvents(new WaitingListener(plugin), plugin);
@@ -91,6 +95,9 @@ public class GameManager {
             }
             removeItems.stop();
             nameTag.stop();
+        } else if (status == GameStatus.RESETTING) {
+            playerDeathManager.clearAll();
+            spectatorManager.clearAll();
         }
     }
 
@@ -116,5 +123,13 @@ public class GameManager {
     
     public BedManager getBedManager() {
         return bedManager;
+    }
+    
+    public PlayerDeathManager getPlayerDeathManager() {
+        return playerDeathManager;
+    }
+    
+    public SpectatorManager getSpectatorManager() {
+        return spectatorManager;
     }
 } 
