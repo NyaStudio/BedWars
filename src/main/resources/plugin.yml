@@ -12,6 +12,10 @@ commands:
     usage: /bw
     permission: bedwars.admin
     aliases: [bedwars]
+  shout:
+    description: 向所有玩家喊话
+    usage: /shout <msg>
+    aliases: [s]
 
 permissions:
   bedwars.admin:

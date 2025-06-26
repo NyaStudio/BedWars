@@ -54,9 +54,7 @@ public class ChatManager {
 
     public String formatMessage(Player player, String message) {
         if (!Plugin.getInstance().getGameManager().isStatus(GameStatus.INGAME)) {
-            return "%player%: %message%"
-                    .replace("%player%", player.getName())
-                    .replace("%message%", message);
+            return ChatColor.GRAY + player.getName() + ChatColor.DARK_GRAY + ": " + ChatColor.WHITE + message;
         }
 
         // TODO: 联动 LuckPerms 的 prefix 和 suffix
@@ -72,6 +70,25 @@ public class ChatManager {
                 .replace("%team_name%", teamName)
                 .replace("%player%", player.getName())
                 .replace("%message%", message);
+    }
+
+    public String formatShoutMessage(Player player, String message) {
+        if (!Plugin.getInstance().getGameManager().isStatus(GameStatus.INGAME)) {
+            return ChatColor.GOLD + "[喊话] " + ChatColor.GRAY + player.getName() + ChatColor.DARK_GRAY + ": " + ChatColor.WHITE + message;
+        }
+
+        String team = teamManager.getPlayerTeam(player);
+        if (team == null) team = "spectator";
+
+        String teamColor = teamColors.getOrDefault(team.toLowerCase(), "&7");
+        String teamName = teamNames.getOrDefault(team.toLowerCase(), "未知队伍");
+
+        String shoutFormat = "&6[喊话] " + chatFormat;
+        return ChatColor.translateAlternateColorCodes('&', shoutFormat
+                .replace("%team_color%", teamColor)
+                .replace("%team_name%", teamName)
+                .replace("%player%", player.getName())
+                .replace("%message%", message));
     }
 
     public void reloadConfig() {

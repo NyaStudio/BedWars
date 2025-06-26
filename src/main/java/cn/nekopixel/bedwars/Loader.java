@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars;
 
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.commands.CommandManager;
+import cn.nekopixel.bedwars.commands.ShoutCommand;
 import cn.nekopixel.bedwars.listener.CancelEvents;
 import cn.nekopixel.bedwars.listener.ChatListener;
 import cn.nekopixel.bedwars.listener.DeathListener;
@@ -39,6 +40,7 @@ public class Loader {
     public static void registerCommands(Main plugin) {
         mapSetup = new Map(plugin);
         plugin.getCommand("bw").setExecutor(new CommandManager(plugin));
+        plugin.getCommand("shout").setExecutor(new ShoutCommand(plugin));
     }
 
     public static void initializeManagers(Main plugin) {
