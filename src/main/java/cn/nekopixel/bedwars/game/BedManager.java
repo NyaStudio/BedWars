@@ -174,7 +174,7 @@ public class BedManager implements Listener {
             for (UUID playerId : teamManager.getTeamPlayers(team)) {
                 Player teamPlayer = Bukkit.getPlayer(playerId);
                 if (teamPlayer != null && teamPlayer.isOnline()) {
-                    teamPlayer.sendTitle("§c床已被破坏！", "§7你将无法重生！", 10, 60, 20);
+                    teamPlayer.sendTitle("§c床已被破坏！", "§7你将无法重生！", 0, 60, 0);
                 }
             }
             

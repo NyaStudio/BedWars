@@ -654,23 +654,16 @@ public class Map implements CommandExecutor, TabCompleter {
         }
     }
 
-    /**
-     * 获取指定队伍的床位置
-     * @param team 队伍名称
-     * @return 床的位置，如果未设置则返回null
-     */
     public Location getBedLocation(String team) {
         if (!mapConfig.contains("beds." + team)) {
             return null;
         }
         
-        // 从配置中获取位置数据
         org.bukkit.configuration.ConfigurationSection section = mapConfig.getConfigurationSection("beds." + team);
         if (section == null) {
             return null;
         }
         
-        // 重建位置
         return new Location(
             plugin.getServer().getWorld(section.getString("world")),
             section.getDouble("x"),
@@ -687,13 +680,11 @@ public class Map implements CommandExecutor, TabCompleter {
         for (String team : validTeams) {
             Location bedLoc = getBedLocation(team);
             if (bedLoc != null) {
-                // 检查是否是记录的位置
                 if (isSameBlock(bedLoc, location)) {
                     return team;
                 }
                 
-                // 使用 Bed BlockData 找另一半
-                if (clickedBlock.getType().name().endsWith("_BED") && 
+                if (clickedBlock.getType().name().endsWith("_BED") &&
                     clickedBlock.getBlockData() instanceof Bed) {
                     
                     Bed bedData = (Bed) clickedBlock.getBlockData();

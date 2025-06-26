@@ -190,7 +190,7 @@ public class DeathListener implements Listener {
                 player.teleport(respawningLocation);
             }
             
-            player.sendTitle("§c你死了！", "§e你将在§c5§e秒后重生！", 10, 70, 20);
+            player.sendTitle("§c你死了！", "§e你将在§c5§e秒后重生！", 0, 70, 0);
             player.sendMessage("§e你将在§c5§e秒后重生！");
             
             RespawnPacketHandler.hidePlayer(player);
@@ -208,7 +208,7 @@ public class DeathListener implements Listener {
                     countdown--;
                     
                     if (countdown > 0) {
-                        player.sendTitle("§c你死了！", "§e你将在§c" + countdown + "§e秒后重生！", 0, 40, 10);
+                        player.sendTitle("§c你死了！", "§e你将在§c" + countdown + "§e秒后重生！", 0, 40, 0);
                         player.sendMessage("§e你将在§c" + countdown + "§e秒后重生！");
                     } else {
                         respawnPlayer(player);
@@ -236,7 +236,7 @@ public class DeathListener implements Listener {
                 tabListManager.setTemporarySpectator(player, true);
             }
 
-            player.sendTitle("§c你死了！", "§7你现在是观察者！", 10, 70, 20);
+            player.sendTitle("§c你死了！", "§7你现在是观察者！", 0, 70, 0);
         }
         
         checkTeamElimination(team);
@@ -330,13 +330,13 @@ public class DeathListener implements Listener {
         for (UUID playerId : winningPlayers) {
             Player player = Bukkit.getPlayer(playerId);
             if (player != null && player.isOnline()) {
-                player.sendTitle("§e胜利！", "", 20, 100, 20);
+                player.sendTitle("§6胜利！", "", 0, 100, 0);
             }
         }
         
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!winningPlayers.contains(player.getUniqueId())) {
-                player.sendTitle("§c游戏结束！", "", 20, 100, 20);
+                player.sendTitle("§c游戏结束！", "", 0, 100, 0);
             }
         }
         
@@ -428,7 +428,7 @@ public class DeathListener implements Listener {
             setupPlayerEquipment(player, team);
             
             player.sendMessage("§e你已经重生！");
-            player.sendTitle("§a已重生！", "", 10, 40, 20);
+            player.sendTitle("§a已重生！", "", 0, 50, 0);
         } else {
             plugin.getLogger().warning("队伍 " + team + " 没有设置出生点！");
         }
