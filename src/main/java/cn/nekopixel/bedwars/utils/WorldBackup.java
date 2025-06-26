@@ -1,7 +1,6 @@
 package cn.nekopixel.bedwars.utils;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.*;
@@ -58,35 +57,29 @@ public class WorldBackup {
         }
     }
 
-    public boolean restoreWorld() {
+    public boolean restoreWorldOnLoad() {
         try {
+            if (!Files.exists(backupWorldDir)) {
+                logger.info("备份世界不存在，跳过还原");
+                return false;
+            }
+            
             if (!verifyWorldIntegrity(backupWorldDir)) {
                 logger.severe("备份完整性验证失败");
                 return false;
             }
 
-            logger.info("完整性验证通过，正在还原...");
+            logger.info("完整性验证通过，正在还原世界文件...");
             
-            if (!Bukkit.getOnlinePlayers().isEmpty()) {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.kickPlayer("§c正在还原世界，请稍后重试！");
-                }
-                Thread.sleep(1000);
-            }
-
             if (Files.exists(worldDir)) {
-                if (Bukkit.getWorld("world") != null) {
-                    logger.info("正在卸载世界...");
-                    Bukkit.unloadWorld("world", false);
-                }
                 deleteWorld(worldDir);
             }
 
             copyWorld(backupWorldDir, worldDir);
-            logger.info("还原完成！");
+            logger.info("世界文件还原完成！");
             return true;
         } catch (Exception e) {
-            logger.severe("还原世界时发生错误：" + e.getMessage());
+            logger.severe("还原世界文件时发生错误：" + e.getMessage());
             e.printStackTrace();
             return false;
         }

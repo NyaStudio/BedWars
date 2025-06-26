@@ -17,7 +17,6 @@ import cn.nekopixel.bedwars.setup.Init;
 import cn.nekopixel.bedwars.utils.WorldBackup;
 import cn.nekopixel.bedwars.packet.PotionPacketHandler;
 import cn.nekopixel.bedwars.packet.RespawnPacketHandler;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.github.retrooper.packetevents.PacketEvents;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -27,6 +26,15 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        worldBackup = new WorldBackup(this);
+        if (!worldBackup.backupWorld()) {
+            getLogger().severe("世界备份失败！");
+        }
+
+        if (!worldBackup.restoreWorldOnLoad()) {
+            getLogger().warning("世界还原失败，可能是首次运行或备份不存在");
+        }
+
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().getSettings()
             .reEncodeByDefault(false)
@@ -37,13 +45,6 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        worldBackup = new WorldBackup(this);
-        if (!worldBackup.backupWorld()) {
-            getLogger().severe("世界备份失败，插件将被禁用！");
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
-
         Plugin.setInstance(new Plugin());
         saveDefaultConfig();
         
@@ -65,10 +66,6 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         PacketEvents.getAPI().terminate();
-        
-        if (worldBackup != null) {
-            worldBackup.restoreWorld();
-        }
         getLogger().info("卸载完成！");
     }
 }
