@@ -166,9 +166,10 @@ public class BedManager implements Listener {
             
             String teamColor = getTeamChatColor(team);
             String teamName = getTeamDisplayName(team);
+            String destroyerColor = getTeamChatColor(destroyerTeam);
             
             Bukkit.broadcastMessage("");
-            Bukkit.broadcastMessage("§f床被破坏了 > " + teamColor + teamName + " §7的床被 §f" + destroyer.getName() + " §7拆烂！");
+            Bukkit.broadcastMessage("§f床被破坏了 > " + teamColor + teamName + " §7的床被 " + destroyerColor + destroyer.getName() + " §7拆烂！");
             Bukkit.broadcastMessage("");
 
             for (UUID playerId : teamManager.getTeamPlayers(team)) {

@@ -37,7 +37,7 @@ public class PlayerHealth implements Listener {
     public void onGameStatusChange(GameStatusChange e) {
         if (e.getNewStatus() == GameStatus.INGAME) {
             startSlowRegen();
-        } else if (e.getNewStatus() == GameStatus.ENDING || e.getNewStatus() == GameStatus.RESETTING) {
+        } else if (e.getNewStatus() == GameStatus.RESETTING) {
             stopSlowRegen();
         }
     }

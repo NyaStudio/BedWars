@@ -539,7 +539,7 @@ public class DeathListener implements Listener {
     
     @EventHandler
     public void onGameStatusChange(GameStatusChange event) {
-        if (event.getNewStatus() == GameStatus.ENDING || event.getNewStatus() == GameStatus.RESETTING) {
+        if (event.getNewStatus() == GameStatus.RESETTING) {
             for (UUID playerId : new HashSet<>(respawningPlayers)) {
                 Player player = Bukkit.getPlayer(playerId);
                 if (player != null && player.isOnline()) {
