@@ -15,6 +15,7 @@ import cn.nekopixel.bedwars.utils.team.TeamEquipments;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -65,11 +66,17 @@ public class DeathListener implements Listener {
     
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDamage(EntityDamageEvent event) {
-        if (!GameManager.getInstance().isStatus(GameStatus.INGAME)) {
+        if (!(event.getEntity() instanceof Player)) {
             return;
         }
         
-        if (!(event.getEntity() instanceof Player)) {
+        // 在ENDING状态下，所有玩家无敌
+        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
+            event.setCancelled(true);
+            return;
+        }
+        
+        if (!GameManager.getInstance().isStatus(GameStatus.INGAME)) {
             return;
         }
         
@@ -478,9 +485,16 @@ public class DeathListener implements Listener {
             default -> Color.RED;
         };
     }
-    
+
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
+        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
+            event.setCancelled(true);
+            Player player = event.getPlayer();
+            player.sendBlockChange(event.getBlock().getLocation(), event.getBlock().getBlockData());
+            return;
+        }
+
         if (spectatorPlayers.contains(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
             Player player = event.getPlayer();
@@ -490,6 +504,11 @@ public class DeathListener implements Listener {
     
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
+        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
+            event.setCancelled(true);
+            return;
+        }
+        
         if (spectatorPlayers.contains(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
         }
@@ -514,6 +533,11 @@ public class DeathListener implements Listener {
     
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
+            event.setCancelled(true);
+            return;
+        }
+        
         if (event.getDamager() instanceof Player) {
             Player attacker = (Player) event.getDamager();
             if (respawningPlayers.contains(attacker.getUniqueId()) || spectatorPlayers.contains(attacker.getUniqueId())) {
