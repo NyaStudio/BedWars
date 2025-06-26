@@ -10,6 +10,7 @@ import cn.nekopixel.bedwars.listener.PlayerHealth;
 import cn.nekopixel.bedwars.listener.WorldEvents;
 import cn.nekopixel.bedwars.listener.ProtectionListener;
 import cn.nekopixel.bedwars.listener.PotionDrinkListener;
+import cn.nekopixel.bedwars.listener.PrefixCacheListener;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.setup.Init;
 import cn.nekopixel.bedwars.player.NameTag;
@@ -35,6 +36,7 @@ public class Loader {
         pm.registerEvents(new ProtectionListener((Main) plugin), plugin);
         pm.registerEvents(new PotionDrinkListener(), plugin);
         pm.registerEvents(new DeathListener((Main) plugin), plugin);
+        pm.registerEvents(new PrefixCacheListener((Main) plugin), plugin);
     }
 
     public static void registerCommands(Main plugin) {

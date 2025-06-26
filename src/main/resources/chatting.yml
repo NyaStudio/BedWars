@@ -1,5 +1,5 @@
 chat:
-  format: "%team_color%[%team_name%]&r %player%&r: %message%"
+  format: "%team_color%[%team_name%] %player%&r: %message%"
   team_names:
     red: "红队"
     blue: "蓝队"

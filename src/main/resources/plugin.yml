@@ -5,6 +5,7 @@ api-version: 1.20
 authors: [BLxcwg666]
 
 depend: [NametagEdit,packetevents]
+softdepend: [LuckPerms]
 
 commands:
   bw:
