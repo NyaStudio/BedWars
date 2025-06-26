@@ -273,7 +273,7 @@ public class PurchaseUtils {
         return switch (team.toLowerCase()) {
             case "red" -> Material.RED_WOOL;
             case "blue" -> Material.BLUE_WOOL;
-            case "green" -> Material.GREEN_WOOL;
+            case "green" -> Material.LIME_WOOL;
             case "yellow" -> Material.YELLOW_WOOL;
             case "aqua" -> Material.LIGHT_BLUE_WOOL;
             case "white" -> Material.WHITE_WOOL;
