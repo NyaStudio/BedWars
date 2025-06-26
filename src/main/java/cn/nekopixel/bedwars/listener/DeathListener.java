@@ -498,7 +498,13 @@ public class DeathListener implements Listener {
         if (spectatorPlayers.contains(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
             Player player = event.getPlayer();
-            player.sendBlockChange(event.getBlock().getLocation(), event.getBlock().getBlockData());
+            
+            final org.bukkit.block.data.BlockData blockData = event.getBlock().getBlockData();
+            final Location blockLoc = event.getBlock().getLocation();
+            
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                player.sendBlockChange(blockLoc, blockData);
+            }, 1L);
         }
     }
     
