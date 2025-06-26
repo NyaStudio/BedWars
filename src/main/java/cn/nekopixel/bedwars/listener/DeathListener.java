@@ -107,8 +107,12 @@ public class DeathListener implements Listener {
                 BedManager bedManager = GameManager.getInstance().getBedManager();
                 boolean hasBed = bedManager.hasBed(deathState.team);
                 
-                if (hasBed && !deathState.isSpectator) {
-                    handleReconnectDeath(joiningPlayer, deathState.team);
+                if (!deathState.isSpectator) {
+                    if (hasBed) {
+                        handleReconnectDeath(joiningPlayer, deathState.team);
+                    } else {
+                        restoreSpectatorState(joiningPlayer);
+                    }
                 } else {
                     restoreSpectatorState(joiningPlayer);
                 }
@@ -137,7 +141,15 @@ public class DeathListener implements Listener {
             if (tabListManager != null) {
                 tabListManager.setTemporarySpectator(player, false);
             }
+        } else if (GameManager.getInstance().isStatus(GameStatus.INGAME)) {
+            TeamManager teamManager = GameManager.getInstance().getTeamManager();
+            String team = teamManager.getPlayerTeam(player);
+            
+            if (team != null && !spectatorPlayers.contains(playerId)) {
+                disconnectedDeathStates.put(playerId, new DeathState(false, team));
+            }
         }
+        
         spectatorPlayers.remove(playerId);
     }
     
@@ -583,6 +595,7 @@ public class DeathListener implements Listener {
             tabListManager.setTemporarySpectator(player, true);
         }
         
+        player.sendTitle("§c你死了！", "§e你将在§c10§e秒后重生！", 0, 70, 0);
         player.sendMessage("§e你将在§c10§e秒后重生！");
         
         new BukkitRunnable() {
@@ -593,6 +606,7 @@ public class DeathListener implements Listener {
                 countdown--;
                 
                 if (countdown > 0) {
+                    player.sendTitle("§c你死了！", "§e你将在§c" + countdown + "§e秒后重生！", 0, 40, 0);
                     player.sendMessage("§e你将在§c" + countdown + "§e秒后重生！");
                 } else {
                     respawnPlayer(player);
