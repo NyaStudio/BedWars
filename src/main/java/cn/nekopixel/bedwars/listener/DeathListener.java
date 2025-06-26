@@ -440,7 +440,7 @@ public class DeathListener implements Listener {
             setupPlayerEquipment(player, team);
             
             player.sendMessage("§e你已经重生！");
-            player.sendTitle("§a已重生！", "", 0, 50, 0);
+            player.sendTitle("§a已重生！", "", 10, 50, 20);
         } else {
             plugin.getLogger().warning("队伍 " + team + " 没有设置出生点！");
         }
