@@ -48,7 +48,7 @@ public class Damage implements Listener {
         double protectionReduction = getProtectionReduction(victim, armorReduction);
         double totalReduction = armorReduction + protectionReduction;
         double finalDamage = totalDamage * (1 - totalReduction);
-        event.setDamage(finalDamage);
+        event.setDamage(Math.max(0.1, finalDamage));
         
         if (plugin.getConfig().getBoolean("debug.damage", false)) {
             plugin.getLogger().info(String.format(
@@ -141,8 +141,8 @@ public class Damage implements Listener {
         if (inv.getBoots() != null) {
             totalPoints += getArmorPoints(inv.getBoots().getType());
         }
-        
-        return Math.min(totalPoints * 0.04, 0.8);
+
+        return Math.min(1.0, totalPoints * 0.04);
     }
 
     private double getArmorPoints(Material armor) {
@@ -191,10 +191,9 @@ public class Damage implements Listener {
             totalProtLevel += inv.getBoots().getEnchantmentLevel(Enchantment.PROTECTION_ENVIRONMENTAL);
         }
         
-        int protValue = totalProtLevel * 4;
-        double incrementalReduction = (protValue / 100.0) * (1 - baseReduction);
+        double protReduction = Math.min(20, totalProtLevel * 1.0) * 0.04 * (1 - baseReduction);
         
-        return incrementalReduction;
+        return protReduction;
     }
 
     private enum ArmorType {
