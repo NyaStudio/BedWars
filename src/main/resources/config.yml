@@ -51,6 +51,11 @@ shop:
   # 最大背包物品数量（每个物品）
   max_inventory_amount: 2304  # 64 * 36
 
+# 聊天设置
+chat:
+  # /shout 冷却时间（秒）
+  shout_cooldown: 30
+
 # NPC设置
 npc:
   # 全息图高度

@@ -14,10 +14,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ShoutCommand implements CommandExecutor {
     private final Main plugin;
+    private final Map<UUID, Long> cooldowns = new HashMap<>();
 
     public ShoutCommand(Main plugin) {
         this.plugin = plugin;
@@ -43,11 +46,28 @@ public class ShoutCommand implements CommandExecutor {
         }
 
         if (!GameManager.getInstance().isStatus(GameStatus.INGAME)) {
-            player.sendMessage(ChatColor.YELLOW + "当前无法使用此命令！");
+            player.sendMessage(ChatColor.RED + "当前无法使用此命令！");
             return true;
         }
 
         UUID playerId = player.getUniqueId();
+        
+        int cooldownSeconds = plugin.getConfig().getInt("chat.shout_cooldown", 30);
+        if (cooldownSeconds > 0) {
+            Long lastUsed = cooldowns.get(playerId);
+            if (lastUsed != null) {
+                long currentTime = System.currentTimeMillis();
+                long timePassed = currentTime - lastUsed;
+                long cooldownMillis = cooldownSeconds * 1000L;
+                
+                if (timePassed < cooldownMillis) {
+                    long remainingSeconds = (cooldownMillis - timePassed) / 1000;
+                    player.sendMessage(ChatColor.RED + "你需要等待 " + remainingSeconds + " 秒才能再次使用此命令！");
+                    return true;
+                }
+            }
+        }
+        
         TeamManager teamManager = GameManager.getInstance().getTeamManager();
         SpectatorManager spectatorManager = GameManager.getInstance().getSpectatorManager();
         PlayerDeathManager deathManager = GameManager.getInstance().getPlayerDeathManager();
@@ -70,7 +90,15 @@ public class ShoutCommand implements CommandExecutor {
 
         String formattedMessage = Plugin.getInstance().getChatManager().formatShoutMessage(player, message);
         Bukkit.broadcastMessage(formattedMessage);
+        
+        if (cooldownSeconds > 0) {
+            cooldowns.put(playerId, System.currentTimeMillis());
+        }
 
         return true;
+    }
+    
+    public void clearCooldown(UUID playerId) {
+        cooldowns.remove(playerId);
     }
 } 
