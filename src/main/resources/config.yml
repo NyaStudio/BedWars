@@ -71,3 +71,5 @@ world:
 debug:
   # 显示伤害信息
   damage: false
+  # 显示击退信息
+  knockback: false
