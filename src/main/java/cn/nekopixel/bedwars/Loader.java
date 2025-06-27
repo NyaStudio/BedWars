@@ -11,6 +11,7 @@ import cn.nekopixel.bedwars.listener.WorldEvents;
 import cn.nekopixel.bedwars.listener.ProtectionListener;
 import cn.nekopixel.bedwars.listener.PotionDrinkListener;
 import cn.nekopixel.bedwars.listener.PrefixCacheListener;
+import cn.nekopixel.bedwars.player.Damage;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.setup.Init;
 import cn.nekopixel.bedwars.player.NameTag;
@@ -29,6 +30,7 @@ public class Loader {
     public static void registerEvents(org.bukkit.plugin.Plugin plugin) {
         PluginManager pm = plugin.getServer().getPluginManager();
 
+        pm.registerEvents(new Damage((Main) plugin), plugin);
         pm.registerEvents(new CancelEvents(plugin), plugin);
         pm.registerEvents(new WorldEvents((Main) plugin), plugin);
         pm.registerEvents(new ChatListener((Main) plugin), plugin);

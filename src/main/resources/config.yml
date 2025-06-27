@@ -66,3 +66,8 @@ world:
   disable_weather: true
   # 是否禁用昼夜循环
   disable_daylight_cycle: true
+
+# 调试选项
+debug:
+  # 显示伤害信息
+  damage: false

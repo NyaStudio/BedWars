@@ -42,7 +42,6 @@ public class ChatManager {
                 this.prefixProvider = (PrefixProvider) clazz.getConstructor(Main.class).newInstance(plugin);
                 plugin.getLogger().info("检测到 LuckPerms，将与其一起工作！");
             } catch (Exception e) {
-                plugin.getLogger().warning("无法加载LuckPerms支持: " + e.getMessage());
                 this.prefixProvider = new EmptyPrefixProvider();
             }
         } else {
