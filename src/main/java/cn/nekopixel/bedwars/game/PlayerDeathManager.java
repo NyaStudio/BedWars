@@ -12,6 +12,7 @@ public class PlayerDeathManager {
     private final Main plugin;
     private final Set<UUID> respawningPlayers = new HashSet<>();
     private final Map<UUID, DeathState> disconnectedDeathStates = new HashMap<>();
+    private final Map<UUID, Long> invulnerablePlayers = new HashMap<>();
     
     public static class DeathState {
         public final boolean isSpectator;
@@ -80,8 +81,47 @@ public class PlayerDeathManager {
         return new HashSet<>(respawningPlayers);
     }
     
+    public void setRespawnInvulnerable(Player player, int seconds) {
+        long endTime = System.currentTimeMillis() + (seconds * 1000L);
+        invulnerablePlayers.put(player.getUniqueId(), endTime);
+    }
+    
+    public boolean isInvulnerable(UUID playerId) {
+        Long endTime = invulnerablePlayers.get(playerId);
+        if (endTime == null) {
+            return false;
+        }
+        
+        if (System.currentTimeMillis() >= endTime) {
+            invulnerablePlayers.remove(playerId);
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public int getRemainingInvulnerableTime(UUID playerId) {
+        Long endTime = invulnerablePlayers.get(playerId);
+        if (endTime == null) {
+            return 0;
+        }
+        
+        long remaining = endTime - System.currentTimeMillis();
+        if (remaining <= 0) {
+            invulnerablePlayers.remove(playerId);
+            return 0;
+        }
+        
+        return (int) Math.ceil(remaining / 1000.0);
+    }
+    
+    public void removeInvulnerable(UUID playerId) {
+        invulnerablePlayers.remove(playerId);
+    }
+    
     public void clearAll() {
         respawningPlayers.clear();
         disconnectedDeathStates.clear();
+        invulnerablePlayers.clear();
     }
 } 

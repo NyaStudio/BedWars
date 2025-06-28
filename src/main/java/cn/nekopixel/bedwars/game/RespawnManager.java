@@ -10,6 +10,8 @@ import cn.nekopixel.bedwars.utils.team.TeamEquipments;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class RespawnManager {
@@ -58,6 +60,12 @@ public class RespawnManager {
             player.teleport(safeLocation);
             
             setupPlayerEquipment(player, team);
+            
+            int invulnerableTime = plugin.getConfig().getInt("game.respawn_invulnerable_time", 3);
+            if (invulnerableTime > 0) {
+                PlayerDeathManager deathManager = GameManager.getInstance().getPlayerDeathManager();
+                deathManager.setRespawnInvulnerable(player, invulnerableTime);
+            }
             
             player.sendMessage("§e你已经重生！");
             player.sendTitle("§a已重生！", "", 10, 50, 20);

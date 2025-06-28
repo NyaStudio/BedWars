@@ -10,6 +10,8 @@ game:
   ending_time: 10
   # 游戏重置时间（秒）
   reset_time: 5
+  # 重生无敌时间（秒）
+  respawn_invulnerable_time: 3
 
 # 资源生成器设置
 spawner:

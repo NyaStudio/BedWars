@@ -21,6 +21,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 
@@ -60,6 +61,11 @@ public class DeathListener implements Listener {
         
         Player player = (Player) event.getEntity();
         if (deathManager.isRespawning(player.getUniqueId())) {
+            event.setCancelled(true);
+            return;
+        }
+        
+        if (deathManager.isInvulnerable(player.getUniqueId())) {
             event.setCancelled(true);
             return;
         }
@@ -373,14 +379,33 @@ public class DeathListener implements Listener {
             return;
         }
         
-        if (event.getDamager() instanceof Player &&
-            deathManager.isRespawning(((Player) event.getDamager()).getUniqueId())) {
-            event.setCancelled(true);
+        PlayerDeathManager deathManager = GameManager.getInstance().getPlayerDeathManager();
+        
+        if (event.getDamager() instanceof Player) {
+            Player attacker = (Player) event.getDamager();
+            if (deathManager.isInvulnerable(attacker.getUniqueId())) {
+                deathManager.removeInvulnerable(attacker.getUniqueId());
+                attacker.removePotionEffect(PotionEffectType.GLOWING);
+            }
+            
+            if (deathManager.isRespawning(attacker.getUniqueId())) {
+                event.setCancelled(true);
+                return;
+            }
         }
         
-        if (event.getEntity() instanceof Player && 
-            deathManager.isRespawning(((Player) event.getEntity()).getUniqueId())) {
-            event.setCancelled(true);
+        if (event.getEntity() instanceof Player) {
+            Player victim = (Player) event.getEntity();
+            
+            if (deathManager.isRespawning(victim.getUniqueId())) {
+                event.setCancelled(true);
+                return;
+            }
+            
+            if (deathManager.isInvulnerable(victim.getUniqueId())) {
+                event.setCancelled(true);
+                return;
+            }
         }
         
         if (event.getDamager() instanceof Projectile) {
