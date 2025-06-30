@@ -26,7 +26,7 @@ public class RespawnManager {
         INGameTitle.showDynamic(player,
             remainingSeconds -> "§c你死了！", 
             remainingSeconds -> "§e你将在§c" + remainingSeconds + "§e秒后重生！", 
-            seconds);
+            seconds, 0, 0);
         
         new BukkitRunnable() {
             int countdown = seconds;
@@ -72,7 +72,7 @@ public class RespawnManager {
             }
             
             player.sendMessage("§e你已经重生！");
-            INGameTitle.show(player, "§a已重生！", "", 3);
+            INGameTitle.show(player, "§a已重生！", "", 3, 10, 20);
         } else {
             plugin.getLogger().warning("队伍 " + team + " 没有设置出生点！");
         }

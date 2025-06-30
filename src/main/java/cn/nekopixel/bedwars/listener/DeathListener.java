@@ -307,13 +307,13 @@ public class DeathListener implements Listener {
         for (UUID playerId : winningPlayers) {
             Player player = Bukkit.getPlayer(playerId);
             if (player != null && player.isOnline()) {
-                INGameTitle.show(player, "§6胜利！", "", 5);
+                INGameTitle.show(player, "§6胜利！", "", 5, 0, 0);
             }
         }
         
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!winningPlayers.contains(player.getUniqueId())) {
-                INGameTitle.show(player, "§c游戏结束！", "", 5);
+                INGameTitle.show(player, "§c游戏结束！", "", 5, 0, 0);
             }
         }
         

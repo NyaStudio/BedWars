@@ -17,6 +17,10 @@ public class INGameTitle {
         plugin = mainPlugin;
     }
     public static void show(Player player, String title, String subtitle, int durationSeconds) {
+        show(player, title, subtitle, durationSeconds, 0, 0);
+    }
+    
+    public static void show(Player player, String title, String subtitle, int durationSeconds, int fadeIn, int fadeOut) {
         cancel(player);
         BukkitTask task = new BukkitRunnable() {
             int remainingTicks = durationSeconds * 20;
@@ -30,7 +34,7 @@ public class INGameTitle {
                 }
                 
                 if (remainingTicks % 5 == 0) {
-                    player.sendTitle(title, subtitle, 0, 15, 0);
+                    player.sendTitle(title, subtitle, fadeIn, 15, fadeOut);
                 }
                 
                 remainingTicks--;
@@ -41,6 +45,10 @@ public class INGameTitle {
     }
 
     public static void showDynamic(Player player, TitleProvider titleProvider, TitleProvider subtitleProvider, int durationSeconds) {
+        showDynamic(player, titleProvider, subtitleProvider, durationSeconds, 0, 0);
+    }
+    
+    public static void showDynamic(Player player, TitleProvider titleProvider, TitleProvider subtitleProvider, int durationSeconds, int fadeIn, int fadeOut) {
         cancel(player);
         BukkitTask task = new BukkitRunnable() {
             int remainingTicks = durationSeconds * 20;
@@ -57,7 +65,7 @@ public class INGameTitle {
                     int remainingSeconds = (remainingTicks + 19) / 20;
                     String currentTitle = titleProvider.provide(remainingSeconds);
                     String currentSubtitle = subtitleProvider.provide(remainingSeconds);
-                    player.sendTitle(currentTitle, currentSubtitle, 0, 15, 0);
+                    player.sendTitle(currentTitle, currentSubtitle, fadeIn, 15, fadeOut);
                 }
                 
                 remainingTicks--;
