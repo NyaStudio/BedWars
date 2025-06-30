@@ -181,6 +181,7 @@ public class DeathListener implements Listener {
         } else {
             makeSpectator(player);
             player.sendTitle("§c你死了！", "§7你现在是观察者！", 0, 70, 0);
+            player.sendMessage("§c你已被淘汰！");
         }
         
         checkTeamElimination(team);
@@ -218,7 +219,7 @@ public class DeathListener implements Listener {
         String teamName = bedManager.getTeamDisplayName(team);
         
         Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§f团灭 > " + teamColor + teamName + " §7已被团灭！");
+        Bukkit.broadcastMessage("§f团灭 > " + teamColor + teamName + " §7已被淘汰！");
         Bukkit.broadcastMessage("");
         
         checkVictory();
