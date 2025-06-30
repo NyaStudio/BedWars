@@ -54,8 +54,9 @@ public class INGameTitle {
                 }
                 
                 if (remainingTicks % 5 == 0) {
-                    String currentTitle = titleProvider.provide(remainingTicks / 20);
-                    String currentSubtitle = subtitleProvider.provide(remainingTicks / 20);
+                    int remainingSeconds = (remainingTicks + 19) / 20;
+                    String currentTitle = titleProvider.provide(remainingSeconds);
+                    String currentSubtitle = subtitleProvider.provide(remainingSeconds);
                     player.sendTitle(currentTitle, currentSubtitle, 0, 15, 0);
                 }
                 
