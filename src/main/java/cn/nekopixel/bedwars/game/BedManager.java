@@ -5,6 +5,7 @@ import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.listener.DeathListener;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.team.TeamManager;
+import cn.nekopixel.bedwars.utils.INGameTitle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -175,7 +176,7 @@ public class BedManager implements Listener {
             for (UUID playerId : teamManager.getTeamPlayers(team)) {
                 Player teamPlayer = Bukkit.getPlayer(playerId);
                 if (teamPlayer != null && teamPlayer.isOnline()) {
-                    teamPlayer.sendTitle("§c床已被破坏！", "§7你将无法重生！", 10, 60, 20);
+                    INGameTitle.show(teamPlayer, "§c床已被破坏！", "§7你将无法重生！", 4);
                 }
             }
             

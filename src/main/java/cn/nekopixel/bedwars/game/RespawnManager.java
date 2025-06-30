@@ -6,12 +6,11 @@ import cn.nekopixel.bedwars.config.ConfigLoader;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.utils.LocationUtils;
+import cn.nekopixel.bedwars.utils.INGameTitle;
 import cn.nekopixel.bedwars.utils.team.TeamEquipments;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class RespawnManager {
@@ -24,6 +23,11 @@ public class RespawnManager {
     }
     
     public void startRespawnCountdown(Player player, int seconds) {
+        INGameTitle.showDynamic(player,
+            remainingSeconds -> "§c你死了！", 
+            remainingSeconds -> "§e你将在§c" + remainingSeconds + "§e秒后重生！", 
+            seconds);
+        
         new BukkitRunnable() {
             int countdown = seconds;
             
@@ -32,9 +36,9 @@ public class RespawnManager {
                 countdown--;
                 
                 if (countdown > 0) {
-                    player.sendTitle("§c你死了！", "§e你将在§c" + countdown + "§e秒后重生！", 0, 40, 0);
                     player.sendMessage("§e你将在§c" + countdown + "§e秒后重生！");
                 } else {
+                    INGameTitle.cancel(player);
                     respawnPlayer(player);
                     deathManager.setRespawning(player, false);
                     this.cancel();
@@ -68,7 +72,7 @@ public class RespawnManager {
             }
             
             player.sendMessage("§e你已经重生！");
-            player.sendTitle("§a已重生！", "", 10, 50, 20);
+            INGameTitle.show(player, "§a已重生！", "", 3);
         } else {
             plugin.getLogger().warning("队伍 " + team + " 没有设置出生点！");
         }

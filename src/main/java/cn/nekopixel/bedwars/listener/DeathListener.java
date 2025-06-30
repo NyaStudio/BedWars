@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.listener;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.game.*;
 import cn.nekopixel.bedwars.team.TeamManager;
+import cn.nekopixel.bedwars.utils.INGameTitle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -174,13 +175,12 @@ public class DeathListener implements Listener {
                 player.teleport(respawningLocation);
             }
             
-            player.sendTitle("§c你死了！", "§e你将在§c5§e秒后重生！", 0, 70, 0);
             player.sendMessage("§e你将在§c5§e秒后重生！");
             
             respawnManager.startRespawnCountdown(player, 5);
         } else {
             makeSpectator(player);
-            player.sendTitle("§c你死了！", "§7你现在是观察者！", 0, 70, 0);
+            INGameTitle.show(player, "§c你死了！", "§7你现在是观察者！", 5);
             player.sendMessage("§c你已被淘汰！");
         }
         
@@ -286,13 +286,13 @@ public class DeathListener implements Listener {
         for (UUID playerId : winningPlayers) {
             Player player = Bukkit.getPlayer(playerId);
             if (player != null && player.isOnline()) {
-                player.sendTitle("§6胜利！", "", 0, 100, 0);
+                INGameTitle.show(player, "§6胜利！", "", 5);
             }
         }
         
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!winningPlayers.contains(player.getUniqueId())) {
-                player.sendTitle("§c游戏结束！", "", 0, 100, 0);
+                INGameTitle.show(player, "§c游戏结束！", "", 5);
             }
         }
         
@@ -436,6 +436,7 @@ public class DeathListener implements Listener {
         if (event.getNewStatus() == GameStatus.RESETTING) {
             deathManager.clearAll();
             spectatorManager.clearAll();
+            INGameTitle.cancelAll();
         }
     }
     
@@ -448,7 +449,7 @@ public class DeathListener implements Listener {
             player.teleport(respawningLocation);
         }
         
-        player.sendTitle("§c你死了！", "§e你将在§c10§e秒后重生！", 0, 70, 0);
+        // 注意：死亡倒计时的title由RespawnManager处理
         player.sendMessage("§e你将在§c10§e秒后重生！");
         
         respawnManager.startRespawnCountdown(player, 10);
