@@ -4,6 +4,7 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.game.*;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.utils.INGameTitle;
+import cn.nekopixel.bedwars.utils.SoundUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -32,6 +33,8 @@ public class DeathListener implements Listener {
     private final SpectatorManager spectatorManager;
     private final RespawnManager respawnManager;
     private static DeathListener instance;
+    private final Map<UUID, UUID> lastDamager = new HashMap<>();
+    private final Map<UUID, Long> lastDamageTime = new HashMap<>();
     
     public DeathListener(Main plugin) {
         this.plugin = plugin;
@@ -112,6 +115,10 @@ public class DeathListener implements Listener {
         Player player = event.getPlayer();
         UUID playerId = player.getUniqueId();
         
+        lastDamager.remove(playerId);
+        lastDamager.values().removeIf(damager -> damager.equals(playerId));
+        lastDamageTime.remove(playerId);
+        
         if (deathManager.isRespawning(playerId)) {
             TeamManager teamManager = GameManager.getInstance().getTeamManager();
             String team = teamManager.getPlayerTeam(player);
@@ -164,6 +171,20 @@ public class DeathListener implements Listener {
         
         BedManager bedManager = GameManager.getInstance().getBedManager();
         boolean hasBed = bedManager.hasBed(team);
+        
+        UUID killerId = lastDamager.get(player.getUniqueId());
+        Long damageTime = lastDamageTime.get(player.getUniqueId());
+        
+        if (killerId != null && damageTime != null && 
+            (System.currentTimeMillis() - damageTime) <= 5000) {
+            Player killer = Bukkit.getPlayer(killerId);
+            if (killer != null && killer.isOnline() && !killer.equals(player)) {
+                SoundUtils.killed(killer);
+            }
+        }
+        
+        lastDamager.remove(player.getUniqueId());
+        lastDamageTime.remove(player.getUniqueId());
         
         deathManager.prepareForDeath(player);
         
@@ -407,6 +428,19 @@ public class DeathListener implements Listener {
                 event.setCancelled(true);
                 return;
             }
+            
+            if (event.getDamager() instanceof Player) {
+                Player attacker = (Player) event.getDamager();
+                lastDamager.put(victim.getUniqueId(), attacker.getUniqueId());
+                lastDamageTime.put(victim.getUniqueId(), System.currentTimeMillis());
+            } else if (event.getDamager() instanceof Projectile) {
+                Projectile projectile = (Projectile) event.getDamager();
+                if (projectile.getShooter() instanceof Player) {
+                    Player shooter = (Player) projectile.getShooter();
+                    lastDamager.put(victim.getUniqueId(), shooter.getUniqueId());
+                    lastDamageTime.put(victim.getUniqueId(), System.currentTimeMillis());
+                }
+            }
         }
         
         if (event.getDamager() instanceof Projectile) {
@@ -437,6 +471,8 @@ public class DeathListener implements Listener {
             deathManager.clearAll();
             spectatorManager.clearAll();
             INGameTitle.cancelAll();
+            lastDamager.clear();
+            lastDamageTime.clear();
         }
     }
     
@@ -449,7 +485,6 @@ public class DeathListener implements Listener {
             player.teleport(respawningLocation);
         }
         
-        // 注意：死亡倒计时的title由RespawnManager处理
         player.sendMessage("§e你将在§c10§e秒后重生！");
         
         respawnManager.startRespawnCountdown(player, 10);

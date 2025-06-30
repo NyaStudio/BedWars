@@ -4,6 +4,7 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.utils.shop.PurchaseUtils;
+import cn.nekopixel.bedwars.utils.SoundUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -400,11 +401,13 @@ public class ShopManager implements Listener {
         int maxStackSize = plugin.getConfig().getInt(CONFIG_MAX_STACK_PATH, MAX_STACK_SIZE);
         if (!PurchaseUtils.hasEnoughSpace(player, clickedItem, maxStackSize)) {
             player.sendMessage("§c背包空间不足！");
+            SoundUtils.purchaseFailed(player);
             return;
         }
         
         if (!PurchaseUtils.canPurchaseArmor(player, clickedItem)) {
             player.sendMessage("§c你已经有比这个更好的了！");
+            SoundUtils.purchaseFailed(player);
             return;
         }
 
@@ -414,12 +417,14 @@ public class ShopManager implements Listener {
 
         if (costMaterial == null) {
             player.sendMessage("§c未知的货币类型: " + currency);
+            SoundUtils.purchaseFailed(player);
             return;
         }
 
         int playerAmount = PurchaseUtils.countMaterial(player, costMaterial);
         if (playerAmount < price) {
             player.sendMessage("§c你没有足够的 " + PurchaseUtils.translateCurrency(currency) + "！");
+            SoundUtils.purchaseFailed(player);
             return;
         }
 
@@ -428,6 +433,7 @@ public class ShopManager implements Listener {
 
         PurchaseUtils.giveItemToPlayer(player, reward);
         player.sendMessage("§a购买成功: §f" + meta.getDisplayName() + " §7（花费 " + price + " " + PurchaseUtils.translateCurrency(currency) + "）");
+        SoundUtils.purchaseSucceed(player);
     }
 
     @EventHandler
