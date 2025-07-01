@@ -92,8 +92,8 @@ public class NPCManager implements Listener {
                 if (worldName != null && plugin.getServer().getWorld(worldName) != null) {
                     Location loc = Location.deserialize(locMap);
                     
-                    int mode = plugin.getConfig().getInt("game.mode", 1);
-                    String modeText = mode == 1 ? "§b单人模式" : "§b团队模式";
+                    String mode = plugin.getConfig().getString("game.mode", "4s");
+                    String modeText = mode.equalsIgnoreCase("solo") ? "§b单挑模式" : "§b团队模式";
                     
                     spawnUpgradeNPC(loc, "§b升级", "§e右键点击", modeText);
                 }

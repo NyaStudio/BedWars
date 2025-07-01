@@ -31,15 +31,11 @@ public class ChatListener implements Listener {
         Player player = event.getPlayer();
         String message = event.getMessage();
         
-        int gameMode = plugin.getConfig().getInt("game.mode", 2);
-        String formattedMessage = Plugin.getInstance().getChatManager().formatMessage(player, message);
+        String mode = plugin.getConfig().getString("game.mode", "4s");
+        GameStatus gameStatus = GameManager.getInstance().getCurrentStatus();
         
-        if (!GameManager.getInstance().isStatus(GameStatus.INGAME)) {
-            Bukkit.broadcastMessage(formattedMessage);
-            return;
-        }
-        
-        if (gameMode == 1) {
+        if (gameStatus != GameStatus.INGAME || mode.equalsIgnoreCase("solo")) {
+            String formattedMessage = Plugin.getInstance().getChatManager().formatMessage(player, message);
             Bukkit.broadcastMessage(formattedMessage);
             return;
         }
@@ -65,7 +61,7 @@ public class ChatListener implements Listener {
                                                 deathManager.isRespawning(onlinePlayerId);
                 
                 if (isOnlinePlayerObserver) {
-                    onlinePlayer.sendMessage(formattedMessage);
+                    onlinePlayer.sendMessage(Plugin.getInstance().getChatManager().formatMessage(onlinePlayer, message));
                 }
             }
             return;
@@ -76,7 +72,7 @@ public class ChatListener implements Listener {
             Player teammate = Bukkit.getPlayer(teammateId);
             if (teammate != null && teammate.isOnline()) {
                 if (!spectatorManager.isSpectator(teammateId) && !deathManager.isRespawning(teammateId)) {
-                    teammate.sendMessage(formattedMessage);
+                    teammate.sendMessage(Plugin.getInstance().getChatManager().formatMessage(teammate, message));
                 }
             }
         }

@@ -10,7 +10,7 @@ public class HelpCommand {
         sender.sendMessage(ChatColor.YELLOW + "/bw switch <status> " + ChatColor.GRAY + "- 切换游戏状态");
         sender.sendMessage(ChatColor.YELLOW + "/bw reload " + ChatColor.GRAY + "- 重新加载配置文件");
         sender.sendMessage(ChatColor.YELLOW + "/bw save " + ChatColor.GRAY + "- 保存配置文件");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setmode <1|2> " + ChatColor.GRAY + "- 设置游戏模式 (1=单人, 2=团队)");
+        sender.sendMessage(ChatColor.YELLOW + "/bw setmode <solo|double|3s|4s|4v4> " + ChatColor.GRAY + "- 设置游戏模式");
         sender.sendMessage("");
         sender.sendMessage(ChatColor.GOLD + "=== 地图配置命令 ===");
         sender.sendMessage(ChatColor.YELLOW + "/bw setjoin [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置加入时位置");

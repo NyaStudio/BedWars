@@ -301,24 +301,29 @@ public class Map implements CommandExecutor, TabCompleter {
 
             case "setmode" -> {
                 if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw setmode <1|2>");
-                    sender.sendMessage(ChatColor.YELLOW + "1 = 单人模式, 2 = 团队模式");
+                    sender.sendMessage(ChatColor.RED + "用法: /bw setmode <solo|double|3s|4s|4v4>");
+                    sender.sendMessage(ChatColor.YELLOW + "solo = 单挑模式, double = 双人模式, 3s = 三人模式, 4s = 四人模式, 4v4 = 4v4模式");
                     return true;
                 }
-                try {
-                    int mode = Integer.parseInt(args[1]);
-                    if (mode != 1 && mode != 2) {
-                        sender.sendMessage(ChatColor.RED + "无效的模式！只能是 1 (单人) 或 2 (团队)");
-                        return true;
-                    }
-                    // 保存到主配置文件 config.yml
-                    plugin.getConfig().set("game.mode", mode);
-                    plugin.saveConfig();
-                    String modeName = mode == 1 ? "单人模式" : "团队模式";
-                    sender.sendMessage(ChatColor.GREEN + "已设置游戏模式为: " + ChatColor.YELLOW + modeName);
-                } catch (NumberFormatException e) {
-                    sender.sendMessage(ChatColor.RED + "无效的模式值！请输入 1 或 2");
+                
+                String mode = args[1].toLowerCase();
+                if (!mode.equals("solo") && !mode.equals("double") && !mode.equals("3s") && !mode.equals("4s") && !mode.equals("4v4")) {
+                    sender.sendMessage(ChatColor.RED + "无效的模式！可选: solo, double, 3s, 4s, 4v4");
+                    return true;
                 }
+                
+                plugin.getConfig().set("game.mode", mode);
+                plugin.saveConfig();
+                
+                String modeName = switch (mode) {
+                    case "solo" -> "单挑模式";
+                    case "double" -> "双人模式";
+                    case "3s" -> "三人模式";
+                    case "4s" -> "四人模式";
+                    case "4v4" -> "4v4模式";
+                    default -> mode;
+                };
+                sender.sendMessage(ChatColor.GREEN + "已设置游戏模式为: " + ChatColor.YELLOW + modeName);
             }
         }
 
@@ -572,8 +577,11 @@ public class Map implements CommandExecutor, TabCompleter {
                     }
                 }
                 case "setmode" -> {
-                    completions.add("1");
-                    completions.add("2");
+                    completions.add("solo");
+                    completions.add("double");
+                    completions.add("3s");
+                    completions.add("4s");
+                    completions.add("4v4");
                 }
             }
         } else if (args.length == 3) {

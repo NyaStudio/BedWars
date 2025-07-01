@@ -39,8 +39,8 @@ public class ShoutCommand implements CommandExecutor {
             return true;
         }
 
-        int gameMode = plugin.getConfig().getInt("game.mode", 2);
-        if (gameMode == 1) {
+        String mode = plugin.getConfig().getString("game.mode", "4s");
+        if (mode.equalsIgnoreCase("solo")) {
             player.sendMessage(ChatColor.RED + "在单挑模式下无法使用此命令！");
             return true;
         }
