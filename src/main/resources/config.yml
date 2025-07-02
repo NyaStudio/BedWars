@@ -47,7 +47,7 @@ spawner:
 # 商店设置
 shop:
   # 购买冷却时间（秒）
-  purchase_cooldown: 0.2
+  purchase_cooldown: 0.15
   # 最大堆叠数量
   max_stack_size: 64
   # 最大背包物品数量（每个物品）

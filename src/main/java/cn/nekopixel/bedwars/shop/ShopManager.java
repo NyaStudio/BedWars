@@ -397,6 +397,8 @@ public class ShopManager implements Listener {
             return;
         }
 
+        lastPurchaseTime.put(player.getUniqueId(), currentTime);
+
         // 检查背包空间
         int maxStackSize = plugin.getConfig().getInt(CONFIG_MAX_STACK_PATH, MAX_STACK_SIZE);
         if (!PurchaseUtils.hasEnoughSpace(player, clickedItem, maxStackSize)) {
@@ -433,8 +435,6 @@ public class ShopManager implements Listener {
         PurchaseUtils.giveItemToPlayer(player, reward);
         player.sendMessage("§a你购买了§e" + meta.getDisplayName());
         SoundUtils.purchaseSucceed(player);
-        
-        lastPurchaseTime.put(player.getUniqueId(), currentTime);
     }
 
     @EventHandler
