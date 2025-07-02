@@ -138,6 +138,9 @@ public class CountdownManager {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage(ChatColor.RED + "玩家数量不足，等待更多玩家.....");
             INGameTitle.cancel(player);
+            
+            INGameTitle.show(player, ChatColor.RED + "等待更多玩家加入.....", "", 2, 0, 0);
+            SoundUtils.countDown(player);
         }
     }
     
