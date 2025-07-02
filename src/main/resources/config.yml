@@ -15,8 +15,8 @@ game:
 
 # 资源生成器设置
 spawner:
-  # 清理间隔（tick，20tick=1秒）
-  cleanup_interval: 6000
+  # 清理间隔（秒）
+  cleanup_interval: 300
   # 最大等级
   max_level: 3
   # 资源生成器类型
@@ -46,8 +46,8 @@ spawner:
 
 # 商店设置
 shop:
-  # 购买冷却时间（tick）
-  purchase_cooldown: 150
+  # 购买冷却时间（秒）
+  purchase_cooldown: 0.2
   # 最大堆叠数量
   max_stack_size: 64
   # 最大背包物品数量（每个物品）

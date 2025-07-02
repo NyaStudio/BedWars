@@ -41,7 +41,7 @@ public class ShopManager implements Listener {
     private final ItemShop itemShop;
     private final UpgradeShop upgradeShop;
     private final Map<UUID, Long> lastPurchaseTime = new HashMap<>();
-    private static final long PURCHASE_COOLDOWN = 150;
+    private static final long PURCHASE_COOLDOWN = 7500;
     private static final int MAX_STACK_SIZE = 64;
     private static final String CONFIG_COOLDOWN_PATH = "shop.purchase_cooldown";
     private static final String CONFIG_MAX_STACK_PATH = "shop.max_stack_size";
@@ -323,7 +323,7 @@ public class ShopManager implements Listener {
     }
 
     private void loadShopSettings() {
-        plugin.getConfig().addDefault(CONFIG_COOLDOWN_PATH, 150);
+        plugin.getConfig().addDefault(CONFIG_COOLDOWN_PATH, 0.2);
         plugin.getConfig().addDefault(CONFIG_MAX_STACK_PATH, 64);
         plugin.getConfig().options().copyDefaults(true);
         plugin.saveConfig();
@@ -392,7 +392,7 @@ public class ShopManager implements Listener {
 
         long currentTime = System.currentTimeMillis();
         Long lastPurchase = lastPurchaseTime.get(player.getUniqueId());
-        long cooldown = plugin.getConfig().getLong(CONFIG_COOLDOWN_PATH, PURCHASE_COOLDOWN);
+        long cooldown = (long)(plugin.getConfig().getDouble(CONFIG_COOLDOWN_PATH, 7.5) * 1000);
         if (lastPurchase != null && currentTime - lastPurchase < cooldown) {
             return;
         }

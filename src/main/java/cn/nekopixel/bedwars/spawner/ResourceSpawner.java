@@ -32,7 +32,7 @@ public abstract class ResourceSpawner implements Listener {
     private final java.util.Map<Location, BukkitRunnable> countdownTasks = new HashMap<>();
     private int level = 1;
     private static final int MAX_LEVEL = 3;
-    private static final int CLEANUP_INTERVAL = 6000;
+    private int cleanupInterval;
     private BukkitRunnable cleanupTask;
 
     private static class HologramText {
@@ -75,6 +75,7 @@ public abstract class ResourceSpawner implements Listener {
         this.plugin = plugin;
         this.type = type;
         this.interval = plugin.getConfig().getLong("spawner.types." + type + ".interval", interval);
+        this.cleanupInterval = plugin.getConfig().getInt("spawner.cleanup_interval", 300) * 20;
         startCleanupTask();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
@@ -86,7 +87,7 @@ public abstract class ResourceSpawner implements Listener {
                 cleanupResources();
             }
         };
-        cleanupTask.runTaskTimer(plugin, CLEANUP_INTERVAL, CLEANUP_INTERVAL);
+        cleanupTask.runTaskTimer(plugin, cleanupInterval, cleanupInterval);
     }
 
     private void cleanupResources() {
