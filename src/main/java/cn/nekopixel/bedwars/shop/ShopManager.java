@@ -433,7 +433,8 @@ public class ShopManager implements Listener {
         ItemStack reward = PurchaseUtils.createPurchaseItem(clickedItem, player);
 
         PurchaseUtils.giveItemToPlayer(player, reward);
-        player.sendMessage("§a你购买了§e" + meta.getDisplayName());
+        String itemName = meta.getDisplayName().replaceAll("§[0-9a-fk-or]", "");
+        player.sendMessage("§a你购买了§e" + itemName);
         SoundUtils.purchaseSucceed(player);
     }
 
