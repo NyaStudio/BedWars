@@ -1,3 +1,6 @@
+map:
+  display_name: "我忘了"
+
 spawners:
   iron:
     - world: world

@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 public enum GameStatus {
     WAITING,
-    STARTING,
     INGAME,
     ENDING,
     RESETTING;

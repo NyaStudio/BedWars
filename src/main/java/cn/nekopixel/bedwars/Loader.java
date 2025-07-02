@@ -23,6 +23,8 @@ import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.map.MapManager;
+import cn.nekopixel.bedwars.scoreboard.ScoreboardManager;
+import cn.nekopixel.bedwars.scoreboard.ScoreboardListener;
 import org.bukkit.plugin.PluginManager;
 
 public class Loader {
@@ -78,6 +80,11 @@ public class Loader {
         HealthBar healthBar = new HealthBar(plugin);
         plugin.getServer().getPluginManager().registerEvents(healthBar, plugin);
 
+        ScoreboardManager scoreboardManager = new ScoreboardManager(plugin);
+        bedWarsPlugin.setScoreboardManager(scoreboardManager);
+        plugin.getServer().getPluginManager().registerEvents(
+            new ScoreboardListener(plugin, scoreboardManager), plugin);
+
         Init.initialize();
     }
 
@@ -109,6 +116,14 @@ public class Loader {
             
             if (bedWarsPlugin.getMapManager() != null) {
                 bedWarsPlugin.getMapManager().loadProtectedAreas();
+            }
+            
+            if (bedWarsPlugin.getScoreboardManager() != null) {
+                bedWarsPlugin.getScoreboardManager().stop();
+                ScoreboardManager newScoreboardManager = new ScoreboardManager(plugin);
+                bedWarsPlugin.setScoreboardManager(newScoreboardManager);
+                plugin.getServer().getPluginManager().registerEvents(
+                    new ScoreboardListener(plugin, newScoreboardManager), plugin);
             }
             
             plugin.getLogger().info("所有配置文件已重新加载！");

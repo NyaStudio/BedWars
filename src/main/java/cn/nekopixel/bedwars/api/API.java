@@ -8,6 +8,7 @@ import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.tab.TabListManager;
 import cn.nekopixel.bedwars.map.MapManager;
+import cn.nekopixel.bedwars.scoreboard.ScoreboardManager;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public interface API {
@@ -20,4 +21,5 @@ public interface API {
     TabListManager getTabListManager();
     NameTag getNameTag();
     MapManager getMapManager();
+    ScoreboardManager getScoreboardManager();
 } 
