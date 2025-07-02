@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.player;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
+import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -32,6 +33,17 @@ public class Damage implements Listener {
         
         Player attacker = (Player) event.getDamager();
         Player victim = (Player) event.getEntity();
+        
+        if (!plugin.getConfig().getBoolean("game.friendly_fire", false)) {
+            TeamManager teamManager = GameManager.getInstance().getTeamManager();
+            String attackerTeam = teamManager.getPlayerTeam(attacker);
+            String victimTeam = teamManager.getPlayerTeam(victim);
+            
+            if (attackerTeam != null && attackerTeam.equals(victimTeam)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
         
         double baseDamage = getWeaponDamage(attacker.getInventory().getItemInMainHand());
         

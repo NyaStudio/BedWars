@@ -401,6 +401,33 @@ public class DeathListener implements Listener {
             return;
         }
         
+        if (!plugin.getConfig().getBoolean("game.friendly_fire", false)) {
+            Player attacker = null;
+            Player victim = null;
+            
+            if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
+                attacker = (Player) event.getDamager();
+                victim = (Player) event.getEntity();
+            } else if (event.getDamager() instanceof Projectile && event.getEntity() instanceof Player) {
+                Projectile projectile = (Projectile) event.getDamager();
+                if (projectile.getShooter() instanceof Player) {
+                    attacker = (Player) projectile.getShooter();
+                    victim = (Player) event.getEntity();
+                }
+            }
+            
+            if (attacker != null && victim != null) {
+                TeamManager teamManager = GameManager.getInstance().getTeamManager();
+                String attackerTeam = teamManager.getPlayerTeam(attacker);
+                String victimTeam = teamManager.getPlayerTeam(victim);
+                
+                if (attackerTeam != null && attackerTeam.equals(victimTeam)) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+        
         PlayerDeathManager deathManager = GameManager.getInstance().getPlayerDeathManager();
         
         if (event.getDamager() instanceof Player) {

@@ -12,6 +12,8 @@ game:
   reset_time: 5
   # 重生无敌时间（秒）
   respawn_invulnerable_time: 3
+  # 是否允许友伤
+  friendly_fire: false
 
 # 资源生成器设置
 spawner:

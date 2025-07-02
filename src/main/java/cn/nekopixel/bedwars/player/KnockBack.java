@@ -6,6 +6,7 @@ import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.GameStatusChange;
 import cn.nekopixel.bedwars.game.PlayerDeathManager;
 import cn.nekopixel.bedwars.game.SpectatorManager;
+import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -56,6 +57,16 @@ public class KnockBack implements Listener {
         
         Player attacker = (Player) event.getDamager();
         Player victim = (Player) event.getEntity();
+        
+        if (!plugin.getConfig().getBoolean("game.friendly_fire", false)) {
+            TeamManager teamManager = GameManager.getInstance().getTeamManager();
+            String attackerTeam = teamManager.getPlayerTeam(attacker);
+            String victimTeam = teamManager.getPlayerTeam(victim);
+            
+            if (attackerTeam != null && attackerTeam.equals(victimTeam)) {
+                return;
+            }
+        }
         
         PlayerDeathManager deathManager = GameManager.getInstance().getPlayerDeathManager();
         SpectatorManager spectatorManager = GameManager.getInstance().getSpectatorManager();
