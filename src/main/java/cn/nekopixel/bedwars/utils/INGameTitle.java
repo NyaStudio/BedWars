@@ -24,6 +24,9 @@ public class INGameTitle {
         cancel(player);
         BukkitTask task = new BukkitRunnable() {
             int remainingTicks = durationSeconds * 20;
+            int totalTicks = durationSeconds * 20;
+            boolean fadeInSent = false;
+            boolean fadeOutSent = false;
             
             @Override
             public void run() {
@@ -33,8 +36,21 @@ public class INGameTitle {
                     return;
                 }
                 
-                if (remainingTicks % 5 == 0) {
-                    player.sendTitle(title, subtitle, fadeIn, 15, fadeOut);
+                int elapsedTicks = totalTicks - remainingTicks;
+                
+                // in
+                if (!fadeInSent && elapsedTicks == 0) {
+                    player.sendTitle(title, subtitle, fadeIn, fadeIn + 5, 0);
+                    fadeInSent = true;
+                }
+                // stay
+                else if (elapsedTicks >= fadeIn && remainingTicks > fadeOut) {
+                    player.sendTitle(title, subtitle, 0, 5, 0);
+                }
+                // out
+                else if (!fadeOutSent && remainingTicks == fadeOut) {
+                    player.sendTitle(title, subtitle, 0, fadeOut, fadeOut);
+                    fadeOutSent = true;
                 }
                 
                 remainingTicks--;
@@ -52,6 +68,9 @@ public class INGameTitle {
         cancel(player);
         BukkitTask task = new BukkitRunnable() {
             int remainingTicks = durationSeconds * 20;
+            int totalTicks = durationSeconds * 20;
+            boolean fadeInSent = false;
+            boolean fadeOutSent = false;
             
             @Override
             public void run() {
@@ -61,11 +80,24 @@ public class INGameTitle {
                     return;
                 }
                 
-                if (remainingTicks % 5 == 0) {
-                    int remainingSeconds = (remainingTicks + 19) / 20;
-                    String currentTitle = titleProvider.provide(remainingSeconds);
-                    String currentSubtitle = subtitleProvider.provide(remainingSeconds);
-                    player.sendTitle(currentTitle, currentSubtitle, fadeIn, 15, fadeOut);
+                int elapsedTicks = totalTicks - remainingTicks;
+                int remainingSeconds = (remainingTicks + 19) / 20;
+                String currentTitle = titleProvider.provide(remainingSeconds);
+                String currentSubtitle = subtitleProvider.provide(remainingSeconds);
+                
+                // in
+                if (!fadeInSent && elapsedTicks == 0) {
+                    player.sendTitle(currentTitle, currentSubtitle, fadeIn, fadeIn + 5, 0);
+                    fadeInSent = true;
+                }
+                // stay
+                else if (elapsedTicks >= fadeIn && remainingTicks > fadeOut) {
+                    player.sendTitle(currentTitle, currentSubtitle, 0, 5, 0);
+                }
+                // out
+                else if (!fadeOutSent && remainingTicks == fadeOut) {
+                    player.sendTitle(currentTitle, currentSubtitle, 0, fadeOut, fadeOut);
+                    fadeOutSent = true;
                 }
                 
                 remainingTicks--;
