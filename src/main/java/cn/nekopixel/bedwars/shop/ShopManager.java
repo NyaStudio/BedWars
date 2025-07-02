@@ -423,7 +423,8 @@ public class ShopManager implements Listener {
 
         int playerAmount = PurchaseUtils.countMaterial(player, costMaterial);
         if (playerAmount < price) {
-            player.sendMessage("§c你没有足够的 " + PurchaseUtils.translateCurrency(currency) + "！");
+            int needed = price - playerAmount;
+            player.sendMessage("§c" + PurchaseUtils.translateCurrency(currency) + "不足！还需要" + PurchaseUtils.translateCurrency(currency) + "x" + needed + "！");
             SoundUtils.purchaseFailed(player);
             return;
         }
@@ -432,7 +433,7 @@ public class ShopManager implements Listener {
         ItemStack reward = PurchaseUtils.createPurchaseItem(clickedItem, player);
 
         PurchaseUtils.giveItemToPlayer(player, reward);
-        player.sendMessage("§a购买成功: §f" + meta.getDisplayName() + " §7（花费 " + price + " " + PurchaseUtils.translateCurrency(currency) + "）");
+        player.sendMessage("§a你购买了§e" + meta.getDisplayName());
         SoundUtils.purchaseSucceed(player);
     }
 
