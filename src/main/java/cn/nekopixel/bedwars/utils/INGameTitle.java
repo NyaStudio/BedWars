@@ -22,42 +22,29 @@ public class INGameTitle {
     
     public static void show(Player player, String title, String subtitle, int durationSeconds, int fadeIn, int fadeOut) {
         cancel(player);
-        BukkitTask task = new BukkitRunnable() {
-            int remainingTicks = durationSeconds * 20;
-            int totalTicks = durationSeconds * 20;
-            boolean fadeInSent = false;
-            boolean fadeOutSent = false;
-            
-            @Override
-            public void run() {
-                if (!player.isOnline() || remainingTicks <= 0) {
-                    cancel();
-                    activeTitles.remove(player.getUniqueId());
-                    return;
-                }
-                
-                int elapsedTicks = totalTicks - remainingTicks;
-                
-                // in
-                if (!fadeInSent && elapsedTicks == 0) {
-                    player.sendTitle(title, subtitle, fadeIn, fadeIn + 5, 0);
-                    fadeInSent = true;
-                }
-                // stay
-                else if (elapsedTicks >= fadeIn && remainingTicks > fadeOut) {
-                    player.sendTitle(title, subtitle, 0, 5, 0);
-                }
-                // out
-                else if (!fadeOutSent && remainingTicks == fadeOut) {
-                    player.sendTitle(title, subtitle, 0, fadeOut, fadeOut);
-                    fadeOutSent = true;
-                }
-                
-                remainingTicks--;
-            }
-        }.runTaskTimer(plugin, 0L, 1L);
         
-        activeTitles.put(player.getUniqueId(), task);
+        player.sendTitle(title, subtitle, fadeIn, durationSeconds * 20, fadeOut);
+        
+        if (durationSeconds > 1) {
+            BukkitTask task = new BukkitRunnable() {
+                int refreshCount = 0;
+                int maxRefreshes = durationSeconds - 1;
+                
+                @Override
+                public void run() {
+                    if (!player.isOnline() || refreshCount >= maxRefreshes) {
+                        cancel();
+                        activeTitles.remove(player.getUniqueId());
+                        return;
+                    }
+                    
+                    player.sendTitle(title, subtitle, 0, 30, 0);
+                    refreshCount++;
+                }
+            }.runTaskTimer(plugin, 20L, 20L);
+            
+            activeTitles.put(player.getUniqueId(), task);
+        }
     }
 
     public static void showDynamic(Player player, TitleProvider titleProvider, TitleProvider subtitleProvider, int durationSeconds) {

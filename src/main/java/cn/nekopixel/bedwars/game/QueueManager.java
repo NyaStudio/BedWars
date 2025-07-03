@@ -56,6 +56,14 @@ public class QueueManager implements Listener {
                 Location safeLocation = LocationUtils.findSafeLocation(joinLocation, 3);
                 player.teleport(safeLocation);
             }
+            
+            if (isCountingDown && (seconds == 10 || seconds <= 5)) {
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (player.isOnline() && isCountingDown) {
+                        showCountdownTitleToPlayer(player, seconds);
+                    }
+                }, 10L);
+            }
         }
     }
 
@@ -74,6 +82,17 @@ public class QueueManager implements Listener {
                 startCountdown(requiredSeconds);
             } else if (requiredSeconds < seconds) {
                 seconds = requiredSeconds;
+                if (seconds <= 5 || seconds == 10 || seconds == 15 || seconds == 30) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        player.sendMessage(ChatColor.YELLOW + "游戏将在 " + 
+                            ChatColor.RED + seconds + ChatColor.YELLOW + " 秒后开始!");
+                        SoundUtils.countDown(player);
+                    }
+                    
+                    if (seconds == 10 || seconds <= 5) {
+                        showCountdownTitle(seconds);
+                    }
+                }
             }
         }
     }
@@ -149,6 +168,10 @@ public class QueueManager implements Listener {
                     return;
                 }
                 
+                if (seconds == 10 || seconds <= 5) {
+                    showCountdownTitle(seconds);
+                }
+                
                 if (seconds <= 5 || seconds == 10 || seconds == 15 || seconds == 30) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         player.sendMessage(ChatColor.YELLOW + "游戏将在 " + 
@@ -156,10 +179,7 @@ public class QueueManager implements Listener {
                         
                         SoundUtils.countDown(player);
                     }
-                    showCountdownTitle(seconds);
                 }
-                
-                checkAndUpdateCountdown();
             }
         }.runTaskTimer(plugin, 20L, 20L);
     }
@@ -181,7 +201,7 @@ public class QueueManager implements Listener {
             player.sendMessage(ChatColor.RED + "玩家数量不足，等待更多玩家.....");
             INGameTitle.cancel(player);
             
-            INGameTitle.show(player, ChatColor.RED + "等待更多玩家加入.....", "", 0, 60, 0);
+            INGameTitle.show(player, ChatColor.RED + "等待更多玩家加入.....", "", 3, 0, 10);
             SoundUtils.countDown(player);
         }
     }
@@ -212,12 +232,16 @@ public class QueueManager implements Listener {
 
     private void showCountdownTitle(int secondsToShow) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (secondsToShow == 10) {
-                INGameTitle.show(player, ChatColor.YELLOW + "10", "", 0, 20, 0);
-            } else if (secondsToShow <= 5 && secondsToShow > 0) {
-                String color = (secondsToShow <= 3) ? ChatColor.RED.toString() : ChatColor.YELLOW.toString();
-                INGameTitle.show(player, color + secondsToShow, "", 0, 20, 0);
-            }
+            showCountdownTitleToPlayer(player, secondsToShow);
         }
+    }
+    
+    private void showCountdownTitleToPlayer(Player player, int secondsToShow) {
+        if (secondsToShow < 1 || secondsToShow > 10 || (secondsToShow > 5 && secondsToShow != 10)) {
+            return;
+        }
+        
+        String color = (secondsToShow <= 3) ? ChatColor.RED.toString() : ChatColor.YELLOW.toString();
+        INGameTitle.show(player, color + secondsToShow, "", 1, 0, 0);
     }
 } 
