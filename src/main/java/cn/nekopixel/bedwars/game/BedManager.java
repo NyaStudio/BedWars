@@ -117,11 +117,12 @@ public class BedManager implements Listener {
         }
         
         if (team != null) {
+            final String finalTeam = team;
             Player destroyer = event.getPlayer();
             TeamManager teamManager = GameManager.getInstance().getTeamManager();
             String destroyerTeam = teamManager.getPlayerTeam(destroyer);
 
-            if (team.equalsIgnoreCase(destroyerTeam)) {
+            if (finalTeam.equalsIgnoreCase(destroyerTeam)) {
                 event.setCancelled(true);
                 event.setDropItems(false);
                 
@@ -165,13 +166,13 @@ public class BedManager implements Listener {
                 return;
             }
 
-            teamBeds.put(team.toLowerCase(), false);
+            teamBeds.put(finalTeam.toLowerCase(), false);
             
             PlayerStats destroyerStats = PlayerStats.getStats(destroyer.getUniqueId());
             destroyerStats.addBedBroken();
             
-            String teamColor = getTeamChatColor(team);
-            String teamName = getTeamDisplayName(team);
+            String teamColor = getTeamChatColor(finalTeam);
+            String teamName = getTeamDisplayName(finalTeam);
             String destroyerColor = getTeamChatColor(destroyerTeam);
             
             Bukkit.broadcastMessage("");
@@ -179,14 +180,14 @@ public class BedManager implements Listener {
             Bukkit.broadcastMessage("");
 
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (teamManager.getTeamPlayers(team).contains(onlinePlayer.getUniqueId())) {
+                if (teamManager.getTeamPlayers(finalTeam).contains(onlinePlayer.getUniqueId())) {
                     SoundUtils.yourBedDestroyed(onlinePlayer);
                 } else {
                     SoundUtils.bedDestroyed(onlinePlayer);
                 }
             }
 
-            for (UUID playerId : teamManager.getTeamPlayers(team)) {
+            for (UUID playerId : teamManager.getTeamPlayers(finalTeam)) {
                 Player teamPlayer = Bukkit.getPlayer(playerId);
                 if (teamPlayer != null && teamPlayer.isOnline()) {
                     INGameTitle.show(teamPlayer, "§c床已被破坏！", "§7你将无法重生！", 4, 10, 20);
@@ -195,13 +196,13 @@ public class BedManager implements Listener {
             
             event.setDropItems(false);
             removeBedCompletely(block);  // 防止你妈 bukkit 抽风只拆了一半
-            
+
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 DeathListener deathListener = DeathListener.getInstance();
                 if (deathListener != null) {
-                    deathListener.checkVictory();
+                    deathListener.checkTeamEliminationDelayed(finalTeam);
                 }
-            }, 1L);
+            }, 100L);
         }
     }
     

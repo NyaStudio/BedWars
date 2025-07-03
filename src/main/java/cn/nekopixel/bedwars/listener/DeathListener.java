@@ -3,8 +3,12 @@ package cn.nekopixel.bedwars.listener;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.*;
-import cn.nekopixel.bedwars.team.TeamManager;
+import cn.nekopixel.bedwars.game.SpectatorManager;
+import cn.nekopixel.bedwars.game.RespawnManager;
+import cn.nekopixel.bedwars.packet.RespawnPacketHandler;
 import cn.nekopixel.bedwars.player.PlayerStats;
+import cn.nekopixel.bedwars.tab.TabListManager;
+import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.utils.INGameTitle;
 import cn.nekopixel.bedwars.utils.SoundUtils;
 import org.bukkit.Bukkit;
@@ -37,6 +41,7 @@ public class DeathListener implements Listener {
     private static DeathListener instance;
     private final Map<UUID, UUID> lastDamager = new HashMap<>();
     private final Map<UUID, Long> lastDamageTime = new HashMap<>();
+    private final Set<String> eliminatedTeams = new HashSet<>();
     
     public DeathListener(Main plugin) {
         this.plugin = plugin;
@@ -224,8 +229,18 @@ public class DeathListener implements Listener {
     }
     
     private void makeSpectator(Player player) {
-        deathManager.setRespawning(player, true);
+        // deathManager.setRespawning(player, true);
         spectatorManager.setSpectator(player, true);
+        
+        player.setAllowFlight(true);
+        player.setFlying(true);
+        
+        RespawnPacketHandler.hidePlayer(player);
+        
+        TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+        if (tabListManager != null) {
+            tabListManager.setTemporarySpectator(player, true);
+        }
         
         Location respawningLocation = respawnManager.getRespawningLocation();
         if (respawningLocation != null) {
@@ -239,17 +254,27 @@ public class DeathListener implements Listener {
             return;
         }
         
+        if (eliminatedTeams.contains(team)) {
+            return;
+        }
+        
         TeamManager teamManager = GameManager.getInstance().getTeamManager();
         Set<UUID> teamPlayers = teamManager.getTeamPlayers(team);
         
         for (UUID playerId : teamPlayers) {
             Player teamPlayer = Bukkit.getPlayer(playerId);
             if (teamPlayer != null && teamPlayer.isOnline()) {
-                if (!deathManager.isRespawning(playerId) && !spectatorManager.isSpectator(playerId)) {
+                if (spectatorManager.isSpectator(playerId)) {
+                    continue;
+                }
+                if (deathManager.isRespawning(playerId)) {
                     return;
                 }
+                return;
             }
         }
+        
+        eliminatedTeams.add(team);
         
         String teamColor = bedManager.getTeamChatColor(team);
         String teamName = bedManager.getTeamDisplayName(team);
@@ -259,6 +284,10 @@ public class DeathListener implements Listener {
         Bukkit.broadcastMessage("");
         
         checkVictory();
+    }
+    
+    public void checkTeamEliminationDelayed(String team) {
+        checkTeamElimination(team);
     }
     
     public void checkVictory() {
@@ -287,7 +316,7 @@ public class DeathListener implements Listener {
             for (UUID playerId : teamPlayers) {
                 Player teamPlayer = Bukkit.getPlayer(playerId);
                 if (teamPlayer != null && teamPlayer.isOnline()) {
-                    if (!deathManager.isRespawning(playerId) && !spectatorManager.isSpectator(playerId)) {
+                    if (!spectatorManager.isSpectator(playerId)) {
                         hasAlivePlayer = true;
                         break;
                     }
@@ -515,6 +544,7 @@ public class DeathListener implements Listener {
             INGameTitle.cancelAll();
             lastDamager.clear();
             lastDamageTime.clear();
+            eliminatedTeams.clear();
         }
     }
     
