@@ -120,9 +120,27 @@ public class QueueManager implements Listener {
         
         isCountingDown = true;
         seconds = initialSeconds;
+        
+        if (seconds <= 5 || seconds == 10 || seconds == 15 || seconds == 30) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(ChatColor.YELLOW + "游戏将在 " + 
+                    ChatColor.RED + seconds + ChatColor.YELLOW + " 秒后开始!");
+                
+                SoundUtils.countDown(player);
+                if (seconds == 10) {
+                    INGameTitle.show(player, ChatColor.YELLOW + "10", "", 0, 20, 0);
+                } else if (seconds <= 5) {
+                    String color = (seconds <= 3) ? ChatColor.RED.toString() : ChatColor.YELLOW.toString();
+                    INGameTitle.show(player, color + seconds, "", 0, 20, 0);
+                }
+            }
+        }
+        
         countdownTask = new BukkitRunnable() {
             @Override
             public void run() {
+                seconds--;
+                
                 if (seconds <= 0) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         INGameTitle.cancel(player);
@@ -143,19 +161,17 @@ public class QueueManager implements Listener {
                         
                         SoundUtils.countDown(player);
                         if (seconds == 10) {
-                            INGameTitle.show(player, ChatColor.YELLOW + "10", "", 1, 0, 0);
+                            INGameTitle.show(player, ChatColor.YELLOW + "10", "", 0, 20, 0);
                         } else if (seconds <= 5) {
                             String color = (seconds <= 3) ? ChatColor.RED.toString() : ChatColor.YELLOW.toString();
-                            INGameTitle.show(player, color + seconds, "", 1, 0, 0);
+                            INGameTitle.show(player, color + seconds, "", 0, 20, 0);
                         }
                     }
                 }
                 
                 checkAndUpdateCountdown();
-                
-                seconds--;
             }
-        }.runTaskTimer(plugin, 0L, 20L);
+        }.runTaskTimer(plugin, 20L, 20L);
     }
     
     private void stopCountdown() {
