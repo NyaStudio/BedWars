@@ -47,10 +47,6 @@ public class INGameTitle {
         }
     }
 
-    public static void showDynamic(Player player, TitleProvider titleProvider, TitleProvider subtitleProvider, int durationSeconds) {
-        showDynamic(player, titleProvider, subtitleProvider, durationSeconds, 0, 0);
-    }
-    
     public static void showDynamic(Player player, TitleProvider titleProvider, TitleProvider subtitleProvider, int durationSeconds, int fadeIn, int fadeOut) {
         cancel(player);
         BukkitTask task = new BukkitRunnable() {
