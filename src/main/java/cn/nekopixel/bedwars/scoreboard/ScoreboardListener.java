@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.entity.Player;
 
 public class ScoreboardListener implements Listener {
     private final Main plugin;
@@ -20,28 +21,28 @@ public class ScoreboardListener implements Listener {
     
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        scoreboardManager.createScoreboard(event.getPlayer());
-        GameStatus status = Plugin.getInstance().getGameManager().getCurrentStatus();
-        if (status == GameStatus.WAITING) {
-            scoreboardManager.getCountdownManager().checkAndUpdateCountdown();
+        Player player = event.getPlayer();
+        scoreboardManager.createScoreboard(player);
+        
+        if (scoreboardManager.getQueueManager() != null) {
+            scoreboardManager.getQueueManager().checkAndUpdateCountdown();
         }
     }
     
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        scoreboardManager.removeScoreboard(event.getPlayer());
-        GameStatus status = Plugin.getInstance().getGameManager().getCurrentStatus();
-        if (status == GameStatus.WAITING) {
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                scoreboardManager.getCountdownManager().checkAndUpdateCountdown();
-            }, 1L);
+        Player player = event.getPlayer();
+        scoreboardManager.removeScoreboard(player);
+        
+        if (scoreboardManager.getQueueManager() != null) {
+            scoreboardManager.getQueueManager().checkAndUpdateCountdown();
         }
     }
     
     @EventHandler
     public void onGameStatusChange(GameStatusChange event) {
-        if (event.getNewStatus() != GameStatus.WAITING) {
-            scoreboardManager.getCountdownManager().stop();
+        if (scoreboardManager.getQueueManager() != null) {
+            scoreboardManager.getQueueManager().stop();
         }
     }
 }

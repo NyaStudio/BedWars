@@ -2,7 +2,11 @@ package cn.nekopixel.bedwars.scoreboard;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
+import cn.nekopixel.bedwars.game.QueueManager;
+import cn.nekopixel.bedwars.map.MapManager;
+import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -20,12 +24,16 @@ public class ScoreboardManager {
     private final Main plugin;
     private final Map<UUID, ScoreboardAPI> scoreboards = new ConcurrentHashMap<>();
     private FileConfiguration config;
-    private CountdownManager countdownManager;
+    private QueueManager queueManager;
     private BukkitTask updateTask;
     
     public ScoreboardManager(Main plugin) {
         this.plugin = plugin;
-        this.countdownManager = new CountdownManager(plugin);
+        
+        GameManager gameManager = Plugin.getInstance().getGameManager();
+        if (gameManager != null) {
+            this.queueManager = gameManager.getQueueManager();
+        }
         loadConfig();
         startUpdateTask();
     }
@@ -122,10 +130,10 @@ public class ScoreboardManager {
     }
     
     private String getCountdownLine() {
-        if (countdownManager.isCountingDown()) {
+        if (queueManager != null && queueManager.isCountingDown()) {
             String startingFormat = config.getString("scoreboard.waiting.countdown.starting", 
                 "&f即将开始: &a%seconds%秒");
-            return startingFormat.replace("%seconds%", String.valueOf(countdownManager.getSeconds()));
+            return startingFormat.replace("%seconds%", String.valueOf(queueManager.getSeconds()));
         } else {
             return config.getString("scoreboard.waiting.countdown.waiting", "&f等待更多玩家...");
         }
@@ -147,8 +155,8 @@ public class ScoreboardManager {
         }
     }
     
-    public CountdownManager getCountdownManager() {
-        return countdownManager;
+    public QueueManager getQueueManager() {
+        return queueManager;
     }
     
     public void stop() {
@@ -159,6 +167,8 @@ public class ScoreboardManager {
             api.delete();
         }
         scoreboards.clear();
-        countdownManager.stop();
+        if (queueManager != null) {
+            queueManager.stop();
+        }
     }
 }

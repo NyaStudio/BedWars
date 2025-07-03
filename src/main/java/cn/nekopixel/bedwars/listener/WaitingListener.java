@@ -48,7 +48,7 @@ public class WaitingListener implements Listener {
             int maxPlayers = getMaxPlayers();
             
             String coloredName = getColoredPlayerName(player);
-            String joinMessage = coloredName + " §e加入了游戏 (§b" + currentPlayers + "§e/§b" + maxPlayers + "§e).";
+            String joinMessage = coloredName + " §e加入了游戏 (§b" + currentPlayers + "§e/§b" + maxPlayers + "§e)！";
             Bukkit.broadcastMessage(joinMessage);
         }
     }
