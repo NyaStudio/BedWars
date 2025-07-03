@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.game;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.player.FoodLock;
 import cn.nekopixel.bedwars.player.RemoveItems;
+import cn.nekopixel.bedwars.player.PlayerStats;
 import cn.nekopixel.bedwars.spawner.Diamond;
 import cn.nekopixel.bedwars.spawner.Emerald;
 import cn.nekopixel.bedwars.spawner.SpawnerManager;
@@ -98,6 +99,7 @@ public class GameManager {
         } else if (status == GameStatus.RESETTING) {
             playerDeathManager.clearAll();
             spectatorManager.clearAll();
+            PlayerStats.clearAll();
         }
     }
 
@@ -131,5 +133,9 @@ public class GameManager {
     
     public SpectatorManager getSpectatorManager() {
         return spectatorManager;
+    }
+    
+    public EventManager getEventManager() {
+        return eventManager;
     }
 } 

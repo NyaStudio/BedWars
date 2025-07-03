@@ -104,4 +104,26 @@ public class TeamManager {
     public Set<UUID> getTeamPlayers(String team) {
         return teams.getOrDefault(team, new HashSet<>());
     }
+    
+    public Set<String> getConfigTeams() {
+        updateAvailableTeams();
+        return new HashSet<>(availableTeams);
+    }
+    
+    public List<Player> getAlivePlayersInTeam(String team) {
+        List<Player> alivePlayers = new ArrayList<>();
+        Set<UUID> teamPlayers = getTeamPlayers(team);
+        
+        for (UUID playerId : teamPlayers) {
+            Player player = Bukkit.getPlayer(playerId);
+            if (player != null && player.isOnline()) {
+                if (!Plugin.getInstance().getGameManager().getPlayerDeathManager().isRespawning(playerId) &&
+                    !Plugin.getInstance().getGameManager().getSpectatorManager().isSpectator(playerId)) {
+                    alivePlayers.add(player);
+                }
+            }
+        }
+        
+        return alivePlayers;
+    }
 } 

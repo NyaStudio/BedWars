@@ -5,8 +5,11 @@ import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.QueueManager;
-import cn.nekopixel.bedwars.map.MapManager;
+import cn.nekopixel.bedwars.game.EventManager;
+import cn.nekopixel.bedwars.game.BedManager;
 import cn.nekopixel.bedwars.team.TeamManager;
+import cn.nekopixel.bedwars.player.PlayerStats;
+import cn.nekopixel.bedwars.chat.ChatManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -78,12 +81,14 @@ public class ScoreboardManager {
         
         if (currentStatus == GameStatus.WAITING) {
             updateWaitingScoreboard(player, api);
+        } else if (currentStatus == GameStatus.INGAME) {
+            updateInGameScoreboard(player, api);
         }
     }
     
     private void updateWaitingScoreboard(Player player, ScoreboardAPI api) {
         String title = ChatColor.translateAlternateColorCodes('&', 
-            config.getString("scoreboard.waiting.title", "&e起床战争"));
+            config.getString("scoreboard.waiting.title", "&e&l起床战争"));
         api.setTitle(title);
         
         List<String> lines = new ArrayList<>();
@@ -96,6 +101,127 @@ public class ScoreboardManager {
         for (int i = 0; i < lines.size(); i++) {
             api.setLine(i, lines.get(i));
         }
+    }
+    
+    private void updateInGameScoreboard(Player player, ScoreboardAPI api) {
+        String title = ChatColor.translateAlternateColorCodes('&',
+            config.getString("scoreboard.ingame.title", "&e&l起床战争"));
+        api.setTitle(title);
+        
+        List<String> lines = new ArrayList<>();
+        List<String> configLines = config.getStringList("scoreboard.ingame.lines");
+        
+        for (String line : configLines) {
+            if (line.equals("%teams%")) {
+                lines.addAll(getTeamLines(player));
+            } else if (line.equals("%stats%")) {
+                List<String> statsLines = getStatsLines(player);
+                if (!statsLines.isEmpty()) {
+                    lines.addAll(statsLines);
+                }
+            } else {
+                lines.add(replaceInGamePlaceholders(line, player));
+            }
+        }
+        
+        for (int i = 0; i < lines.size() && i < 15; i++) {
+            api.setLine(i, lines.get(i));
+        }
+        
+        for (int i = lines.size(); i < 15; i++) {
+            api.removeLine(i);
+        }
+    }
+    
+    private List<String> getTeamLines(Player player) {
+        List<String> teamLines = new ArrayList<>();
+        
+        GameManager gameManager = Plugin.getInstance().getGameManager();
+        TeamManager teamManager = gameManager.getTeamManager();
+        BedManager bedManager = gameManager.getBedManager();
+        ChatManager chatManager = Plugin.getInstance().getChatManager();
+        
+        Set<String> teams = teamManager.getConfigTeams();
+        
+        for (String teamKey : teams) {
+            String teamColor = chatManager.getTeamColor(teamKey);
+            String teamName = chatManager.getTeamName(teamKey);
+            String tablistTeamName = Plugin.getInstance().getTabListManager().getTeamName(teamKey);
+            String colorCode = ChatColor.translateAlternateColorCodes('&', teamColor);
+            
+            String status;
+            if (!bedManager.hasBed(teamKey)) {
+                int aliveCount = teamManager.getAlivePlayersInTeam(teamKey).size();
+                if (aliveCount > 0) {
+                    status = ChatColor.GREEN + String.valueOf(aliveCount);
+                } else {
+                    status = ChatColor.RED + "✘";
+                }
+            } else {
+                status = ChatColor.GREEN + "✔";
+            }
+            
+            String line = colorCode + tablistTeamName + " " + ChatColor.WHITE + teamName + ": " + status;
+            
+            if (teamManager.getPlayerTeam(player) != null &&
+                teamManager.getPlayerTeam(player).equalsIgnoreCase(teamKey)) {
+                line += ChatColor.GRAY + " YOU";
+            }
+            
+            teamLines.add(line);
+        }
+        
+        return teamLines;
+    }
+    
+    private List<String> getStatsLines(Player player) {
+        List<String> statsLines = new ArrayList<>();
+        
+        boolean statsEnabled = config.getBoolean("scoreboard.ingame.stats.enabled", true);
+        if (!statsEnabled) {
+            return statsLines;
+        }
+        
+        GameManager gameManager = Plugin.getInstance().getGameManager();
+        TeamManager teamManager = gameManager.getTeamManager();
+        Set<String> teams = teamManager.getConfigTeams();
+        int maxTeams = config.getInt("scoreboard.ingame.stats.max_teams", 4);
+        
+        if (teams.size() <= maxTeams) {
+            PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+            List<String> configStatsLines = config.getStringList("scoreboard.ingame.stats.lines");
+            
+            for (String line : configStatsLines) {
+                line = line.replace("%kills%", String.valueOf(stats.getKills()));
+                line = line.replace("%final_kills%", String.valueOf(stats.getFinalKills()));
+                line = line.replace("%beds_broken%", String.valueOf(stats.getBedsBroken()));
+                statsLines.add(ChatColor.translateAlternateColorCodes('&', line));
+            }
+        }
+        
+        return statsLines;
+    }
+    
+    private String replaceInGamePlaceholders(String line, Player player) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+            config.getString("scoreboard.date_format", "MM/dd/yy"));
+        line = line.replace("%date%", dateFormat.format(new Date()));
+        line = line.replace("%server_id%", config.getString("scoreboard.server_id", "S1"));
+        
+        GameManager gameManager = Plugin.getInstance().getGameManager();
+        EventManager eventManager = gameManager.getEventManager();
+        if (eventManager != null) {
+            EventManager.NextEvent nextEvent = eventManager.getNextEvent();
+            line = line.replace("%event_name%", nextEvent.getName());
+            line = line.replace("%event_time%", nextEvent.getFormattedTime());
+        } else {
+            line = line.replace("%event_name%", "等待事件");
+            line = line.replace("%event_time%", "N/A");
+        }
+        
+        line = line.replace("%version%", plugin.getDescription().getVersion());
+        
+        return ChatColor.translateAlternateColorCodes('&', line);
     }
     
     private String replacePlaceholders(String line) {
@@ -169,6 +295,14 @@ public class ScoreboardManager {
         scoreboards.clear();
         if (queueManager != null) {
             queueManager.stop();
+        }
+    }
+    
+    public void reloadConfig() {
+        loadConfig();
+        
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            updateScoreboard(player);
         }
     }
 }

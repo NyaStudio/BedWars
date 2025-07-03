@@ -119,11 +119,7 @@ public class Loader {
             }
             
             if (bedWarsPlugin.getScoreboardManager() != null) {
-                bedWarsPlugin.getScoreboardManager().stop();
-                ScoreboardManager newScoreboardManager = new ScoreboardManager(plugin);
-                bedWarsPlugin.setScoreboardManager(newScoreboardManager);
-                plugin.getServer().getPluginManager().registerEvents(
-                    new ScoreboardListener(plugin, newScoreboardManager), plugin);
+                bedWarsPlugin.getScoreboardManager().reloadConfig();
             }
             
             plugin.getLogger().info("所有配置文件已重新加载！");

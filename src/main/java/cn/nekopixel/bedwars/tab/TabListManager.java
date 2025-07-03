@@ -150,4 +150,8 @@ public class TabListManager {
     public void clearTemporarySpectators() {
         temporarySpectators.clear();
     }
+    
+    public String getTeamName(String team) {
+        return teamNames.getOrDefault(team.toLowerCase(), "未知");
+    }
 }

@@ -21,6 +21,27 @@ scoreboard:
       waiting: "&f等待中....."
       starting: "&f即将开始: &a%seconds%秒"
   
+  ingame:
+    title: "&e&l起床战争"
+    lines:
+      - "&7%date%  &8%server_id%"
+      - ""
+      - "&f%event_name% - &a%event_time%"
+      - ""
+      - "%teams%"
+      - "%stats%"
+      - ""
+      - "&emc.nekopixel.cn"
+    
+    stats:
+      enabled: true
+      max_teams: 4
+      lines:
+        - ""
+        - "&f击杀数: &a%kills%"
+        - "&f最终击杀数: &a%final_kills%"
+        - "&f破坏床数: &a%beds_broken%"
+  
   mode_display:
     solo: "单挑"
     double: "双人"

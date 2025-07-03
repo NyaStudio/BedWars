@@ -173,4 +173,12 @@ public class ChatManager {
         prefixProvider.reload();
         loadConfig();
     }
+    
+    public String getTeamColor(String team) {
+        return teamColors.getOrDefault(team.toLowerCase(), "&7");
+    }
+    
+    public String getTeamName(String team) {
+        return teamNames.getOrDefault(team.toLowerCase(), "未知队伍");
+    }
 }
