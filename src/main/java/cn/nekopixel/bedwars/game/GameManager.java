@@ -87,6 +87,8 @@ public class GameManager {
             teamManager.assignTeams();
             nameTag.startUpdateTask();
             
+            PlayerStats.clearAll();
+            
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.setGameMode(GameMode.SURVIVAL);
             }

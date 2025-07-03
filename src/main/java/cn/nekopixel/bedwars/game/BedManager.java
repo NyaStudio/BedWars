@@ -5,6 +5,7 @@ import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.listener.DeathListener;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.team.TeamManager;
+import cn.nekopixel.bedwars.player.PlayerStats;
 import cn.nekopixel.bedwars.utils.INGameTitle;
 import cn.nekopixel.bedwars.utils.SoundUtils;
 import org.bukkit.Bukkit;
@@ -165,6 +166,9 @@ public class BedManager implements Listener {
             }
 
             teamBeds.put(team.toLowerCase(), false);
+            
+            PlayerStats destroyerStats = PlayerStats.getStats(destroyer.getUniqueId());
+            destroyerStats.addBedBroken();
             
             String teamColor = getTeamChatColor(team);
             String teamName = getTeamDisplayName(team);

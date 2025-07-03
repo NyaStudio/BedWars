@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.listener;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.game.*;
 import cn.nekopixel.bedwars.team.TeamManager;
+import cn.nekopixel.bedwars.player.PlayerStats;
 import cn.nekopixel.bedwars.utils.INGameTitle;
 import cn.nekopixel.bedwars.utils.SoundUtils;
 import org.bukkit.Bukkit;
@@ -180,6 +181,13 @@ public class DeathListener implements Listener {
             Player killer = Bukkit.getPlayer(killerId);
             if (killer != null && killer.isOnline() && !killer.equals(player)) {
                 SoundUtils.killed(killer);
+                
+                PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
+                if (!hasBed) {
+                    killerStats.addFinalKill();
+                } else {
+                    killerStats.addKill();
+                }
             }
         }
         
