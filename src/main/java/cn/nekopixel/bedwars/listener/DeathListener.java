@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.listener;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.*;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.player.PlayerStats;
@@ -211,9 +212,15 @@ public class DeathListener implements Listener {
             makeSpectator(player);
             INGameTitle.show(player, "§c你死了！", "§7你现在是观察者！", 5);
             player.sendMessage("§c你已被淘汰！");
+            
+            if (Plugin.getInstance().getScoreboardManager() != null) {
+                Plugin.getInstance().getScoreboardManager().forceUpdateAll();
+            }
         }
         
-        checkTeamElimination(team);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            checkTeamElimination(team);
+        }, 10L);
     }
     
     private void makeSpectator(Player player) {

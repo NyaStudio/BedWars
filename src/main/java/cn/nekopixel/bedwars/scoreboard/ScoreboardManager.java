@@ -305,4 +305,10 @@ public class ScoreboardManager {
             updateScoreboard(player);
         }
     }
+    
+    public void forceUpdateAll() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            updateScoreboard(player);
+        }
+    }
 }
