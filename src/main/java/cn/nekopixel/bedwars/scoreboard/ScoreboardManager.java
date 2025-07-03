@@ -256,10 +256,16 @@ public class ScoreboardManager {
     }
     
     private String getCountdownLine() {
-        if (queueManager != null && queueManager.isCountingDown()) {
+        QueueManager currentQueueManager = null;
+        GameManager gameManager = Plugin.getInstance().getGameManager();
+        if (gameManager != null) {
+            currentQueueManager = gameManager.getQueueManager();
+        }
+        
+        if (currentQueueManager != null && currentQueueManager.isCountingDown()) {
             String startingFormat = config.getString("scoreboard.waiting.countdown.starting", 
                 "&f即将开始: &a%seconds%秒");
-            return startingFormat.replace("%seconds%", String.valueOf(queueManager.getSeconds()));
+            return startingFormat.replace("%seconds%", String.valueOf(currentQueueManager.getSeconds()));
         } else {
             return config.getString("scoreboard.waiting.countdown.waiting", "&f等待更多玩家...");
         }

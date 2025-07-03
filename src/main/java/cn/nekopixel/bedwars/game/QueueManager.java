@@ -127,13 +127,8 @@ public class QueueManager implements Listener {
                     ChatColor.RED + seconds + ChatColor.YELLOW + " 秒后开始!");
                 
                 SoundUtils.countDown(player);
-                if (seconds == 10) {
-                    INGameTitle.show(player, ChatColor.YELLOW + "10", "", 0, 20, 0);
-                } else if (seconds <= 5) {
-                    String color = (seconds <= 3) ? ChatColor.RED.toString() : ChatColor.YELLOW.toString();
-                    INGameTitle.show(player, color + seconds, "", 0, 20, 0);
-                }
             }
+            showCountdownTitle(seconds);
         }
         
         countdownTask = new BukkitRunnable() {
@@ -160,13 +155,8 @@ public class QueueManager implements Listener {
                             ChatColor.RED + seconds + ChatColor.YELLOW + " 秒后开始!");
                         
                         SoundUtils.countDown(player);
-                        if (seconds == 10) {
-                            INGameTitle.show(player, ChatColor.YELLOW + "10", "", 0, 20, 0);
-                        } else if (seconds <= 5) {
-                            String color = (seconds <= 3) ? ChatColor.RED.toString() : ChatColor.YELLOW.toString();
-                            INGameTitle.show(player, color + seconds, "", 0, 20, 0);
-                        }
                     }
+                    showCountdownTitle(seconds);
                 }
                 
                 checkAndUpdateCountdown();
@@ -191,7 +181,7 @@ public class QueueManager implements Listener {
             player.sendMessage(ChatColor.RED + "玩家数量不足，等待更多玩家.....");
             INGameTitle.cancel(player);
             
-            INGameTitle.show(player, ChatColor.RED + "等待更多玩家加入.....", "", 2, 0, 0);
+            INGameTitle.show(player, ChatColor.RED + "等待更多玩家加入.....", "", 0, 60, 0);
             SoundUtils.countDown(player);
         }
     }
@@ -218,5 +208,16 @@ public class QueueManager implements Listener {
 
     public Location getJoinLocation() {
         return joinLocation;
+    }
+
+    private void showCountdownTitle(int secondsToShow) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (secondsToShow == 10) {
+                INGameTitle.show(player, ChatColor.YELLOW + "10", "", 0, 20, 0);
+            } else if (secondsToShow <= 5 && secondsToShow > 0) {
+                String color = (secondsToShow <= 3) ? ChatColor.RED.toString() : ChatColor.YELLOW.toString();
+                INGameTitle.show(player, color + secondsToShow, "", 0, 20, 0);
+            }
+        }
     }
 } 
