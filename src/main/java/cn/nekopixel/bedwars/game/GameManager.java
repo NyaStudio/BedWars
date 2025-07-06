@@ -129,15 +129,15 @@ public class GameManager {
         return bedManager;
     }
     
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+    
     public PlayerDeathManager getPlayerDeathManager() {
         return playerDeathManager;
     }
     
     public SpectatorManager getSpectatorManager() {
         return spectatorManager;
-    }
-    
-    public EventManager getEventManager() {
-        return eventManager;
     }
 } 

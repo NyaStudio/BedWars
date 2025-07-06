@@ -1,11 +1,13 @@
 package cn.nekopixel.bedwars.spawner;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.game.GameManager;
+import cn.nekopixel.bedwars.game.EventManager;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class Diamond extends ResourceSpawner {
-    private int level = 1;
 
     public Diamond(Main plugin) {
         super(plugin, "diamond", 400L); // 20 ticks = 1 second, 400 ticks = 20 seconds
@@ -27,8 +29,12 @@ public class Diamond extends ResourceSpawner {
     }
 
     public void upgrade() {
-        level++;
-        switch (level) {
+        int nextLevel = level + 1;
+        if (nextLevel > 3) return;
+        
+        super.upgrade();
+        
+        switch (nextLevel) {
             case 2:
                 setSpawnInterval(360L); // 18 secs
                 break;
@@ -36,6 +42,17 @@ public class Diamond extends ResourceSpawner {
                 setSpawnInterval(320L); // 16 secs
                 break;
         }
-        super.upgrade();
+        
+        GameManager gameManager = Plugin.getInstance().getGameManager();
+        if (gameManager != null) {
+            EventManager eventManager = gameManager.getEventManager();
+            if (eventManager != null) {
+                eventManager.onDiamondUpgraded(nextLevel);
+            }
+        }
+    }
+    
+    public int getLevel() {
+        return level;
     }
 }

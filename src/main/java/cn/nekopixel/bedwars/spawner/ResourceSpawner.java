@@ -30,7 +30,7 @@ public abstract class ResourceSpawner implements Listener {
     private final Set<Location> pausedPoints = new HashSet<>();
     private final java.util.Map<Location, List<Entity>> hologramEntities = new HashMap<>();
     private final java.util.Map<Location, BukkitRunnable> countdownTasks = new HashMap<>();
-    private int level = 1;
+    protected int level = 1;
     private static final int MAX_LEVEL = 3;
     private int cleanupInterval;
     private BukkitRunnable cleanupTask;
@@ -109,20 +109,11 @@ public abstract class ResourceSpawner implements Listener {
         });
     }
 
-    public void setSpawnInterval(long interval) {
-        this.interval = interval;
+    private void restartTask() {
         if (task != null) {
             task.cancel();
-            start();
         }
-    }
-
-    public void start() {
-        if (task != null) task.cancel();
-
-        removeHolograms();
-        createHolograms();
-
+        
         task = new BukkitRunnable() {
             @Override
             public void run() {
@@ -151,6 +142,26 @@ public abstract class ResourceSpawner implements Listener {
             }
         };
         task.runTaskTimer(plugin, interval, interval);
+    }
+    
+    public void setSpawnInterval(long interval) {
+        this.interval = interval;
+        if (task != null) {
+            restartTask();
+        }
+    }
+
+    public void start() {
+        if (task != null) {
+            task.cancel();
+        }
+        
+        level = 1;
+        
+        removeHolograms();
+        createHolograms();
+        
+        restartTask();
     }
 
     public void stop() {
@@ -467,11 +478,8 @@ public abstract class ResourceSpawner implements Listener {
 
         removeHolograms();
         this.interval = newInterval;
-
         createHolograms();
-        if (task != null) {
-            task.cancel();
-            start();
-        }
+        
+        restartTask();
     }
 }

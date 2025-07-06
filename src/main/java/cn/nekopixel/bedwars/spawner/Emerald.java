@@ -1,11 +1,13 @@
 package cn.nekopixel.bedwars.spawner;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.game.GameManager;
+import cn.nekopixel.bedwars.game.EventManager;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class Emerald extends ResourceSpawner {
-    private int level = 1;
 
     public Emerald(Main plugin) {
         super(plugin, "emerald", 1200L); // 20 ticks = 1 second, 1200 ticks = 60 seconds
@@ -27,8 +29,12 @@ public class Emerald extends ResourceSpawner {
     }
 
     public void upgrade() {
-        level++;
-        switch (level) {
+        int nextLevel = level + 1;
+        if (nextLevel > 3) return;
+        
+        super.upgrade();
+        
+        switch (nextLevel) {
             case 2:
                 setSpawnInterval(900L); // 45 secs
                 break;
@@ -36,6 +42,17 @@ public class Emerald extends ResourceSpawner {
                 setSpawnInterval(600L); // 30 secs
                 break;
         }
-        super.upgrade();
+        
+        GameManager gameManager = Plugin.getInstance().getGameManager();
+        if (gameManager != null) {
+            EventManager eventManager = gameManager.getEventManager();
+            if (eventManager != null) {
+                eventManager.onEmeraldUpgraded(nextLevel);
+            }
+        }
+    }
+    
+    public int getLevel() {
+        return level;
     }
 }
