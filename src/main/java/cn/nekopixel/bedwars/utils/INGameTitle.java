@@ -16,19 +16,20 @@ public class INGameTitle {
     public static void init(Main mainPlugin) {
         plugin = mainPlugin;
     }
-    public static void show(Player player, String title, String subtitle, int durationSeconds) {
+    public static void show(Player player, String title, String subtitle, double durationSeconds) {
         show(player, title, subtitle, durationSeconds, 0, 0);
     }
     
-    public static void show(Player player, String title, String subtitle, int durationSeconds, int fadeIn, int fadeOut) {
+    public static void show(Player player, String title, String subtitle, double durationSeconds, int fadeIn, int fadeOut) {
         cancel(player);
         
-        player.sendTitle(title, subtitle, fadeIn, durationSeconds * 20, fadeOut);
+        int durationTicks = (int)(durationSeconds * 20);
+        player.sendTitle(title, subtitle, fadeIn, durationTicks, fadeOut);
         
-        if (durationSeconds > 1) {
+        if (durationSeconds > 1.0) {
             BukkitTask task = new BukkitRunnable() {
                 int refreshCount = 0;
-                int maxRefreshes = durationSeconds - 1;
+                int maxRefreshes = (int)durationSeconds - 1;
                 
                 @Override
                 public void run() {
@@ -47,11 +48,14 @@ public class INGameTitle {
         }
     }
 
-    public static void showDynamic(Player player, TitleProvider titleProvider, TitleProvider subtitleProvider, int durationSeconds, int fadeIn, int fadeOut) {
+    public static void showDynamic(Player player, TitleProvider titleProvider, TitleProvider subtitleProvider, double durationSeconds, int fadeIn, int fadeOut) {
         cancel(player);
+        
+        int durationTicks = (int)(durationSeconds * 20);
+        
         BukkitTask task = new BukkitRunnable() {
-            int remainingTicks = durationSeconds * 20;
-            int totalTicks = durationSeconds * 20;
+            int remainingTicks = durationTicks;
+            int totalTicks = durationTicks;
             boolean fadeInSent = false;
             boolean fadeOutSent = false;
             
