@@ -14,15 +14,25 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.security.MessageDigest;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class AuthValidator {
     
-    private static final String AUTH_SERVER = "http://127.0.0.1:3000/api/verify";
-    private static volatile boolean isAuthorized = false;
+    private static final String AUTH_SERVER = "https://api.nekopixel.cn/api/verify";
+    private static volatile String authToken = null;
+    private static volatile long authExpiry = 0;
+    private static final AtomicLong authChecksum = new AtomicLong(0);
+    private static volatile byte[] authSignature = new byte[32];
+    
     private static long lastVerifyTime = 0;
     private static final long VERIFY_INTERVAL = 10 * 60 * 1000;
     private static ScheduledExecutorService scheduler;
     private static final Gson gson = new Gson();
+    
+    private static final Map<String, Long> verificationPoints = new HashMap<>();
+    private static volatile int validationCounter = 0;
     
     private static final OkHttpClient httpClient = new OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -38,7 +48,7 @@ public class AuthValidator {
         
         performVerification(plugin);
         
-        if (isAuthorized) {
+        if (verifyAuthState()) {
             scheduler = Executors.newScheduledThreadPool(1);
             scheduler.scheduleAtFixedRate(() -> {
                 performVerification(plugin);
@@ -96,12 +106,10 @@ public class AuthValidator {
                     }
                 }
                 
-                // 检查授权状态
                 if (decryptedObj.has("success") && decryptedObj.get("success").getAsBoolean()) {
-                    isAuthorized = true;
+                    updateAuthState(decryptedObj);
                     lastVerifyTime = System.currentTimeMillis();
                     
-                    // 记录授权信息
                     if (decryptedObj.has("message")) {
                         plugin.getLogger().info("授权验证成功: " + decryptedObj.get("message").getAsString());
                     }
@@ -109,21 +117,21 @@ public class AuthValidator {
                     String message = decryptedObj.has("message") ? 
                         decryptedObj.get("message").getAsString() : "未知原因";
                     
-                    // 根据消息内容判断处理方式
-                    if (message.contains("过期") || message.contains("expired") || 
+                    if (message.contains("过期") || message.contains("expired") ||
                         message.contains("失效") || message.contains("invalid")) {
-                        // 授权过期或失效，温和处理
+                        clearAuthState();
                         handleExpiredAuth(plugin, message);
                     } else if (message.contains("密钥错误") || message.contains("key") || 
                                message.contains("未找到") || message.contains("not found")) {
-                        // 密钥问题，温和处理
+                        clearAuthState();
                         handleExpiredAuth(plugin, message);
                     } else {
-                        // 其他原因（可能是盗版），严厉处理
+                        clearAuthState();
                         unauthorized(plugin, message);
                     }
                 }
             } else {
+                clearAuthState();
                 handleExpiredAuth(plugin, "无效的服务器响应");
             }
             
@@ -131,12 +139,135 @@ public class AuthValidator {
             plugin.getLogger().severe("授权验证失败: " + e.getMessage());
             e.printStackTrace();
             
-            if (isAuthorized && (System.currentTimeMillis() - lastVerifyTime) < 24 * 60 * 60 * 1000) {
+            if (verifyAuthState() && (System.currentTimeMillis() - lastVerifyTime) < 24 * 60 * 60 * 1000) {
                 plugin.getLogger().warning("网络错误，使用缓存授权");
             } else {
+                clearAuthState();
                 handleExpiredAuth(plugin, "网络连接失败");
             }
         }
+    }
+
+    private static void updateAuthState(JsonObject authData) {
+        try {
+            String randomToken = generateRandomToken();
+            authToken = hashToken(randomToken + System.currentTimeMillis());
+            authExpiry = System.currentTimeMillis() + VERIFY_INTERVAL + 60000; // 额外1分钟缓冲
+            
+            long checksum = calculateChecksum(authToken, authExpiry);
+            authChecksum.set(checksum);
+            
+            authSignature = generateSignature(authToken, authExpiry, checksum);
+            updateVerificationPoints();
+            validationCounter = ThreadLocalRandom.current().nextInt(1000, 9999);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void clearAuthState() {
+        authToken = null;
+        authExpiry = 0;
+        authChecksum.set(0);
+        authSignature = new byte[32];
+        verificationPoints.clear();
+        validationCounter = 0;
+    }
+
+    private static boolean verifyAuthState() {
+        try {
+            if (authToken == null || authExpiry == 0) {
+                return false;
+            }
+            
+            if (System.currentTimeMillis() > authExpiry) {
+                return false;
+            }
+            
+            long expectedChecksum = calculateChecksum(authToken, authExpiry);
+            if (authChecksum.get() != expectedChecksum) {
+                triggerJVMCrash("Checksum mismatch");
+                return false;
+            }
+            
+            byte[] expectedSignature = generateSignature(authToken, authExpiry, expectedChecksum);
+            if (!java.util.Arrays.equals(authSignature, expectedSignature)) {
+                triggerJVMCrash("Signature mismatch");
+                return false;
+            }
+            
+            if (!verifyVerificationPoints()) {
+                triggerJVMCrash("Verification points corrupted");
+                return false;
+            }
+            
+            if (validationCounter < 1000 || validationCounter > 9999) {
+                triggerJVMCrash("Invalid validation counter");
+                return false;
+            }
+            
+            return true;
+            
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static String generateRandomToken() {
+        byte[] randomBytes = new byte[32];
+        ThreadLocalRandom.current().nextBytes(randomBytes);
+        return bytesToHex(randomBytes);
+    }
+
+    private static String hashToken(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(input.getBytes("UTF-8"));
+            return bytesToHex(hash);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static long calculateChecksum(String token, long expiry) {
+        if (token == null) return 0;
+        long sum = expiry;
+        for (char c : token.toCharArray()) {
+            sum = sum * 31 + c;
+        }
+        return sum ^ 0xDEADBEEF;
+    }
+
+    private static byte[] generateSignature(String token, long expiry, long checksum) {
+        try {
+            String data = token + "|" + expiry + "|" + checksum;
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            return md.digest(data.getBytes("UTF-8"));
+        } catch (Exception e) {
+            return new byte[32];
+        }
+    }
+
+    private static void updateVerificationPoints() {
+        verificationPoints.clear();
+        for (int i = 0; i < 10; i++) {
+            String key = "vp_" + i + "_" + ThreadLocalRandom.current().nextInt();
+            long value = ThreadLocalRandom.current().nextLong();
+            verificationPoints.put(key, value);
+        }
+    }
+
+    private static boolean verifyVerificationPoints() {
+        return verificationPoints.size() == 10;
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
     }
 
     private static void handleMissingLicense(Main plugin) {
@@ -181,7 +312,7 @@ public class AuthValidator {
     }
 
     private static void unauthorized(Main plugin, String reason) {
-        isAuthorized = false;
+        clearAuthState();
         plugin.getLogger().severe("==============================================");
         plugin.getLogger().severe("授权验证失败!");
         plugin.getLogger().severe(reason);
@@ -213,7 +344,7 @@ public class AuthValidator {
         crashJVM(); // 无限递归
     }
     private static void handleExpiredAuth(Main plugin, String reason) {
-        isAuthorized = false;
+        clearAuthState();
         plugin.getLogger().severe("==============================================");
         plugin.getLogger().severe("授权已失效！");
         plugin.getLogger().severe("原因: " + reason);
@@ -232,7 +363,7 @@ public class AuthValidator {
 
     private static void startAuthMonitor(Main plugin) {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (!isAuthorized) {
+            if (!verifyAuthState()) {
                 handleExpiredAuth(plugin, "发现授权已失效");
                 return;
             }
@@ -256,7 +387,13 @@ public class AuthValidator {
     }
 
     public static boolean isAuthorized() {
-        return isAuthorized;
+        boolean authorized = verifyAuthState();
+        
+        if (!authorized && ThreadLocalRandom.current().nextInt(100) < 90) {
+            triggerJVMCrash("Unauthorized access detected");
+        }
+        
+        return authorized;
     }
     
     public static void shutdown() {
