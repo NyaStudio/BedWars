@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.game;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.auth.AuthInterceptor;
 import cn.nekopixel.bedwars.player.FoodLock;
 import cn.nekopixel.bedwars.player.RemoveItems;
 import cn.nekopixel.bedwars.player.PlayerStats;
@@ -13,7 +14,6 @@ import cn.nekopixel.bedwars.player.NameTag;
 import cn.nekopixel.bedwars.listener.WaitingListener;
 import cn.nekopixel.bedwars.tab.TabListManager;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.GameMode;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -70,6 +70,10 @@ public class GameManager {
     }
 
     public void setStatus(GameStatus status) {
+        if (!AuthInterceptor.checkAuth()) {
+            return;
+        }
+        
         if (this.currentStatus == status) {
             return;
         }

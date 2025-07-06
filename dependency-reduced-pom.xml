@@ -61,7 +61,19 @@
               <relocations>
                 <relocation>
                   <pattern>net.kyori</pattern>
-                  <shadedPattern>net.kyori</shadedPattern>
+                  <shadedPattern>cn.nekopixel.bedwars.libs.kyori</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>okhttp3</pattern>
+                  <shadedPattern>cn.nekopixel.bedwars.libs.okhttp3</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>okio</pattern>
+                  <shadedPattern>cn.nekopixel.bedwars.libs.okio</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.google.gson</pattern>
+                  <shadedPattern>cn.nekopixel.bedwars.libs.gson</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
