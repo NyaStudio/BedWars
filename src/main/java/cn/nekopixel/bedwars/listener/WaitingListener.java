@@ -6,6 +6,7 @@ import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.chat.ChatManager;
+import cn.nekopixel.bedwars.tab.TabListManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -57,9 +58,14 @@ public class WaitingListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage(null);
         
+        Player player = event.getPlayer();
+        
+        TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+        if (tabListManager != null) {
+            tabListManager.cleanupPlayer(player);
+        }
+        
         if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
-            Player player = event.getPlayer();
-            
             String coloredName = getColoredPlayerName(player);
             String quitMessage = coloredName + " §e离开了游戏！";
             Bukkit.broadcastMessage(quitMessage);

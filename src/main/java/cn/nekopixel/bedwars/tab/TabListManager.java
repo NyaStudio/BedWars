@@ -27,7 +27,7 @@ public class TabListManager {
     private String tabFormat;
     private int updateInterval;
     private BukkitRunnable updateTask;
-    private Objective healthObjective;
+    private final Map<UUID, Scoreboard> playerScoreboards = new HashMap<>();
     private final Set<UUID> temporarySpectators = new HashSet<>();
 
     public TabListManager(Main plugin) {
@@ -67,11 +67,11 @@ public class TabListManager {
 
     private void setupScoreboard() {
         Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
-        healthObjective = board.getObjective("HealthTab");
+        // healthObjective = board.getObjective("HealthTab");
 
-        if (healthObjective == null) {
-            healthObjective = board.registerNewObjective("HealthTab", "dummy", ChatColor.YELLOW + ""); // 空标题
-        }
+        // if (healthObjective == null) {
+        //     healthObjective = board.registerNewObjective("HealthTab", "dummy", ChatColor.YELLOW + "");
+        // }
     }
 
     private void startUpdateTask() {
@@ -97,16 +97,11 @@ public class TabListManager {
     public void updatePlayer(Player player) {
         if (!Plugin.getInstance().getGameManager().isStatus(GameStatus.INGAME)) {
             player.setPlayerListName(player.getName());
-            if (healthObjective != null) {
-                healthObjective.setDisplaySlot(null); // 非游戏状态时移除显示
-                healthObjective.getScore(player.getName()).setScore(0); // 清除显示
-            }
+            removeHealthDisplay(player);
             return;
         }
 
-        if (healthObjective != null) {
-            healthObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-        }
+        setupHealthDisplay(player);
 
         String team;
         if (temporarySpectators.contains(player.getUniqueId())) {
@@ -126,10 +121,66 @@ public class TabListManager {
 
         player.setPlayerListName(formattedName);
 
-        if (healthObjective != null) {
-            int health = (int) Math.round(player.getHealth());
-            healthObjective.getScore(player.getName()).setScore(health);
+        updateHealthForAllPlayers(player);
+    }
+
+    private void setupHealthDisplay(Player player) {
+        Scoreboard playerBoard = player.getScoreboard();
+        
+        if (playerBoard == null || playerBoard == Bukkit.getScoreboardManager().getMainScoreboard()) {
+            playerBoard = Bukkit.getScoreboardManager().getNewScoreboard();
+            playerScoreboards.put(player.getUniqueId(), playerBoard);
+            player.setScoreboard(playerBoard);
+        } else {
+            playerScoreboards.put(player.getUniqueId(), playerBoard);
         }
+        
+        Objective healthObjective = playerBoard.getObjective("PlayerHealth");
+        if (healthObjective == null) {
+            healthObjective = playerBoard.registerNewObjective("PlayerHealth", "dummy", ChatColor.RED + "❤");
+            healthObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+        }
+        
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            int health = (int) Math.round(onlinePlayer.getHealth());
+            healthObjective.getScore(onlinePlayer.getName()).setScore(health);
+        }
+    }
+    
+    private void updateHealthForAllPlayers(Player updatedPlayer) {
+        int health = (int) Math.round(updatedPlayer.getHealth());
+        
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Scoreboard board = player.getScoreboard();
+            if (board != null && board != Bukkit.getScoreboardManager().getMainScoreboard()) {
+                Objective healthObjective = board.getObjective("PlayerHealth");
+                if (healthObjective != null) {
+                    healthObjective.getScore(updatedPlayer.getName()).setScore(health);
+                }
+            }
+        }
+    }
+    
+    private void removeHealthDisplay(Player player) {
+        Scoreboard playerBoard = player.getScoreboard();
+        
+        if (playerBoard != null && playerBoard != Bukkit.getScoreboardManager().getMainScoreboard()) {
+            Objective healthObjective = playerBoard.getObjective("PlayerHealth");
+            if (healthObjective != null) {
+                healthObjective.unregister();
+            }
+            if (playerScoreboards.containsKey(player.getUniqueId())) {
+                playerScoreboards.remove(player.getUniqueId());
+                if (playerBoard.getObjectives().isEmpty()) {
+                    player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+                }
+            }
+        }
+    }
+    
+    public void cleanupPlayer(Player player) {
+        removeHealthDisplay(player);
+        temporarySpectators.remove(player.getUniqueId());
     }
 
     public void reloadConfig() {
