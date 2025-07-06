@@ -11,13 +11,13 @@ import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import java.util.*;
 
 public class EventManager {
@@ -39,11 +39,25 @@ public class EventManager {
     private int bedDestructionCountdown = 300;
     private int suddenDeathCountdown = 600;
     private int gameEndingCountdown = 300;
+    
+    private FileConfiguration chattingConfig;
 
     public EventManager(Main plugin, Diamond diamondSpawner, Emerald emeraldSpawner) {
         this.plugin = plugin;
         this.diamondSpawner = diamondSpawner;
         this.emeraldSpawner = emeraldSpawner;
+        loadChattingConfig();
+    }
+    
+    private void loadChattingConfig() {
+        try {
+            java.io.File file = new java.io.File(plugin.getDataFolder(), "chatting.yml");
+            if (file.exists()) {
+                chattingConfig = YamlConfiguration.loadConfiguration(file);
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("无法加载 chatting.yml: " + e.getMessage());
+        }
     }
 
     public void start() {
@@ -280,7 +294,9 @@ public class EventManager {
             
             if (!alivePlayers.isEmpty()) {
                 EnderDragon dragon = (EnderDragon) dragonLoc.getWorld().spawnEntity(dragonLoc, EntityType.ENDER_DRAGON);
-                dragon.setCustomName(getTeamChatColor(team) + team + " 队末影龙");
+                
+                String tablistTeamName = getTablistTeamName(team);
+                dragon.setCustomName(getTeamChatColor(team) + tablistTeamName + "队末影龙");
                 dragon.setCustomNameVisible(true);
                 dragon.setPhase(EnderDragon.Phase.CIRCLING);
                 
@@ -380,6 +396,27 @@ public class EventManager {
         };
     }
     
+    private String getTablistTeamName(String team) {
+        if (chattingConfig != null) {
+            String configPath = "tablist.team_names." + team.toLowerCase();
+            if (chattingConfig.contains(configPath)) {
+                return chattingConfig.getString(configPath);
+            }
+        }
+        
+        return switch (team.toLowerCase()) {
+            case "red" -> "红";
+            case "blue" -> "蓝";
+            case "green" -> "绿";
+            case "yellow" -> "黄";
+            case "aqua" -> "青";
+            case "white" -> "白";
+            case "pink" -> "粉";
+            case "gray" -> "灰";
+            default -> team;
+        };
+    }
+
     public static class NextEvent {
         private final String name;
         private final int secondsRemaining;
