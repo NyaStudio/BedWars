@@ -67,7 +67,7 @@ public class EventManager {
                 diamondLevel3Upgraded = true;
             }
         }
-        
+
         if (emeraldSpawner instanceof Emerald) {
             Emerald emerald = (Emerald) emeraldSpawner;
             int currentLevel = emerald.getLevel();
@@ -200,19 +200,19 @@ public class EventManager {
         }
         
         if (!diamondLevel2Upgraded && elapsedMinutes < 5) {
-            return new NextEvent("钻石 II", 5 * 60 - gameTimeSeconds);
+            return new NextEvent("钻石生成点II级", 5 * 60 - gameTimeSeconds);
         }
         
         if (!emeraldLevel2Upgraded && elapsedMinutes < 10) {
-            return new NextEvent("绿宝石 II", 10 * 60 - gameTimeSeconds);
+            return new NextEvent("绿宝石生成点II级", 10 * 60 - gameTimeSeconds);
         }
         
         if (!diamondLevel3Upgraded && elapsedMinutes < 12) {
-            return new NextEvent("钻石 III", 12 * 60 - gameTimeSeconds);
+            return new NextEvent("钻石生成点III级", 12 * 60 - gameTimeSeconds);
         }
         
         if (!emeraldLevel3Upgraded && elapsedMinutes < 15) {
-            return new NextEvent("绿宝石 III", 15 * 60 - gameTimeSeconds);
+            return new NextEvent("绿宝石生成点III级", 15 * 60 - gameTimeSeconds);
         }
 
         return new NextEvent("游戏结束", -1);
@@ -253,7 +253,7 @@ public class EventManager {
         }
         
         Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§f床自毁 §7> &f所有的床均已被破坏！");
+        Bukkit.broadcastMessage("§f床自毁 §7> §f所有的床均已被破坏！");
         Bukkit.broadcastMessage("");
         
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -272,7 +272,7 @@ public class EventManager {
             return;
         }
         
-        Location dragonLoc = respawnLoc.clone().add(0, -20, 0);
+        Location dragonLoc = respawnLoc.clone().add(0, -25, 0);
         
         Set<String> teams = teamManager.getConfigTeams();
         for (String team : teams) {
@@ -312,18 +312,44 @@ public class EventManager {
                     if (GameManager.getInstance().getSpectatorManager().isSpectator(player)) continue;
                     
                     double distance = dragon.getLocation().distance(player.getLocation());
-                    if (distance < nearestDistance && distance < 100) {
+                    if (distance < nearestDistance && distance < 160) {
                         nearestDistance = distance;
                         nearestEnemy = player;
                     }
                 }
                 
                 if (nearestEnemy != null) {
-                    dragon.setTarget(nearestEnemy);
-                    dragon.setPhase(EnderDragon.Phase.STRAFING);
+                    Location dragonLoc = dragon.getLocation();
+                    Location playerLoc = nearestEnemy.getLocation();
+                    
+                    double deltaX = playerLoc.getX() - dragonLoc.getX();
+                    double deltaZ = playerLoc.getZ() - dragonLoc.getZ();
+                    float yaw = (float) (Math.atan2(deltaZ, deltaX) * 180.0D / Math.PI) - 90.0F;
+                    
+                    dragonLoc.setYaw(yaw);
+                    dragon.teleport(dragonLoc);
+                    
+                    if (nearestDistance < 50) {
+                        if (dragon.getPhase() != EnderDragon.Phase.STRAFING &&
+                            dragon.getPhase() != EnderDragon.Phase.BREATH_ATTACK) {
+                            dragon.setPhase(EnderDragon.Phase.STRAFING);
+                        }
+                        
+                        if (Math.random() < 0.1) {
+                            Location fireballLoc = dragonLoc.clone().add(dragonLoc.getDirection().multiply(5));
+                            dragon.getWorld().spawn(fireballLoc, org.bukkit.entity.DragonFireball.class, fireball -> {
+                                fireball.setDirection(playerLoc.toVector().subtract(fireballLoc.toVector()).normalize());
+                                fireball.setShooter(dragon);
+                            });
+                        }
+                    } else {
+                        dragon.setPhase(EnderDragon.Phase.CIRCLING);
+                    }
+                } else {
+                    dragon.setPhase(EnderDragon.Phase.CIRCLING);
                 }
             }
-        }.runTaskTimer(plugin, 0L, 20L);
+        }.runTaskTimer(plugin, 0L, 10L);
     }
     
     private void executeGameEnd() {
