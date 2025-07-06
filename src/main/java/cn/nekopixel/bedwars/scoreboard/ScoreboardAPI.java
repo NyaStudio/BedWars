@@ -51,24 +51,25 @@ public class ScoreboardAPI {
         if (text.length() <= 16) {
             team.setPrefix(text);
         } else {
-            // 处理超过16字符的文本，确保不在颜色代码中间截断
-            String prefix = text.substring(0, 16);
-            String suffix = text.substring(16);
+            int splitIndex = 16;
             
-            // 检查前缀是否以 & 结尾（可能是颜色代码的开始）
-            if (prefix.endsWith("&") && suffix.length() > 0) {
-                // 将 & 和后面的字符移到后缀
-                prefix = prefix.substring(0, 15);
-                suffix = "&" + suffix;
+            while (splitIndex > 0 && splitIndex < text.length()) {
+                if (text.charAt(splitIndex - 1) == '&' || text.charAt(splitIndex - 1) == '§') {
+                    splitIndex--;
+                } else if (splitIndex >= 2 && 
+                          (text.charAt(splitIndex - 2) == '&' || text.charAt(splitIndex - 2) == '§')) {
+                    break;
+                } else {
+                    break;
+                }
             }
             
-            // 获取前缀的最后颜色代码
-            String lastColors = ChatColor.getLastColors(prefix);
+            String prefix = text.substring(0, splitIndex);
+            String suffix = text.substring(splitIndex);
             
-            // 设置前缀
+            String lastColors = ChatColor.getLastColors(prefix);
             team.setPrefix(prefix);
             
-            // 设置后缀（包含继承的颜色）
             if (suffix.length() > 16) {
                 suffix = suffix.substring(0, 16);
             }
