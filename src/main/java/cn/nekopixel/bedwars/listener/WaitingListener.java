@@ -52,6 +52,11 @@ public class WaitingListener implements Listener {
             String joinMessage = coloredName + " §e加入了游戏 (§b" + currentPlayers + "§e/§b" + maxPlayers + "§e)！";
             Bukkit.broadcastMessage(joinMessage);
         }
+        
+        TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+        if (tabListManager != null) {
+            tabListManager.onPlayerJoin(event.getPlayer());
+        }
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)

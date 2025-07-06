@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.game;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.player.FoodLock;
 import cn.nekopixel.bedwars.player.RemoveItems;
 import cn.nekopixel.bedwars.player.PlayerStats;
@@ -10,6 +11,7 @@ import cn.nekopixel.bedwars.spawner.SpawnerManager;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.player.NameTag;
 import cn.nekopixel.bedwars.listener.WaitingListener;
+import cn.nekopixel.bedwars.tab.TabListManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -75,7 +77,12 @@ public class GameManager {
         GameStatus oldStatus = this.currentStatus;
         this.currentStatus = status;
         Bukkit.getPluginManager().callEvent(new GameStatusChange(oldStatus, status));
-        Bukkit.broadcastMessage(ChatColor.GREEN + "状态已更改为: " + status.name());
+//        Bukkit.broadcastMessage(ChatColor.GREEN + "状态已更改为: " + status.name());
+        
+        TabListManager tabListManager = Plugin.getInstance().getTabListManager();
+        if (tabListManager != null) {
+            tabListManager.onGameStatusChange();
+        }
 
         if (status == GameStatus.INGAME) {
             if (eventManager == null) {

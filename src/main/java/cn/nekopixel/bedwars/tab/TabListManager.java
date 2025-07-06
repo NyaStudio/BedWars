@@ -4,6 +4,7 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.game.GameStatus;
+import cn.nekopixel.bedwars.player.PlayerStats;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -18,6 +19,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 
 public class TabListManager {
     private final Main plugin;
@@ -29,37 +32,69 @@ public class TabListManager {
     private BukkitRunnable updateTask;
     private final Map<UUID, Scoreboard> playerScoreboards = new HashMap<>();
     private final Set<UUID> temporarySpectators = new HashSet<>();
+    private boolean enabled;
+    private List<String> headerLines;
+    private List<String> footerLines;
 
     public TabListManager(Main plugin) {
         this.plugin = plugin;
         this.teamManager = Plugin.getInstance().getGameManager().getTeamManager();
         this.teamColors = new HashMap<>();
         this.teamNames = new HashMap<>();
+        this.headerLines = new ArrayList<>();
+        this.footerLines = new ArrayList<>();
         loadConfig();
         setupScoreboard();
-        startUpdateTask();
+        if (enabled) {
+            startUpdateTask();
+        }
     }
 
     private void loadConfig() {
-        File configFile = new File(plugin.getDataFolder(), "chatting.yml");
-        if (!configFile.exists()) {
+        File tabConfigFile = new File(plugin.getDataFolder(), "tablist.yml");
+        if (!tabConfigFile.exists()) {
+            plugin.saveResource("tablist.yml", false);
+        }
+
+        FileConfiguration tabConfig = YamlConfiguration.loadConfiguration(tabConfigFile);
+        enabled = tabConfig.getBoolean("tablist.enabled", true);
+        updateInterval = tabConfig.getInt("tablist.update_interval", 20);
+
+        headerLines.clear();
+        if (tabConfig.contains("tablist.header")) {
+            for (String line : tabConfig.getStringList("tablist.header")) {
+                headerLines.add(ChatColor.translateAlternateColorCodes('&', line));
+            }
+        }
+
+        footerLines.clear();
+        if (tabConfig.contains("tablist.footer")) {
+            for (String line : tabConfig.getStringList("tablist.footer")) {
+                footerLines.add(ChatColor.translateAlternateColorCodes('&', line));
+            }
+        }
+
+        File chattingConfigFile = new File(plugin.getDataFolder(), "chatting.yml");
+        if (!chattingConfigFile.exists()) {
             plugin.saveResource("chatting.yml", false);
         }
 
-        FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-        tabFormat = ChatColor.translateAlternateColorCodes('&', config.getString("tablist.format", "%team_color%%team_name%&r &7%player%"));
-        updateInterval = config.getInt("tablist.update_interval", 20);
-
-        if (config.contains("tablist.team_colors")) {
-            for (String key : config.getConfigurationSection("tablist.team_colors").getKeys(false)) {
-                String color = config.getString("tablist.team_colors." + key);
+        FileConfiguration chattingConfig = YamlConfiguration.loadConfiguration(chattingConfigFile);
+        
+        tabFormat = ChatColor.translateAlternateColorCodes('&', chattingConfig.getString("tablist.format", "%team_color%%team_name%&r &7%player%"));
+        
+        teamColors.clear();
+        if (chattingConfig.contains("tablist.team_colors")) {
+            for (String key : chattingConfig.getConfigurationSection("tablist.team_colors").getKeys(false)) {
+                String color = chattingConfig.getString("tablist.team_colors." + key);
                 teamColors.put(key.toLowerCase(), ChatColor.translateAlternateColorCodes('&', color));
             }
         }
 
-        if (config.contains("tablist.team_names")) {
-            for (String key : config.getConfigurationSection("tablist.team_names").getKeys(false)) {
-                String name = config.getString("tablist.team_names." + key);
+        teamNames.clear();
+        if (chattingConfig.contains("tablist.team_names")) {
+            for (String key : chattingConfig.getConfigurationSection("tablist.team_names").getKeys(false)) {
+                String name = chattingConfig.getString("tablist.team_names." + key);
                 teamNames.put(key.toLowerCase(), name);
             }
         }
@@ -91,10 +126,13 @@ public class TabListManager {
     private void updateAllPlayers() {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             updatePlayer(player);
+            updateTabHeaderFooter(player);
         }
     }
 
     public void updatePlayer(Player player) {
+        if (!enabled) return;
+        
         if (!Plugin.getInstance().getGameManager().isStatus(GameStatus.INGAME)) {
             player.setPlayerListName(player.getName());
             removeHealthDisplay(player);
@@ -122,6 +160,36 @@ public class TabListManager {
         player.setPlayerListName(formattedName);
 
         updateHealthForAllPlayers(player);
+    }
+
+    private void updateTabHeaderFooter(Player player) {
+        if (!enabled) return;
+        
+        String header = String.join("\n", headerLines);
+        
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        boolean isWaiting = Plugin.getInstance().getGameManager().isStatus(GameStatus.WAITING);
+        
+        List<String> processedFooter = new ArrayList<>();
+        for (String line : footerLines) {
+            boolean hasStatsPlaceholder = line.contains("%kills%") ||
+                                        line.contains("%final_kills%") || 
+                                        line.contains("%beds_broken%");
+            
+            if (isWaiting && hasStatsPlaceholder) {
+                continue;
+            }
+            
+            String processed = line
+                    .replace("%kills%", String.valueOf(stats.getKills()))
+                    .replace("%final_kills%", String.valueOf(stats.getFinalKills()))
+                    .replace("%beds_broken%", String.valueOf(stats.getBedsBroken()));
+            processedFooter.add(processed);
+        }
+        
+        String footer = String.join("\n", processedFooter);
+        
+        player.setPlayerListHeaderFooter(header, footer);
     }
 
     private void setupHealthDisplay(Player player) {
@@ -186,7 +254,15 @@ public class TabListManager {
     public void reloadConfig() {
         teamColors.clear();
         teamNames.clear();
+        headerLines.clear();
+        footerLines.clear();
         loadConfig();
+        if (enabled && updateTask == null) {
+            startUpdateTask();
+        } else if (!enabled && updateTask != null) {
+            updateTask.cancel();
+            updateTask = null;
+        }
     }
     
     public void setTemporarySpectator(Player player, boolean isSpectator) {
@@ -196,6 +272,7 @@ public class TabListManager {
             temporarySpectators.remove(player.getUniqueId());
         }
         updatePlayer(player);
+        updateTabHeaderFooter(player);
     }
     
     public void clearTemporarySpectators() {
@@ -204,5 +281,18 @@ public class TabListManager {
     
     public String getTeamName(String team) {
         return teamNames.getOrDefault(team.toLowerCase(), "未知");
+    }
+    
+    public void onPlayerJoin(Player player) {
+        if (enabled) {
+            updatePlayer(player);
+            updateTabHeaderFooter(player);
+        }
+    }
+    
+    public void onGameStatusChange() {
+        if (enabled) {
+            updateAllPlayers();
+        }
     }
 }
