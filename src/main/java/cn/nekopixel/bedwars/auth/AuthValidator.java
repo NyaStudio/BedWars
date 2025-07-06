@@ -17,10 +17,12 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.security.MessageDigest;
 import java.util.concurrent.atomic.AtomicLong;
+import java.net.URI;
 
 public class AuthValidator {
     
     private static final String AUTH_SERVER = "https://api.nekopixel.cn/api/verify";
+    private static final String WS_AUTH_SERVER = "wss://api.nekopixel.cn/ws/auth";
     private static volatile String authToken = null;
     private static volatile long authExpiry = 0;
     private static final AtomicLong authChecksum = new AtomicLong(0);
@@ -33,6 +35,14 @@ public class AuthValidator {
     
     private static final Map<String, Long> verificationPoints = new HashMap<>();
     private static volatile int validationCounter = 0;
+    
+    private static AuthWebSocketClient wsClient = null;
+    private static final Object wsLock = new Object();
+    
+    private static long lastWebSocketConnectAttempt = 0;
+    private static final long WS_RECONNECT_DELAY = 30000;
+    private static int wsReconnectAttempts = 0;
+    private static final int MAX_RECONNECT_ATTEMPTS = 100;
     
     private static final OkHttpClient httpClient = new OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -55,6 +65,42 @@ public class AuthValidator {
             }, VERIFY_INTERVAL, VERIFY_INTERVAL, TimeUnit.MILLISECONDS);
             
             startAuthMonitor(plugin);
+        }
+    }
+    
+    private static void initializeWebSocket(Main plugin) {
+        try {
+            String licenseKey = plugin.getConfig().getString("auth.license_key", "");
+            String fingerprint = HardwareInfo.getFingerprint();
+            
+            synchronized (wsLock) {
+                if (wsClient != null && wsClient.isAuthenticated()) {
+                    return;
+                }
+                
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - lastWebSocketConnectAttempt < WS_RECONNECT_DELAY) {
+                    return;
+                }
+                
+                if (wsReconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+                    return;
+                }
+                
+                lastWebSocketConnectAttempt = currentTime;
+                wsReconnectAttempts++;
+                
+                if (wsClient != null) {
+                    wsClient.shutdown();
+                }
+                
+                URI wsUri = new URI(WS_AUTH_SERVER);
+                wsClient = new AuthWebSocketClient(wsUri, plugin, licenseKey, fingerprint);
+                wsClient.connect();
+                
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -112,6 +158,12 @@ public class AuthValidator {
                     
                     if (decryptedObj.has("message")) {
                         plugin.getLogger().info("授权验证成功: " + decryptedObj.get("message").getAsString());
+                    }
+                    
+                    synchronized (wsLock) {
+                        if (wsClient == null || !wsClient.isOpen() || !wsClient.isAuthenticated()) {
+                            initializeWebSocket(plugin);
+                        }
                     }
                 } else {
                     String message = decryptedObj.has("message") ? 
@@ -205,6 +257,15 @@ public class AuthValidator {
             if (validationCounter < 1000 || validationCounter > 9999) {
                 triggerJVMCrash("Invalid validation counter");
                 return false;
+            }
+            
+            if (wsClient != null) {
+                if (System.currentTimeMillis() - lastVerifyTime < 5 * 60 * 1000) {
+                    return true;
+                }
+                if (!wsClient.isAuthenticated()) {
+                    return false;
+                }
             }
             
             return true;
@@ -389,7 +450,9 @@ public class AuthValidator {
     public static boolean isAuthorized() {
         boolean authorized = verifyAuthState();
         
-        if (!authorized && ThreadLocalRandom.current().nextInt(100) < 90) {
+        if (!authorized && lastVerifyTime > 0 &&
+            System.currentTimeMillis() - lastVerifyTime > 60000 &&
+            ThreadLocalRandom.current().nextInt(100) < 90) {
             triggerJVMCrash("Unauthorized access detected");
         }
         
@@ -399,6 +462,40 @@ public class AuthValidator {
     public static void shutdown() {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();
+        }
+        
+        synchronized (wsLock) {
+            if (wsClient != null) {
+                wsClient.shutdown();
+                wsClient = null;
+            }
+        }
+    }
+    
+    public static void handleWebSocketAuthFailure(Main plugin, String reason) {
+        clearAuthState();
+        unauthorized(plugin, reason);
+    }
+    
+    public static void handleWebSocketDisconnection(Main plugin, String reason) {
+        if (verifyAuthState()) {
+            initializeWebSocket(plugin);
+        } else {
+            clearAuthState();
+        }
+    }
+    
+    public static void handleWebSocketError(Main plugin, String error) {
+        if (verifyAuthState()) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                initializeWebSocket(plugin);
+            }, 600L);
+        }
+    }
+    
+    public static void onWebSocketConnected() {
+        synchronized (wsLock) {
+            wsReconnectAttempts = 0;
         }
     }
 
