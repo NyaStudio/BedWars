@@ -232,6 +232,10 @@ public class BedManager implements Listener {
         return teamBeds.getOrDefault(team.toLowerCase(), false);
     }
     
+    public java.util.Map<String, Boolean> getTeamBeds() {
+        return teamBeds;
+    }
+    
     public void reset() {
         teamBeds.clear();
         initializeBeds();

@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.GameMode;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameManager {
     private static GameManager instance;
@@ -98,6 +99,25 @@ public class GameManager {
             }
             removeItems.stop();
             nameTag.stop();
+            
+            plugin.getLogger().info("游戏结束，即将关闭服务器...");
+            
+            new BukkitRunnable() {
+                int countdown = 60;
+                
+                @Override
+                public void run() {
+                    if (countdown == 0) {
+                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                            Bukkit.getServer().shutdown();
+                        }, 20L);
+                        
+                        this.cancel();
+                    }
+                    countdown--;
+                }
+            }.runTaskTimer(plugin, 0L, 20L);
+
         } else if (status == GameStatus.RESETTING) {
             playerDeathManager.clearAll();
             spectatorManager.clearAll();
