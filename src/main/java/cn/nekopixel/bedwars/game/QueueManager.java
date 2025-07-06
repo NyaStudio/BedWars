@@ -242,6 +242,6 @@ public class QueueManager implements Listener {
         }
         
         String color = (secondsToShow <= 3) ? ChatColor.RED.toString() : ChatColor.YELLOW.toString();
-        INGameTitle.show(player, color + secondsToShow, "", 1, 0, 0);
+        INGameTitle.show(player, color + secondsToShow, "", 1.1, 0, 0);
     }
 } 
