@@ -17,6 +17,7 @@ public final class Main extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
+        saveDefaultConfig();
         worldBackup = new WorldBackup(this);
         if (!worldBackup.backupWorld()) {
             getLogger().severe("世界备份失败！");
@@ -39,8 +40,6 @@ public final class Main extends JavaPlugin {
         Loader.initializeSystemEnvironment(this);
         
         Plugin.setInstance(new Plugin());
-        saveDefaultConfig();
-        
         PacketEvents.getAPI().init();
         
         INGameTitle.init(this);
