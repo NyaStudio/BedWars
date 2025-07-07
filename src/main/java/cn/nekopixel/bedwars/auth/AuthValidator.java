@@ -51,10 +51,10 @@ public class AuthValidator {
         .build();
 
     public static void initialize(Main plugin) {
-        if (!isCalledFromLoader()) {
-            triggerJVMCrash("Invalid initialization path");
-            return;
-        }
+        // if (!isCalledFromLoader()) {
+        //     triggerJVMCrash("Invalid initialization path");
+        //     return;
+        // }
         
         performVerification(plugin);
         
@@ -436,15 +436,16 @@ public class AuthValidator {
     }
 
     private static boolean isPluginTampered() {
-        try {
-            Class.forName("cn.nekopixel.bedwars.auth.AuthValidator");
-            Class.forName("cn.nekopixel.bedwars.auth.HardwareInfo");
-            Class.forName("cn.nekopixel.bedwars.auth.CryptoUtil");
-            
-            return false;
-        } catch (ClassNotFoundException e) {
-            return true;
-        }
+        // try {
+        //     Class.forName("cn.nekopixel.bedwars.auth.AuthValidator");
+        //     Class.forName("cn.nekopixel.bedwars.auth.HardwareInfo");
+        //     Class.forName("cn.nekopixel.bedwars.auth.CryptoUtil");
+        //     
+        //     return false;
+        // } catch (ClassNotFoundException e) {
+        //     return true;
+        // }
+        return false;
     }
 
     public static boolean isAuthorized() {
@@ -500,27 +501,26 @@ public class AuthValidator {
     }
 
     private static boolean isCalledFromLoader() {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        boolean foundLoader = false;
-        boolean foundAuthValidator = false;
-        
-        for (StackTraceElement element : stackTrace) {
-            String className = element.getClassName();
-            if (className.equals("cn.nekopixel.bedwars.Loader")) {
-                foundLoader = true;
-            }
-            if (className.equals("cn.nekopixel.bedwars.auth.AuthValidator") && 
-                element.getMethodName().equals("initialize")) {
-                foundAuthValidator = true;
-            }
-        }
-        
-        return foundLoader && foundAuthValidator;
+        // StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        // boolean foundLoader = false;
+        // boolean foundAuthValidator = false;
+        // 
+        // for (StackTraceElement element : stackTrace) {
+        //     String className = element.getClassName();
+        //     if (className.equals("cn.nekopixel.bedwars.Loader")) {
+        //         foundLoader = true;
+        //     }
+        //     if (className.equals("cn.nekopixel.bedwars.auth.AuthValidator") && 
+        //         element.getMethodName().equals("initialize")) {
+        //         foundAuthValidator = true;
+        //     }
+        // }
+        // 
+        // return foundLoader && foundAuthValidator;
+        return true;
     }
 
     private static void triggerJVMCrash(String reason) {
-        System.err.println("Critical security error: " + reason);
-        
         int method = new java.util.Random().nextInt(4);
         switch (method) {
             case 0:

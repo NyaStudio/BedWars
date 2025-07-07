@@ -83,7 +83,6 @@ public class Loader {
     }
     
     private static void crashSystem(String reason) {
-        System.err.println("Critical error: " + reason);
         Runtime.getRuntime().halt(-1);
         throw new Error("System crash: " + reason);
     }
