@@ -29,6 +29,12 @@ public class ScoreboardManager {
     private FileConfiguration config;
     private QueueManager queueManager;
     private BukkitTask updateTask;
+    private BukkitTask animationTask;
+    
+    private final List<String> titleAnimation = new ArrayList<>();
+    private int animationIndex = 0;
+    private boolean animationEnabled = false;
+    private long animationInterval = 250L;
     
     public ScoreboardManager(Main plugin) {
         this.plugin = plugin;
@@ -38,6 +44,7 @@ public class ScoreboardManager {
             this.queueManager = gameManager.getQueueManager();
         }
         loadConfig();
+        initTitleAnimation();
         startUpdateTask();
     }
     
@@ -47,6 +54,58 @@ public class ScoreboardManager {
             plugin.saveResource("scoreboard.yml", false);
         }
         config = YamlConfiguration.loadConfiguration(configFile);
+        initTitleAnimation();
+    }
+    
+    private void initTitleAnimation() {
+        titleAnimation.clear();
+        animationEnabled = config.getBoolean("scoreboard.waiting.title_animation.enabled", false);
+        animationInterval = config.getLong("scoreboard.waiting.title_animation.interval_ticks", 250L);
+        
+        if (animationEnabled) {
+            List<String> frames = config.getStringList("scoreboard.waiting.title_animation.frames");
+            if (!frames.isEmpty()) {
+                titleAnimation.addAll(frames);
+            } else {
+                animationEnabled = false;
+            }
+        }
+        
+        animationIndex = 0;
+        
+        if (animationTask != null) {
+            animationTask.cancel();
+        }
+        if (animationEnabled) {
+            startAnimationTask();
+        }
+    }
+    
+    private String getAnimatedTitle() {
+        if (titleAnimation.isEmpty()) {
+            return ChatColor.translateAlternateColorCodes('&', 
+                config.getString("scoreboard.waiting.title", "&e&l起床战争"));
+        }
+        String frame = titleAnimation.get(animationIndex);
+        return ChatColor.translateAlternateColorCodes('&', frame);
+    }
+    
+    private void startAnimationTask() {
+        animationTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (Plugin.getInstance().getGameManager().getCurrentStatus() == GameStatus.WAITING) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        ScoreboardAPI api = scoreboards.get(player.getUniqueId());
+                        if (api != null) {
+                            String title = getAnimatedTitle();
+                            api.setTitle(title);
+                        }
+                    }
+                    animationIndex = (animationIndex + 1) % titleAnimation.size();
+                }
+            }
+        }.runTaskTimer(plugin, animationInterval, animationInterval);
     }
     
     private void startUpdateTask() {
@@ -87,8 +146,13 @@ public class ScoreboardManager {
     }
     
     private void updateWaitingScoreboard(Player player, ScoreboardAPI api) {
-        String title = ChatColor.translateAlternateColorCodes('&', 
-            config.getString("scoreboard.waiting.title", "&e&l起床战争"));
+        String title;
+        if (animationEnabled && !titleAnimation.isEmpty()) {
+            title = getAnimatedTitle();
+        } else {
+            title = ChatColor.translateAlternateColorCodes('&', 
+                config.getString("scoreboard.waiting.title", "&e&l起床战争"));
+        }
         api.setTitle(title);
         
         List<String> lines = new ArrayList<>();
@@ -294,6 +358,9 @@ public class ScoreboardManager {
     public void stop() {
         if (updateTask != null) {
             updateTask.cancel();
+        }
+        if (animationTask != null) {
+            animationTask.cancel();
         }
         for (ScoreboardAPI api : scoreboards.values()) {
             api.delete();

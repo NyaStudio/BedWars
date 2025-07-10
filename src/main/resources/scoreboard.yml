@@ -1,9 +1,23 @@
 scoreboard:
   server_id: "m1Hn4"
   date_format: "MM/dd/yy"
-  
+
   waiting:
     title: "&e&l起床战争"
+    title_animation:
+      enabled: true
+      interval_ticks: 7
+      frames:
+        - "&6&l起&e&l床战争"
+        - "&e&l起&6&l床&e&l战争"
+        - "&e&l起床&6&l战&e&l争"
+        - "&e&l起床战&6&l争"
+        - "&e&l起床战争"
+        - "&f&l起床战争"
+        - "&e&l起床战争"
+        - "&f&l起床战争"
+        - "&e&l起床战争"
+
     lines:
       - "&7%date%  &8%server_id%"
       - ""
@@ -16,11 +30,11 @@ scoreboard:
       - "&f版本: &7%version%"
       - ""
       - "&emc.nekopixel.cn"
-    
+
     countdown:
       waiting: "&f等待中....."
       starting: "&f即将开始: &a%seconds%秒"
-  
+
   ingame:
     title: "&e&l起床战争"
     lines:
@@ -32,7 +46,7 @@ scoreboard:
       - "%stats%"
       - ""
       - "&emc.nekopixel.cn"
-    
+
     stats:
       enabled: true
       max_teams: 4
@@ -41,7 +55,7 @@ scoreboard:
         - "&f击杀数: &a%kills%"
         - "&f最终击杀数: &a%final_kills%"
         - "&f破坏床数: &a%beds_broken%"
-  
+
   mode_display:
     solo: "单挑"
     double: "双人"
