@@ -37,6 +37,10 @@ scoreboard:
 
   ingame:
     title: "&e&l起床战争"
+    title_animation:
+      enabled: false
+      interval_ticks: 10
+      frames: []
     lines:
       - "&7%date%  &8%server_id%"
       - ""

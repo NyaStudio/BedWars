@@ -36,6 +36,11 @@ public class ScoreboardManager {
     private boolean animationEnabled = false;
     private long animationInterval = 250L;
     
+    private final List<String> ingameTitleAnimation = new ArrayList<>();
+    private int ingameAnimationIndex = 0;
+    private boolean ingameAnimationEnabled = false;
+    private long ingameAnimationInterval = 10L;
+    
     public ScoreboardManager(Main plugin) {
         this.plugin = plugin;
         
@@ -73,6 +78,21 @@ public class ScoreboardManager {
         }
         
         animationIndex = 0;
+        
+        ingameTitleAnimation.clear();
+        ingameAnimationEnabled = config.getBoolean("scoreboard.ingame.title_animation.enabled", false);
+        ingameAnimationInterval = config.getLong("scoreboard.ingame.title_animation.interval_ticks", 10L);
+        
+        if (ingameAnimationEnabled) {
+            List<String> frames = config.getStringList("scoreboard.ingame.title_animation.frames");
+            if (!frames.isEmpty()) {
+                ingameTitleAnimation.addAll(frames);
+            } else {
+                ingameAnimationEnabled = false;
+            }
+        }
+        
+        ingameAnimationIndex = 0;
     }
     
     private String getAnimatedTitle() {
@@ -84,33 +104,83 @@ public class ScoreboardManager {
         return ChatColor.translateAlternateColorCodes('&', frame);
     }
     
+    private String getIngameAnimatedTitle() {
+        if (ingameTitleAnimation.isEmpty()) {
+            return ChatColor.translateAlternateColorCodes('&', 
+                config.getString("scoreboard.ingame.title", "&e&l起床战争"));
+        }
+        String frame = ingameTitleAnimation.get(ingameAnimationIndex);
+        return ChatColor.translateAlternateColorCodes('&', frame);
+    }
+    
     private void startAnimationTask() {
-        long interval = animationEnabled ? animationInterval : 10L;
-        
         animationTask = new BukkitRunnable() {
+            private long waitingTicks = 0;
+            private long ingameTicks = 0;
+            
             @Override
             public void run() {
-                if (Plugin.getInstance().getGameManager().getCurrentStatus() == GameStatus.WAITING) {
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        ScoreboardAPI api = scoreboards.get(player.getUniqueId());
-                        if (api != null) {
-                            String title;
-                            if (animationEnabled && !titleAnimation.isEmpty()) {
-                                title = getAnimatedTitle();
-                            } else {
-                                title = ChatColor.translateAlternateColorCodes('&', 
-                                    config.getString("scoreboard.waiting.title", "&e&l起床战争"));
-                            }
-                            api.setTitle(title);
-                        }
-                    }
-                    
-                    if (animationEnabled && !titleAnimation.isEmpty()) {
+                GameStatus currentStatus = Plugin.getInstance().getGameManager().getCurrentStatus();
+                
+                boolean shouldUpdateWaiting = false;
+                boolean shouldUpdateIngame = false;
+                
+                if (currentStatus == GameStatus.WAITING && animationEnabled) {
+                    if (waitingTicks % animationInterval == 0) {
+                        shouldUpdateWaiting = true;
                         animationIndex = (animationIndex + 1) % titleAnimation.size();
                     }
                 }
+                
+                if (currentStatus == GameStatus.INGAME && ingameAnimationEnabled) {
+                    if (ingameTicks % ingameAnimationInterval == 0) {
+                        shouldUpdateIngame = true;
+                        ingameAnimationIndex = (ingameAnimationIndex + 1) % ingameTitleAnimation.size();
+                    }
+                }
+                
+                if (shouldUpdateWaiting || shouldUpdateIngame || !animationEnabled || !ingameAnimationEnabled) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        ScoreboardAPI api = scoreboards.get(player.getUniqueId());
+                        if (api != null) {
+                            String title = "";
+                            
+                            if (currentStatus == GameStatus.WAITING) {
+                                if (animationEnabled && !titleAnimation.isEmpty()) {
+                                    title = getAnimatedTitle();
+                                } else {
+                                    title = ChatColor.translateAlternateColorCodes('&', 
+                                        config.getString("scoreboard.waiting.title", "&e&l起床战争"));
+                                }
+                            } else if (currentStatus == GameStatus.INGAME) {
+                                if (ingameAnimationEnabled && !ingameTitleAnimation.isEmpty()) {
+                                    title = getIngameAnimatedTitle();
+                                } else {
+                                    title = ChatColor.translateAlternateColorCodes('&', 
+                                        config.getString("scoreboard.ingame.title", "&e&l起床战争"));
+                                }
+                            }
+                            
+                            if (!title.isEmpty()) {
+                                api.setTitle(title);
+                            }
+                        }
+                    }
+                }
+                
+                if (currentStatus == GameStatus.WAITING) {
+                    waitingTicks++;
+                } else {
+                    waitingTicks = 0;
+                }
+                
+                if (currentStatus == GameStatus.INGAME) {
+                    ingameTicks++;
+                } else {
+                    ingameTicks = 0;
+                }
             }
-        }.runTaskTimer(plugin, interval, interval);
+        }.runTaskTimer(plugin, 1L, 1L);
     }
     
     private void startUpdateTask() {
@@ -136,8 +206,12 @@ public class ScoreboardManager {
                     config.getString("scoreboard.waiting.title", "&e&l起床战争")));
             }
         } else {
-            api.setTitle(ChatColor.translateAlternateColorCodes('&',
-                config.getString("scoreboard.ingame.title", "&e&l起床战争")));
+            if (ingameAnimationEnabled && !ingameTitleAnimation.isEmpty()) {
+                api.setTitle(getIngameAnimatedTitle());
+            } else {
+                api.setTitle(ChatColor.translateAlternateColorCodes('&',
+                    config.getString("scoreboard.ingame.title", "&e&l起床战争")));
+            }
         }
         
         updateScoreboard(player);
@@ -178,10 +252,6 @@ public class ScoreboardManager {
     }
     
     private void updateInGameScoreboard(Player player, ScoreboardAPI api) {
-        String title = ChatColor.translateAlternateColorCodes('&',
-            config.getString("scoreboard.ingame.title", "&e&l起床战争"));
-        api.setTitle(title);
-        
         List<String> lines = new ArrayList<>();
         List<String> configLines = config.getStringList("scoreboard.ingame.lines");
         
