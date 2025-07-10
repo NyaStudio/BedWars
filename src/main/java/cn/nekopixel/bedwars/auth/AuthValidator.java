@@ -156,10 +156,6 @@ public class AuthValidator {
                     updateAuthState(decryptedObj);
                     lastVerifyTime = System.currentTimeMillis();
                     
-                    if (decryptedObj.has("message")) {
-                        plugin.getLogger().info("授权验证成功: " + decryptedObj.get("message").getAsString());
-                    }
-                    
                     synchronized (wsLock) {
                         if (wsClient == null || !wsClient.isOpen() || !wsClient.isAuthenticated()) {
                             initializeWebSocket(plugin);
