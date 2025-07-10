@@ -46,6 +46,7 @@ public class ScoreboardManager {
         loadConfig();
         initTitleAnimation();
         startUpdateTask();
+        startAnimationTask();
     }
     
     private void loadConfig() {
@@ -72,13 +73,6 @@ public class ScoreboardManager {
         }
         
         animationIndex = 0;
-        
-        if (animationTask != null) {
-            animationTask.cancel();
-        }
-        if (animationEnabled) {
-            startAnimationTask();
-        }
     }
     
     private String getAnimatedTitle() {
@@ -91,6 +85,8 @@ public class ScoreboardManager {
     }
     
     private void startAnimationTask() {
+        long interval = animationEnabled ? animationInterval : 10L;
+        
         animationTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -98,14 +94,23 @@ public class ScoreboardManager {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         ScoreboardAPI api = scoreboards.get(player.getUniqueId());
                         if (api != null) {
-                            String title = getAnimatedTitle();
+                            String title;
+                            if (animationEnabled && !titleAnimation.isEmpty()) {
+                                title = getAnimatedTitle();
+                            } else {
+                                title = ChatColor.translateAlternateColorCodes('&', 
+                                    config.getString("scoreboard.waiting.title", "&e&l起床战争"));
+                            }
                             api.setTitle(title);
                         }
                     }
-                    animationIndex = (animationIndex + 1) % titleAnimation.size();
+                    
+                    if (animationEnabled && !titleAnimation.isEmpty()) {
+                        animationIndex = (animationIndex + 1) % titleAnimation.size();
+                    }
                 }
             }
-        }.runTaskTimer(plugin, animationInterval, animationInterval);
+        }.runTaskTimer(plugin, interval, interval);
     }
     
     private void startUpdateTask() {
@@ -122,6 +127,19 @@ public class ScoreboardManager {
     public void createScoreboard(Player player) {
         ScoreboardAPI api = new ScoreboardAPI(player);
         scoreboards.put(player.getUniqueId(), api);
+        
+        if (Plugin.getInstance().getGameManager().getCurrentStatus() == GameStatus.WAITING) {
+            if (animationEnabled && !titleAnimation.isEmpty()) {
+                api.setTitle(getAnimatedTitle());
+            } else {
+                api.setTitle(ChatColor.translateAlternateColorCodes('&', 
+                    config.getString("scoreboard.waiting.title", "&e&l起床战争")));
+            }
+        } else {
+            api.setTitle(ChatColor.translateAlternateColorCodes('&',
+                config.getString("scoreboard.ingame.title", "&e&l起床战争")));
+        }
+        
         updateScoreboard(player);
     }
     
@@ -146,15 +164,7 @@ public class ScoreboardManager {
     }
     
     private void updateWaitingScoreboard(Player player, ScoreboardAPI api) {
-        String title;
-        if (animationEnabled && !titleAnimation.isEmpty()) {
-            title = getAnimatedTitle();
-        } else {
-            title = ChatColor.translateAlternateColorCodes('&', 
-                config.getString("scoreboard.waiting.title", "&e&l起床战争"));
-        }
-        api.setTitle(title);
-        
+
         List<String> lines = new ArrayList<>();
         List<String> configLines = config.getStringList("scoreboard.waiting.lines");
         
@@ -373,6 +383,11 @@ public class ScoreboardManager {
     
     public void reloadConfig() {
         loadConfig();
+        
+        if (animationTask != null) {
+            animationTask.cancel();
+        }
+        startAnimationTask();
         
         for (Player player : Bukkit.getOnlinePlayers()) {
             updateScoreboard(player);
