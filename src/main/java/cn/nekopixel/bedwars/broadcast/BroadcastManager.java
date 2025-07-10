@@ -99,7 +99,7 @@ public class BroadcastManager {
         if (messages.isEmpty()) {
             String defaultMessage = victimName + " §7被 " + killerName + " §7丢下虚空。";
             if (isFinalKill) {
-                defaultMessage += " §b最终击杀！";
+                defaultMessage += " §b§l最终击杀！";
             }
             Bukkit.broadcastMessage(defaultMessage);
             return;
@@ -110,7 +110,7 @@ public class BroadcastManager {
         message = message.replace("{killer}", killerName);
         
         if (isFinalKill) {
-            message += " §b最终击杀！";
+            message += " §b§l最终击杀！";
         }
         
         Bukkit.broadcastMessage(message);
@@ -129,7 +129,7 @@ public class BroadcastManager {
         if (messages.isEmpty()) {
             String defaultMessage = victimName + " §7被 " + killerName + " §7击杀！";
             if (isFinalKill) {
-                defaultMessage += " §b最终击杀！";
+                defaultMessage += " §b§l最终击杀！";
             }
             Bukkit.broadcastMessage(defaultMessage);
             return;
@@ -140,7 +140,7 @@ public class BroadcastManager {
         message = message.replace("{killer}", killerName);
         
         if (isFinalKill) {
-            message += " §b最终击杀！";
+            message += " §b§l最终击杀！";
         }
         
         Bukkit.broadcastMessage(message);
