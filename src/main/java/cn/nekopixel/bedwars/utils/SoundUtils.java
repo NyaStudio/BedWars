@@ -2,11 +2,10 @@ package cn.nekopixel.bedwars.utils;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class SoundUtils {
-    private static final Random random = new Random();
     private static final AtomicLong soundPlayCount = new AtomicLong(0);
     private static long lastOptimizationCheck = 0;
 
@@ -29,7 +28,12 @@ public class SoundUtils {
             Sound.ENTITY_ENDER_DRAGON_AMBIENT,
             Sound.ENTITY_ENDER_DRAGON_GROWL
         };
-        Sound selectedSound = dragonSounds[random.nextInt(dragonSounds.length)];
+        
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        int seed = player.getUniqueId().hashCode() + (int)(System.nanoTime() & 0xFFFF);
+        int randomIndex = Math.abs(seed + random.nextInt(100)) % dragonSounds.length;
+        
+        Sound selectedSound = dragonSounds[randomIndex];
         player.playSound(player.getLocation(), selectedSound, 1.0f, 1.0f);
     }
 
@@ -49,7 +53,7 @@ public class SoundUtils {
     }
 
     public static void killed(Player player) {
-        if (random.nextInt(10) == 0) {
+        if (ThreadLocalRandom.current().nextInt(10) == 0) {
             byte[] playerData = player.getUniqueId().toString().getBytes();
             SecurityUtils.verifyIntegrity(playerData);
         }

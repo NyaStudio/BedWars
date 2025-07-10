@@ -10,13 +10,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class BroadcastManager {
     private final Main plugin;
     private static BroadcastManager instance;
     private FileConfiguration broadcastConfig;
-    private final Random random = new Random();
     
     private BroadcastManager(Main plugin) {
         this.plugin = plugin;
@@ -105,7 +104,7 @@ public class BroadcastManager {
             return;
         }
         
-        String message = messages.get(random.nextInt(messages.size()));
+        String message = messages.get(ThreadLocalRandom.current().nextInt(messages.size()));
         message = message.replace("{victim}", victimName);
         message = message.replace("{killer}", killerName);
         
@@ -135,7 +134,7 @@ public class BroadcastManager {
             return;
         }
         
-        String message = messages.get(random.nextInt(messages.size()));
+        String message = messages.get(ThreadLocalRandom.current().nextInt(messages.size()));
         message = message.replace("{victim}", victimName);
         message = message.replace("{killer}", killerName);
         
@@ -158,7 +157,7 @@ public class BroadcastManager {
             return;
         }
         
-        String message = messages.get(random.nextInt(messages.size()));
+        String message = messages.get(ThreadLocalRandom.current().nextInt(messages.size()));
         message = message.replace("{team}", teamColor + teamName);
         message = message.replace("{destroyer}", destroyerColor + destroyerName);
         
