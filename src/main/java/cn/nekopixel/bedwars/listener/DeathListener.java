@@ -289,7 +289,9 @@ public class DeathListener implements Listener {
         }
         
         if (!resourceMessages.isEmpty()) {
-            killer.sendMessage(String.join(" §7/ ", resourceMessages));
+            for (String message : resourceMessages) {
+                killer.sendMessage(message);
+            }
         }
     }
     
