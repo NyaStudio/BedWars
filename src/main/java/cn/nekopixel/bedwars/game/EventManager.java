@@ -188,6 +188,11 @@ public class EventManager {
         } else if (level == 3) {
             diamondLevel3Upgraded = true;
         }
+        
+        String romanLevel = getLevelRoman(level);
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage("§b钻石§f生成点已经升至§c" + romanLevel + "§f级");
+        Bukkit.broadcastMessage("");
     }
     
     public void onEmeraldUpgraded(int level) {
@@ -196,6 +201,19 @@ public class EventManager {
         } else if (level == 3) {
             emeraldLevel3Upgraded = true;
         }
+        
+        String romanLevel = getLevelRoman(level);
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage("§2绿宝石§f生成点已经升至§c" + romanLevel + "§f级");
+        Bukkit.broadcastMessage("");
+    }
+    
+    private String getLevelRoman(int level) {
+        return switch (level) {
+            case 2 -> "II";
+            case 3 -> "III";
+            default -> "I";
+        };
     }
     
     public NextEvent getNextEvent() {
