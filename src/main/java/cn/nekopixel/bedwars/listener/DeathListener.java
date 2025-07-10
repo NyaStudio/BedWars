@@ -30,6 +30,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.World;
 
 import java.util.*;
 
@@ -194,6 +197,8 @@ public class DeathListener implements Listener {
                 } else {
                     killerStats.addKill();
                 }
+                
+                transferResourcesToKiller(player, killer);
             }
         }
         
@@ -226,6 +231,66 @@ public class DeathListener implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             checkTeamElimination(team);
         }, 10L);
+    }
+    
+    private void transferResourcesToKiller(Player victim, Player killer) {
+        Material[] resourceTypes = {
+            Material.DIAMOND,
+            Material.GOLD_INGOT,
+            Material.IRON_INGOT,
+            Material.EMERALD
+        };
+        
+        Map<Material, Integer> resources = new HashMap<>();
+        for (Material resourceType : resourceTypes) {
+            resources.put(resourceType, 0);
+        }
+        
+        for (ItemStack item : victim.getInventory().getContents()) {
+            if (item == null) continue;
+            
+            Material type = item.getType();
+            if (resources.containsKey(type)) {
+                resources.put(type, resources.get(type) + item.getAmount());
+            }
+        }
+        
+        List<String> resourceMessages = new ArrayList<>();
+        for (Map.Entry<Material, Integer> entry : resources.entrySet()) {
+            if (entry.getValue() > 0) {
+                ItemStack resourceItem = new ItemStack(entry.getKey(), entry.getValue());
+                
+                HashMap<Integer, ItemStack> leftover = killer.getInventory().addItem(resourceItem);
+                if (!leftover.isEmpty()) {
+                    for (ItemStack leftoverItem : leftover.values()) {
+                        killer.getWorld().dropItemNaturally(killer.getLocation(), leftoverItem);
+                    }
+                }
+                
+                String resourceMessage = "";
+                switch (entry.getKey()) {
+                    case IRON_INGOT:
+                        resourceMessage = "§f+" + entry.getValue() + "铁锭";
+                        break;
+                    case GOLD_INGOT:
+                        resourceMessage = "§6+" + entry.getValue() + "金锭";
+                        break;
+                    case DIAMOND:
+                        resourceMessage = "§b+" + entry.getValue() + "钻石";
+                        break;
+                    case EMERALD:
+                        resourceMessage = "§2+" + entry.getValue() + "绿宝石";
+                        break;
+                }
+                if (!resourceMessage.isEmpty()) {
+                    resourceMessages.add(resourceMessage);
+                }
+            }
+        }
+        
+        if (!resourceMessages.isEmpty()) {
+            killer.sendMessage(String.join(" §7/ ", resourceMessages));
+        }
     }
     
     private void makeSpectator(Player player) {
