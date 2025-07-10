@@ -302,7 +302,7 @@ public class ScoreboardManager {
                     status = ChatColor.RED + "✘";
                 }
             } else {
-                status = ChatColor.GREEN + "✔";
+                status = ChatColor.GREEN + "✓";
             }
             
             String line = colorCode + tablistTeamName + " " + ChatColor.WHITE + teamName + ": " + status;
