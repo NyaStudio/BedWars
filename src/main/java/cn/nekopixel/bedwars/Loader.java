@@ -207,6 +207,9 @@ public class Loader {
             if (bedWarsPlugin.getChatManager() != null) {
                 bedWarsPlugin.getChatManager().reloadConfig();
             }
+            
+            BroadcastManager.getInstance().reloadConfig();
+            
             if (bedWarsPlugin.getTabListManager() != null) {
                 bedWarsPlugin.getTabListManager().reloadConfig();
             }

@@ -1,0 +1,24 @@
+# 占位符:
+# {victim} - 被击杀的玩家名（带队伍颜色）
+# {killer} - 击杀者的玩家名（带队伍颜色）
+# {team} - 被破坏床的队伍名（带颜色）
+# {destroyer} - 破坏床的玩家名（带颜色）
+#
+# 最终击杀会自动在消息后面添加 "§b最终击杀！"
+
+kill_messages:
+  - "{victim} §7被 {killer} §7打败。"
+  - "{killer} §7击败了 {victim}§7。"
+  - "{victim} §7被 {killer} §7完爆。"
+  - "{victim} §7死于 {killer} §7之手。"
+
+void_kill_messages:
+  - "{victim} §7被 {killer} §7丢下虚空。"
+  - "{killer} §7将 {victim} §7推入虚空。"
+  - "{killer} §7把 {victim} §7扔下虚空。"
+
+bed_destroy_messages:
+  - "{team} §7的床被 {destroyer} §7拆烂！"
+  - "{destroyer} §7摧毁了 {team} §7的床！"
+  - "{team} §7的床被 {destroyer} §7破坏了！"
+  - "{team} §7的床被 {destroyer} §7炸毁！"

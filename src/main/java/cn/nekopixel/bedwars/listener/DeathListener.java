@@ -29,11 +29,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.World;
 
 import java.util.*;
 
@@ -88,7 +86,7 @@ public class DeathListener implements Listener {
         double finalHealth = player.getHealth() - event.getFinalDamage();
         if (finalHealth <= 0) {
             event.setCancelled(true);
-            handlePlayerDeath(player);
+            handlePlayerDeath(player, false);
         }
     }
     
@@ -182,12 +180,12 @@ public class DeathListener implements Listener {
                     player.teleport(respawningLocation);
                 }
             } else {
-                handlePlayerDeath(player);
+                handlePlayerDeath(player, true);
             }
         }
     }
     
-    private void handlePlayerDeath(Player player) {
+    private void handlePlayerDeath(Player player, boolean isVoidDeath) {
         TeamManager teamManager = GameManager.getInstance().getTeamManager();
         String team = teamManager.getPlayerTeam(player);
         
@@ -202,11 +200,35 @@ public class DeathListener implements Listener {
         UUID killerId = lastDamager.get(player.getUniqueId());
         Long damageTime = lastDamageTime.get(player.getUniqueId());
         
-        if (killerId != null && damageTime != null && 
+        if (isVoidDeath) {
+            if (killerId != null && damageTime != null &&
+                (System.currentTimeMillis() - damageTime) <= 10000) {
+                Player killer = Bukkit.getPlayer(killerId);
+                if (killer != null && killer.isOnline() && !killer.equals(player)) {
+                    String killerTeam = teamManager.getPlayerTeam(killer);
+                    if (killerTeam != null) {
+                        BroadcastManager.getInstance().playerKilledIntoVoid(player, team, killer, killerTeam, !hasBed);
+                    } else {
+                        BroadcastManager.getInstance().playerFellIntoVoid(player, team);
+                    }
+                } else {
+                    BroadcastManager.getInstance().playerFellIntoVoid(player, team);
+                }
+            } else {
+                BroadcastManager.getInstance().playerFellIntoVoid(player, team);
+            }
+        }
+        
+        if (killerId != null && damageTime != null &&
             (System.currentTimeMillis() - damageTime) <= 5000) {
             Player killer = Bukkit.getPlayer(killerId);
             if (killer != null && killer.isOnline() && !killer.equals(player)) {
                 SoundUtils.killed(killer);
+                
+                String killerTeam = teamManager.getPlayerTeam(killer);
+                if (!isVoidDeath && killerTeam != null) {
+                    BroadcastManager.getInstance().playerKilled(player, team, killer, killerTeam, !hasBed);
+                }
                 
                 PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
                 if (!hasBed) {
