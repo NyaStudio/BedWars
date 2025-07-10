@@ -1,12 +1,13 @@
 package cn.nekopixel.bedwars.game;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.spawner.Diamond;
 import cn.nekopixel.bedwars.spawner.Emerald;
 import cn.nekopixel.bedwars.utils.INGameTitle;
 import cn.nekopixel.bedwars.utils.SoundUtils;
 import cn.nekopixel.bedwars.team.TeamManager;
-import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -190,9 +191,7 @@ public class EventManager {
         }
         
         String romanLevel = getLevelRoman(level);
-        Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§b钻石§f生成点已经升至§c" + romanLevel + "§f级");
-        Bukkit.broadcastMessage("");
+        BroadcastManager.getInstance().diamondUpgrade(romanLevel);
     }
     
     public void onEmeraldUpgraded(int level) {
@@ -203,9 +202,7 @@ public class EventManager {
         }
         
         String romanLevel = getLevelRoman(level);
-        Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§2绿宝石§f生成点已经升至§c" + romanLevel + "§f级");
-        Bukkit.broadcastMessage("");
+        BroadcastManager.getInstance().emeraldUpgrade(romanLevel);
     }
     
     private String getLevelRoman(int level) {
@@ -284,9 +281,7 @@ public class EventManager {
             }
         }
         
-        Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§f床自毁 §7> §f所有的床均已被破坏！");
-        Bukkit.broadcastMessage("");
+        BroadcastManager.getInstance().allBedsDestroyed();
         
         for (Player player : Bukkit.getOnlinePlayers()) {
             INGameTitle.show(player, "§c床已被破坏！", "§7所有的床均已被破坏！", 5, 10, 20);
@@ -387,11 +382,7 @@ public class EventManager {
     }
     
     private void executeGameEnd() {
-        Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§6§l游戏结束！");
-        Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§e本局游戏平局！");
-        Bukkit.broadcastMessage("");
+        BroadcastManager.getInstance().gameDraw();
         
         for (Player player : Bukkit.getOnlinePlayers()) {
             INGameTitle.show(player, "§c游戏结束！", "", 5, 0, 0);

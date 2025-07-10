@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.listener;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.game.*;
 import cn.nekopixel.bedwars.game.SpectatorManager;
 import cn.nekopixel.bedwars.game.RespawnManager;
@@ -111,11 +112,21 @@ public class DeathListener implements Listener {
                 BedManager bedManager = GameManager.getInstance().getBedManager();
                 boolean hasBed = bedManager.hasBed(deathState.team);
                 
+                String teamColor = bedManager.getTeamChatColor(deathState.team);
+                String playerName = teamColor + joiningPlayer.getName();
+                BroadcastManager.getInstance().playerReconnect(joiningPlayer, deathState.team);
+                
                 if (!deathState.isSpectator && hasBed) {
                     handleReconnectDeath(joiningPlayer, deathState.team);
                 } else {
                     makeSpectator(joiningPlayer);
                 }
+            }
+        } else if (GameManager.getInstance().isStatus(GameStatus.INGAME)) {
+            TeamManager teamManager = GameManager.getInstance().getTeamManager();
+            String team = teamManager.getPlayerTeam(joiningPlayer);
+            if (team != null) {
+                BroadcastManager.getInstance().playerJoinInGame(joiningPlayer, team);
             }
         }
     }
@@ -138,6 +149,10 @@ public class DeathListener implements Listener {
                 new PlayerDeathManager.DeathState(isSpectator, team));
             
             deathManager.setRespawning(player, false);
+            
+            if (GameManager.getInstance().isStatus(GameStatus.INGAME) && team != null) {
+                BroadcastManager.getInstance().playerDisconnect(player, team);
+            }
         } else if (GameManager.getInstance().isStatus(GameStatus.INGAME)) {
             TeamManager teamManager = GameManager.getInstance().getTeamManager();
             String team = teamManager.getPlayerTeam(player);
@@ -145,6 +160,8 @@ public class DeathListener implements Listener {
             if (team != null && !spectatorManager.isSpectator(playerId)) {
                 deathManager.saveDisconnectedState(playerId, 
                     new PlayerDeathManager.DeathState(false, team));
+                    
+                BroadcastManager.getInstance().playerDisconnect(player, team);
             }
         }
         
@@ -346,9 +363,7 @@ public class DeathListener implements Listener {
         String teamColor = bedManager.getTeamChatColor(team);
         String teamName = bedManager.getTeamDisplayName(team);
         
-        Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§f团灭 > " + teamColor + teamName + " §7已被淘汰！");
-        Bukkit.broadcastMessage("");
+        BroadcastManager.getInstance().teamEliminated(teamColor, teamName);
         
         checkVictory();
     }
@@ -409,11 +424,7 @@ public class DeathListener implements Listener {
         String teamColor = bedManager.getTeamChatColor(winningTeam);
         String teamName = bedManager.getTeamDisplayName(winningTeam);
         
-        Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§e游戏结束！");
-        Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§f获胜队伍 - " + teamColor + teamName);
-        Bukkit.broadcastMessage("");
+        BroadcastManager.getInstance().gameVictory(teamColor, teamName);
         
         for (UUID playerId : winningPlayers) {
             Player player = Bukkit.getPlayer(playerId);

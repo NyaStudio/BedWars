@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.listener;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.setup.Map;
@@ -49,8 +50,7 @@ public class WaitingListener implements Listener {
             int maxPlayers = getMaxPlayers();
             
             String coloredName = getColoredPlayerName(player);
-            String joinMessage = coloredName + " §e加入了游戏 (§b" + currentPlayers + "§e/§b" + maxPlayers + "§e)！";
-            Bukkit.broadcastMessage(joinMessage);
+            BroadcastManager.getInstance().playerJoinWaiting(coloredName, currentPlayers, maxPlayers);
         }
         
         TabListManager tabListManager = Plugin.getInstance().getTabListManager();
@@ -72,8 +72,7 @@ public class WaitingListener implements Listener {
         
         if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
             String coloredName = getColoredPlayerName(player);
-            String quitMessage = coloredName + " §e离开了游戏！";
-            Bukkit.broadcastMessage(quitMessage);
+            BroadcastManager.getInstance().playerQuitWaiting(coloredName);
         }
     }
     

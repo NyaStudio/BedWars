@@ -2,12 +2,12 @@ package cn.nekopixel.bedwars.commands;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.SpectatorManager;
 import cn.nekopixel.bedwars.game.PlayerDeathManager;
 import cn.nekopixel.bedwars.team.TeamManager;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -89,7 +89,7 @@ public class ShoutCommand implements CommandExecutor {
         String message = messageBuilder.toString().trim();
 
         String formattedMessage = Plugin.getInstance().getChatManager().formatShoutMessage(player, message);
-        Bukkit.broadcastMessage(formattedMessage);
+        BroadcastManager.getInstance().shoutMessage(formattedMessage);
         
         if (cooldownSeconds > 0) {
             cooldowns.put(playerId, System.currentTimeMillis());

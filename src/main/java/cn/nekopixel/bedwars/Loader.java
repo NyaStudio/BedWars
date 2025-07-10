@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.auth.AuthValidator;
 import cn.nekopixel.bedwars.auth.HardwareInfo;
+import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.commands.CommandManager;
 import cn.nekopixel.bedwars.commands.ShoutCommand;
 import cn.nekopixel.bedwars.listener.CancelEvents;
@@ -154,6 +155,7 @@ public class Loader {
         mapSetup = new Map(plugin);
         bedWarsPlugin.setMapSetup(mapSetup);
         
+        BroadcastManager.initialize(plugin);
         GameManager.initialize(plugin);
         bedWarsPlugin.setGameManager(GameManager.getInstance());
 

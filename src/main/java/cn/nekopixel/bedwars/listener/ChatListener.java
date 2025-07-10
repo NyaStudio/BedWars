@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.listener;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.SpectatorManager;
@@ -36,7 +37,7 @@ public class ChatListener implements Listener {
         
         if (gameStatus != GameStatus.INGAME || mode.equalsIgnoreCase("solo")) {
             String formattedMessage = Plugin.getInstance().getChatManager().formatMessage(player, message);
-            Bukkit.broadcastMessage(formattedMessage);
+            BroadcastManager.getInstance().chatMessage(formattedMessage);
             return;
         }
         

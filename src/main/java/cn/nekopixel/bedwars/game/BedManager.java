@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.game;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.listener.DeathListener;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.team.TeamManager;
@@ -175,10 +176,8 @@ public class BedManager implements Listener {
             String teamName = getTeamDisplayName(finalTeam);
             String destroyerColor = getTeamChatColor(destroyerTeam);
             
-            Bukkit.broadcastMessage("");
-            Bukkit.broadcastMessage("§f床被破坏了 > " + teamColor + teamName + " §7的床被 " + destroyerColor + destroyer.getName() + " §7拆烂！");
-            Bukkit.broadcastMessage("");
-
+            BroadcastManager.getInstance().bedDestroyed(teamColor, teamName, destroyerColor, destroyer.getName());
+            
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (teamManager.getTeamPlayers(finalTeam).contains(onlinePlayer.getUniqueId())) {
                     SoundUtils.yourBedDestroyed(onlinePlayer);
@@ -186,7 +185,7 @@ public class BedManager implements Listener {
                     SoundUtils.bedDestroyed(onlinePlayer);
                 }
             }
-
+            
             for (UUID playerId : teamManager.getTeamPlayers(finalTeam)) {
                 Player teamPlayer = Bukkit.getPlayer(playerId);
                 if (teamPlayer != null && teamPlayer.isOnline()) {
