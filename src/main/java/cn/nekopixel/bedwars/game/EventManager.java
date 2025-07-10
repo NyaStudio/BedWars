@@ -266,14 +266,14 @@ public class EventManager {
                     Block bedBlock = bedLoc.getBlock();
                     
                     if (bedBlock.getType().name().endsWith("_BED")) {
-                        bedBlock.setType(Material.AIR);
+                        bedBlock.setType(Material.AIR, false);
                         
                         for (int x = -1; x <= 1; x++) {
                             for (int z = -1; z <= 1; z++) {
                                 if (x == 0 && z == 0) continue;
                                 Block relative = bedBlock.getRelative(x, 0, z);
                                 if (relative.getType().name().endsWith("_BED")) {
-                                    relative.setType(Material.AIR);
+                                    relative.setType(Material.AIR, false);
                                 }
                             }
                         }
