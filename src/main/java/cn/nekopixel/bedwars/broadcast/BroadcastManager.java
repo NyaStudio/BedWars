@@ -190,11 +190,11 @@ public class BroadcastManager {
     }
 
     public void diamondUpgrade(String romanLevel) {
-        Bukkit.broadcastMessage("§b钻石§e生成点已经升至§c" + romanLevel + "§e级。");
+        Bukkit.broadcastMessage("§b钻石生成点§e已经升至§c" + romanLevel + "§e级。");
     }
 
     public void emeraldUpgrade(String romanLevel) {
-        Bukkit.broadcastMessage("§2绿宝石§e生成点已经升至§c" + romanLevel + "§e级。");
+        Bukkit.broadcastMessage("§2绿宝石生成点§e已经升至§c" + romanLevel + "§e级。");
     }
 
     public void allBedsDestroyed() {
