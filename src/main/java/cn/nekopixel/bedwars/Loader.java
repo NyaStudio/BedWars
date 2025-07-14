@@ -167,9 +167,9 @@ public class Loader {
         bedWarsPlugin.setShopManager(shopManager);
         plugin.getServer().getPluginManager().registerEvents(shopManager, plugin);
 
-        bedWarsPlugin.setChatManager(new ChatManager(plugin));
+        bedWarsPlugin.setChatManager(GameManager.getInstance().getChatManager());
         bedWarsPlugin.setTabListManager(new TabListManager(plugin));
-        bedWarsPlugin.setNameTag(new NameTag(plugin));
+        bedWarsPlugin.setNameTag(GameManager.getInstance().getNameTag());
 
         MapManager mapManager = new MapManager(plugin);
         bedWarsPlugin.setMapManager(mapManager);

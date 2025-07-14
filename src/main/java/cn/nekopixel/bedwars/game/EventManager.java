@@ -15,8 +15,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import java.util.*;
 
 public class EventManager {
@@ -39,28 +37,14 @@ public class EventManager {
     private int bedDestructionCountdown = 300;
     private int suddenDeathCountdown = 600;
     private int gameEndingCountdown = 300;
-    
-    private FileConfiguration chattingConfig;
 
     public EventManager(Main plugin, Diamond diamondSpawner, Emerald emeraldSpawner) {
         this.plugin = plugin;
         this.diamondSpawner = diamondSpawner;
         this.emeraldSpawner = emeraldSpawner;
         this.dragonManager = new DragonManager(plugin);
-        loadChattingConfig();
     }
     
-    private void loadChattingConfig() {
-        try {
-            java.io.File file = new java.io.File(plugin.getDataFolder(), "chatting.yml");
-            if (file.exists()) {
-                chattingConfig = YamlConfiguration.loadConfiguration(file);
-            }
-        } catch (Exception e) {
-            plugin.getLogger().warning("无法加载 chatting.yml: " + e.getMessage());
-        }
-    }
-
     public void start() {
         if (timerTask != null) {
             timerTask.cancel();

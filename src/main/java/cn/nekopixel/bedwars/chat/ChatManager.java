@@ -20,17 +20,21 @@ import java.util.UUID;
 
 public class ChatManager {
     private final Main plugin;
-    private final TeamManager teamManager;
     private final Map<String, String> teamColors;
     private final Map<String, String> teamNames;
+    private final Map<String, String> tablistTeamColors;
+    private final Map<String, String> tablistTeamNames;
     private String chatFormat;
+    private String tablistFormat;
+    private int tablistUpdateInterval;
     private PrefixProvider prefixProvider;
 
     public ChatManager(Main plugin) {
         this.plugin = plugin;
-        this.teamManager = Plugin.getInstance().getGameManager().getTeamManager();
         this.teamColors = new HashMap<>();
         this.teamNames = new HashMap<>();
+        this.tablistTeamColors = new HashMap<>();
+        this.tablistTeamNames = new HashMap<>();
         initPrefixProvider();
         loadConfig();
     }
@@ -69,6 +73,8 @@ public class ChatManager {
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
         chatFormat = ChatColor.translateAlternateColorCodes('&', config.getString("chat.format", "[%team_color%%team_name%&r] &7%player%&8: &f%message%"));
+        tablistFormat = ChatColor.translateAlternateColorCodes('&', config.getString("tablist.format", "%team_color%%team_name% %player%"));
+        tablistUpdateInterval = config.getInt("tablist.update_interval", 20);
 
         if (config.contains("chat.team_colors")) {
             for (String key : config.getConfigurationSection("chat.team_colors").getKeys(false)) {
@@ -81,6 +87,20 @@ public class ChatManager {
             for (String key : config.getConfigurationSection("chat.team_names").getKeys(false)) {
                 String name = config.getString("chat.team_names." + key);
                 teamNames.put(key.toLowerCase(), name);
+            }
+        }
+
+        if (config.contains("tablist.team_colors")) {
+            for (String key : config.getConfigurationSection("tablist.team_colors").getKeys(false)) {
+                String color = config.getString("tablist.team_colors." + key);
+                tablistTeamColors.put(key.toLowerCase(), ChatColor.translateAlternateColorCodes('&', color));
+            }
+        }
+
+        if (config.contains("tablist.team_names")) {
+            for (String key : config.getConfigurationSection("tablist.team_names").getKeys(false)) {
+                String name = config.getString("tablist.team_names." + key);
+                tablistTeamNames.put(key.toLowerCase(), name);
             }
         }
     }
@@ -101,6 +121,7 @@ public class ChatManager {
             return ChatColor.GRAY + player.getName() + ChatColor.DARK_GRAY + ": " + ChatColor.WHITE + message;
         }
 
+        TeamManager teamManager = gameManager.getTeamManager();
         String team = teamManager.getPlayerTeam(player);
         
         SpectatorManager spectatorManager = GameManager.getInstance().getSpectatorManager();
@@ -143,6 +164,7 @@ public class ChatManager {
             return ChatColor.GOLD + "[喊话] " + ChatColor.GRAY + player.getName() + ChatColor.DARK_GRAY + ": " + ChatColor.WHITE + message;
         }
 
+        TeamManager teamManager = gameManager.getTeamManager();
         String team = teamManager.getPlayerTeam(player);
         if (team == null) team = "spectator";
 
@@ -169,6 +191,8 @@ public class ChatManager {
     public void reloadConfig() {
         teamColors.clear();
         teamNames.clear();
+        tablistTeamColors.clear();
+        tablistTeamNames.clear();
         initPrefixProvider();
         prefixProvider.reload();
         loadConfig();
@@ -180,5 +204,31 @@ public class ChatManager {
     
     public String getTeamName(String team) {
         return teamNames.getOrDefault(team.toLowerCase(), "未知队伍");
+    }
+    
+    public String getTablistTeamColor(String team) {
+        return tablistTeamColors.getOrDefault(team.toLowerCase(), "&7");
+    }
+    
+    public String getTablistTeamName(String team) {
+        return tablistTeamNames.getOrDefault(team.toLowerCase(), "未知队伍");
+    }
+    
+    public String getTablistFormat() {
+        return tablistFormat;
+    }
+    
+    public int getTablistUpdateInterval() {
+        return tablistUpdateInterval;
+    }
+
+    public String getTeamChatColor(String team) {
+        String color = getTeamColor(team);
+        return ChatColor.translateAlternateColorCodes('&', color);
+    }
+
+    public String getTablistTeamChatColor(String team) {
+        String color = getTablistTeamColor(team);
+        return ChatColor.translateAlternateColorCodes('&', color);
     }
 }

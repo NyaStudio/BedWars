@@ -1,7 +1,9 @@
 package cn.nekopixel.bedwars.game;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.team.TeamManager;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -12,8 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,26 +23,14 @@ import java.util.Set;
 public class DragonManager {
     private final Main plugin;
     private final Map<String, EnderDragon> teamDragons = new HashMap<>();
-    private FileConfiguration chattingConfig;
     
     public DragonManager(Main plugin) {
         this.plugin = plugin;
-        loadChattingConfig();
-    }
-    
-    private void loadChattingConfig() {
-        try {
-            java.io.File file = new java.io.File(plugin.getDataFolder(), "chatting.yml");
-            if (file.exists()) {
-                chattingConfig = YamlConfiguration.loadConfiguration(file);
-            }
-        } catch (Exception e) {
-            plugin.getLogger().warning("无法加载 chatting.yml: " + e.getMessage());
-        }
     }
     
     public void spawnDragons(Location baseLocation) {
         TeamManager teamManager = GameManager.getInstance().getTeamManager();
+        ChatManager chatManager = GameManager.getInstance().getChatManager();
         RespawnManager respawnManager = new RespawnManager(plugin, GameManager.getInstance().getPlayerDeathManager());
         
         if (baseLocation == null) {
@@ -68,8 +56,9 @@ public class DragonManager {
                 Location spawnLoc = new Location(dragonLoc.getWorld(), x, y, z);
                 EnderDragon dragon = (EnderDragon) spawnLoc.getWorld().spawnEntity(spawnLoc, EntityType.ENDER_DRAGON);
                 
-                String tablistTeamName = getTablistTeamName(team);
-                dragon.setCustomName(getTeamChatColor(team) + tablistTeamName + "队末影龙");
+                String teamColor = ChatColor.translateAlternateColorCodes('&', chatManager.getTeamColor(team));
+                String teamName = chatManager.getTeamName(team);
+                dragon.setCustomName(teamColor + teamName + "队末影龙");
                 dragon.setCustomNameVisible(true);
                 dragon.setPhase(EnderDragon.Phase.CIRCLING);
                 
@@ -523,49 +512,5 @@ public class DragonManager {
                 lastVelocity = smoothVel.clone();
             }
         }.runTaskTimer(plugin, 0L, 10L);
-    }
-    
-    public void removeDragons() {
-        for (EnderDragon dragon : teamDragons.values()) {
-            if (dragon != null && dragon.isValid()) {
-                dragon.remove();
-            }
-        }
-        teamDragons.clear();
-    }
-
-    private String getTeamChatColor(String team) {
-        return switch (team.toLowerCase()) {
-            case "red" -> "§c";
-            case "blue" -> "§9";
-            case "green" -> "§a";
-            case "yellow" -> "§e";
-            case "aqua" -> "§b";
-            case "white" -> "§f";
-            case "pink" -> "§d";
-            case "gray" -> "§7";
-            default -> "§7";
-        };
-    }
-    
-    private String getTablistTeamName(String team) {
-        if (chattingConfig != null) {
-            String configPath = "tablist.team_names." + team.toLowerCase();
-            if (chattingConfig.contains(configPath)) {
-                return chattingConfig.getString(configPath);
-            }
-        }
-        
-        return switch (team.toLowerCase()) {
-            case "red" -> "红";
-            case "blue" -> "蓝";
-            case "green" -> "绿";
-            case "yellow" -> "黄";
-            case "aqua" -> "青";
-            case "white" -> "白";
-            case "pink" -> "粉";
-            case "gray" -> "灰";
-            default -> team;
-        };
     }
 }

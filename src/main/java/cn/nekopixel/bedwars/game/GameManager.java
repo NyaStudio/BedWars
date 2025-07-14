@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.game;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.auth.AuthInterceptor;
+import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.player.FoodLock;
 import cn.nekopixel.bedwars.player.RemoveItems;
 import cn.nekopixel.bedwars.player.PlayerStats;
@@ -27,6 +28,7 @@ public class GameManager {
     private final RemoveItems removeItems;
     private final FoodLock foodLock;
     private final TeamManager teamManager;
+    private final ChatManager chatManager;
     private final NameTag nameTag;
     private final QueueManager queueManager;
     private final BedManager bedManager;
@@ -40,6 +42,7 @@ public class GameManager {
         this.removeItems = new RemoveItems(plugin);
         this.foodLock = new FoodLock(plugin);
         this.teamManager = new TeamManager(plugin);
+        this.chatManager = new ChatManager(plugin);
         this.nameTag = new NameTag(plugin);
         this.queueManager = new QueueManager(plugin);
         this.bedManager = new BedManager(plugin);
@@ -48,6 +51,8 @@ public class GameManager {
         
         Bukkit.getPluginManager().registerEvents(spawnerManager, plugin);
         Bukkit.getPluginManager().registerEvents(new WaitingListener(plugin), plugin);
+        
+        // 注册其他事件监听器
         Bukkit.getPluginManager().registerEvents(bedManager, plugin);
     }
 
@@ -98,7 +103,7 @@ public class GameManager {
             removeItems.start();
             teamManager.assignTeams();
             nameTag.startUpdateTask();
-            
+
             PlayerStats.clearAll();
             
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -170,5 +175,9 @@ public class GameManager {
     
     public SpectatorManager getSpectatorManager() {
         return spectatorManager;
+    }
+
+    public ChatManager getChatManager() {
+        return chatManager;
     }
 } 

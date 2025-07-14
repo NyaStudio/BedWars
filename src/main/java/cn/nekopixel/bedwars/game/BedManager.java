@@ -15,8 +15,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Bed;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,25 +27,12 @@ import java.util.UUID;
 public class BedManager implements Listener {
     private final Main plugin;
     private final java.util.Map<String, Boolean> teamBeds = new HashMap<>();
-    private FileConfiguration chattingConfig;
-    
+
     public BedManager(Main plugin) {
         this.plugin = plugin;
-        loadChattingConfig();
         initializeBeds();
     }
-    
-    private void loadChattingConfig() {
-        try {
-            java.io.File file = new java.io.File(plugin.getDataFolder(), "chatting.yml");
-            if (file.exists()) {
-                chattingConfig = YamlConfiguration.loadConfiguration(file);
-            }
-        } catch (Exception e) {
-            plugin.getLogger().warning("无法加载 chatting.yml: " + e.getMessage());
-        }
-    }
-    
+
     private void initializeBeds() {
         Map mapSetup = Plugin.getInstance().getMapSetup();
         if (mapSetup != null) {
@@ -63,7 +48,7 @@ public class BedManager implements Listener {
             }
         }
     }
-    
+
     private boolean isBedExists(Location location) {
         Block block = location.getBlock();
         if (block.getType().name().endsWith("_BED")) {
@@ -74,12 +59,12 @@ public class BedManager implements Listener {
             for (int z = -1; z <= 1; z++) {
                 if (x == 0 && z == 0) continue;
                 Block relative = block.getRelative(x, 0, z);
-                
-                if (relative.getType().name().endsWith("_BED") && 
+
+                if (relative.getType().name().endsWith("_BED") &&
                     relative.getBlockData() instanceof Bed) {
                     Bed bedData = (Bed) relative.getBlockData();
                     Block otherHalf = getOtherBedHalf(relative, bedData);
-                    
+
                     if (otherHalf != null && otherHalf.getLocation().equals(location)) {
                         return true;
                     }
@@ -88,27 +73,27 @@ public class BedManager implements Listener {
         }
         return false;
     }
-    
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onBlockBreak(BlockBreakEvent event) {
         if (!GameManager.getInstance().isStatus(GameStatus.INGAME)) {
             return;
         }
-        
+
         Block block = event.getBlock();
         Material type = block.getType();
-        
+
         if (!type.name().endsWith("_BED")) {
             return;
         }
-        
+
         Map mapSetup = Plugin.getInstance().getMapSetup();
         if (mapSetup == null) {
             return;
         }
-        
+
         String team = mapSetup.getTeamByBedLocation(block.getLocation());
-        
+
         if (team == null && block.getBlockData() instanceof Bed) {
             Bed bedData = (Bed) block.getBlockData();
             Block otherHalf = getOtherBedHalf(block, bedData);
@@ -116,7 +101,7 @@ public class BedManager implements Listener {
                 team = mapSetup.getTeamByBedLocation(otherHalf.getLocation());
             }
         }
-        
+
         if (team != null) {
             final String finalTeam = team;
             Player destroyer = event.getPlayer();
@@ -126,14 +111,14 @@ public class BedManager implements Listener {
             if (finalTeam.equalsIgnoreCase(destroyerTeam)) {
                 event.setCancelled(true);
                 event.setDropItems(false);
-                
+
                 final org.bukkit.block.data.BlockData bedData = block.getBlockData();
                 final Location bedLoc = block.getLocation();
-                
+
                 Block otherHalf = null;
                 org.bukkit.block.data.BlockData otherData = null;
                 Location otherLoc = null;
-                
+
                 if (bedData instanceof Bed) {
                     Bed bed = (Bed) bedData;
                     otherHalf = getOtherBedHalf(block, bed);
@@ -142,17 +127,17 @@ public class BedManager implements Listener {
                         otherLoc = otherHalf.getLocation();
                     }
                 }
-                
+
                 final Block finalOtherHalf = otherHalf;
                 final org.bukkit.block.data.BlockData finalOtherData = otherData;
                 final Location finalOtherLoc = otherLoc;
-                
+
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     bedLoc.getBlock().setBlockData(bedData, true);
                     if (finalOtherHalf != null && finalOtherData != null) {
                         finalOtherLoc.getBlock().setBlockData(finalOtherData, true);
                     }
-                    
+
                     for (Player p : block.getWorld().getPlayers()) {
                         if (p.getLocation().distanceSquared(bedLoc) < 256) {
                             p.sendBlockChange(bedLoc, bedData);
@@ -162,22 +147,22 @@ public class BedManager implements Listener {
                         }
                     }
                 }, 1L);
-                
+
                 destroyer.sendMessage("§c你不能破坏自己的床！");
                 return;
             }
 
             teamBeds.put(finalTeam.toLowerCase(), false);
-            
+
             PlayerStats destroyerStats = PlayerStats.getStats(destroyer.getUniqueId());
             destroyerStats.addBedBroken();
-            
+
             String teamColor = getTeamChatColor(finalTeam);
             String teamName = getTeamDisplayName(finalTeam);
             String destroyerColor = getTeamChatColor(destroyerTeam);
-            
+
             BroadcastManager.getInstance().bedDestroyed(teamColor, teamName, destroyerColor, destroyer.getName());
-            
+
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (teamManager.getTeamPlayers(finalTeam).contains(onlinePlayer.getUniqueId())) {
                     SoundUtils.yourBedDestroyed(onlinePlayer);
@@ -185,14 +170,14 @@ public class BedManager implements Listener {
                     SoundUtils.bedDestroyed(onlinePlayer);
                 }
             }
-            
+
             for (UUID playerId : teamManager.getTeamPlayers(finalTeam)) {
                 Player teamPlayer = Bukkit.getPlayer(playerId);
                 if (teamPlayer != null && teamPlayer.isOnline()) {
                     INGameTitle.show(teamPlayer, "§c床已被破坏！", "§7你将无法重生！", 4, 10, 20);
                 }
             }
-            
+
             event.setDropItems(false);
             removeBedCompletely(block);  // 防止你妈 bukkit 抽风只拆了一半
 
@@ -204,81 +189,54 @@ public class BedManager implements Listener {
             }, 100L);
         }
     }
-    
+
     private void removeBedCompletely(Block bedBlock) {
         if (bedBlock.getBlockData() instanceof Bed) {
             Bed bedData = (Bed) bedBlock.getBlockData();
             Block otherHalf = getOtherBedHalf(bedBlock, bedData);
-            
+
             if (otherHalf != null && otherHalf.getType().name().endsWith("_BED")) {
                 otherHalf.setType(Material.AIR, false);  // 我擦你哪来的掉落物
             }
         }
     }
-    
+
     private Block getOtherBedHalf(Block bedBlock, Bed bedData) {
         BlockFace facing = bedData.getFacing();
         Bed.Part part = bedData.getPart();
-        
+
         if (part == Bed.Part.HEAD) {
             return bedBlock.getRelative(facing.getOppositeFace());
         } else {
             return bedBlock.getRelative(facing);
         }
     }
-    
+
     public boolean hasBed(String team) {
         return teamBeds.getOrDefault(team.toLowerCase(), false);
     }
-    
+
     public java.util.Map<String, Boolean> getTeamBeds() {
         return teamBeds;
     }
-    
+
     public void reset() {
         teamBeds.clear();
         initializeBeds();
     }
-    
+
     @EventHandler
     public void onGameStatusChange(GameStatusChange event) {
         if (event.getNewStatus() == GameStatus.WAITING || event.getNewStatus() == GameStatus.RESETTING) {
             reset();
         }
     }
-    
+
     public String getTeamChatColor(String team) {
-        return switch (team.toLowerCase()) {
-            case "red" -> "§c";
-            case "blue" -> "§9";
-            case "green" -> "§a";
-            case "yellow" -> "§e";
-            case "aqua" -> "§b";
-            case "white" -> "§f";
-            case "pink" -> "§d";
-            case "gray" -> "§7";
-            default -> "§7";
-        };
+        return GameManager.getInstance().getChatManager().getTeamChatColor(team);
     }
-    
+
     public String getTeamDisplayName(String team) {
-        if (chattingConfig != null) {
-            String configPath = "chat.team_names." + team.toLowerCase();
-            if (chattingConfig.contains(configPath)) {
-                return chattingConfig.getString(configPath);
-            }
-        }
-        
-        return switch (team.toLowerCase()) {
-            case "red" -> "红队";
-            case "blue" -> "蓝队";
-            case "green" -> "绿队";
-            case "yellow" -> "黄队";
-            case "aqua" -> "青队";
-            case "white" -> "白队";
-            case "pink" -> "粉队";
-            case "gray" -> "灰队";
-            default -> team;
-        };
+        return GameManager.getInstance().getChatManager().getTeamName(team);
     }
 } 
