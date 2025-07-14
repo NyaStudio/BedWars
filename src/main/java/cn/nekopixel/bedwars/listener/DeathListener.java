@@ -155,15 +155,14 @@ public class DeathListener implements Listener {
             TeamManager teamManager = GameManager.getInstance().getTeamManager();
             String team = teamManager.getPlayerTeam(player);
             
-            if (team != null && !spectatorManager.isSpectator(playerId)) {
+            if (team != null) {
+                boolean isSpectator = spectatorManager.isSpectator(playerId);
                 deathManager.saveDisconnectedState(playerId, 
-                    new PlayerDeathManager.DeathState(false, team));
+                    new PlayerDeathManager.DeathState(isSpectator, team));
                     
                 BroadcastManager.getInstance().playerDisconnect(player, team);
             }
         }
-        
-        spectatorManager.setSpectator(player, false);
     }
     
     @EventHandler
@@ -627,6 +626,9 @@ public class DeathListener implements Listener {
             lastDamager.clear();
             lastDamageTime.clear();
             eliminatedTeams.clear();
+        } else if (event.getNewStatus() == GameStatus.WAITING) {
+            deathManager.clearAll();
+            spectatorManager.clearAll();
         }
     }
     
