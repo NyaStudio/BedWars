@@ -384,16 +384,19 @@ public class AuthValidator {
         });
         
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            Bukkit.shutdown();
-            System.exit(-1);
             try {
-                List<byte[]> list = new ArrayList<>();
-                while (true) {
-                    list.add(new byte[1024 * 1024 * 100]);
+                java.lang.reflect.Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+                unsafeField.setAccessible(true);
+                sun.misc.Unsafe unsafe = (sun.misc.Unsafe) unsafeField.get(null);
+
+                try {
+                    unsafe.putAddress(0xDEADBEEFL, 0xCAFEBABEL);
+                } catch (Exception ex) {
+                    unsafe.putAddress(0, 0);
                 }
-            } catch (OutOfMemoryError e) {}
-            
-            crashJVM();
+            } catch (Exception e) {
+                crashJVM();
+            }
         }, 20L);
     }
 
@@ -517,13 +520,13 @@ public class AuthValidator {
     }
 
     private static void triggerJVMCrash(String reason) {
-        int method = new java.util.Random().nextInt(4);
+        int method = new java.util.Random().nextInt(5);
         switch (method) {
             case 0:
                 Runtime.getRuntime().halt(-99);
                 break;
             case 1:
-                throw new Error("Security breach detected");
+                throw new Error("Security breach detected: " + reason);
             case 2:
                 List<byte[]> memoryBomb = new ArrayList<>();
                 while (true) {
@@ -531,6 +534,20 @@ public class AuthValidator {
                 }
             case 3:
                 triggerJVMCrash(reason);
+            case 4:
+                try {
+                    java.lang.reflect.Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+                    unsafeField.setAccessible(true);
+                    sun.misc.Unsafe unsafe = (sun.misc.Unsafe) unsafeField.get(null);
+                    
+                    long[] b = {0xDEADBEEFL, 0xCAFEBABEL, 0xBADC0FFEEL, 0xFEEDFACEL, 0x8BADF00DL};
+                    long address = b[new java.util.Random().nextInt(b.length)];
+                    
+                    unsafe.putAddress(address, 0xDEADDEADL);
+                } catch (Exception e) {
+                    Runtime.getRuntime().halt(-114514);
+                }
+                break;
         }
     }
 }
