@@ -13,8 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -25,6 +23,7 @@ public class EventManager {
     private final Main plugin;
     private final Diamond diamondSpawner;
     private final Emerald emeraldSpawner;
+    private final DragonManager dragonManager;
     private BukkitRunnable timerTask;
     private int gameTimeSeconds = 0;
     
@@ -47,6 +46,7 @@ public class EventManager {
         this.plugin = plugin;
         this.diamondSpawner = diamondSpawner;
         this.emeraldSpawner = emeraldSpawner;
+        this.dragonManager = new DragonManager(plugin);
         loadChattingConfig();
     }
     
@@ -290,97 +290,12 @@ public class EventManager {
     }
     
     private void executeSuddenDeath() {
-        TeamManager teamManager = GameManager.getInstance().getTeamManager();
         RespawnManager respawnManager = new RespawnManager(plugin, GameManager.getInstance().getPlayerDeathManager());
         Location respawnLoc = respawnManager.getRespawningLocation();
         
-        if (respawnLoc == null) {
-            plugin.getLogger().warning("未找到 respawning 位置，无法生成末影龙");
-            return;
-        }
-        
-        Location dragonLoc = respawnLoc.clone().add(0, -25, 0);
-        
-        Set<String> teams = teamManager.getConfigTeams();
-        for (String team : teams) {
-            List<Player> alivePlayers = teamManager.getAlivePlayersInTeam(team);
-            
-            if (!alivePlayers.isEmpty()) {
-                EnderDragon dragon = (EnderDragon) dragonLoc.getWorld().spawnEntity(dragonLoc, EntityType.ENDER_DRAGON);
-                
-                String tablistTeamName = getTablistTeamName(team);
-                dragon.setCustomName(getTeamChatColor(team) + tablistTeamName + "队末影龙");
-                dragon.setCustomNameVisible(true);
-                dragon.setPhase(EnderDragon.Phase.CIRCLING);
-                
-                setupDragonAI(dragon, team);
-            }
-        }
+        dragonManager.spawnDragons(respawnLoc);
     }
-    
-    private void setupDragonAI(EnderDragon dragon, String ownerTeam) {
-        TeamManager teamManager = GameManager.getInstance().getTeamManager();
-        
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (dragon.isDead() || !dragon.isValid()) {
-                    this.cancel();
-                    return;
-                }
-                
-                Player nearestEnemy = null;
-                double nearestDistance = Double.MAX_VALUE;
-                
-                for (Player player : dragon.getWorld().getPlayers()) {
-                    if (!player.isOnline() || player.isDead()) continue;
-                    
-                    String playerTeam = teamManager.getPlayerTeam(player);
-                    if (playerTeam == null || playerTeam.equalsIgnoreCase(ownerTeam)) continue;
-                    
-                    if (GameManager.getInstance().getSpectatorManager().isSpectator(player)) continue;
-                    
-                    double distance = dragon.getLocation().distance(player.getLocation());
-                    if (distance < nearestDistance && distance < 160) {
-                        nearestDistance = distance;
-                        nearestEnemy = player;
-                    }
-                }
-                
-                if (nearestEnemy != null) {
-                    Location dragonLoc = dragon.getLocation();
-                    Location playerLoc = nearestEnemy.getLocation();
-                    
-                    double deltaX = playerLoc.getX() - dragonLoc.getX();
-                    double deltaZ = playerLoc.getZ() - dragonLoc.getZ();
-                    float yaw = (float) (Math.atan2(deltaZ, deltaX) * 180.0D / Math.PI) - 90.0F;
-                    
-                    dragonLoc.setYaw(yaw);
-                    dragon.teleport(dragonLoc);
-                    
-                    if (nearestDistance < 50) {
-                        if (dragon.getPhase() != EnderDragon.Phase.STRAFING &&
-                            dragon.getPhase() != EnderDragon.Phase.BREATH_ATTACK) {
-                            dragon.setPhase(EnderDragon.Phase.STRAFING);
-                        }
-                        
-                        if (Math.random() < 0.1) {
-                            Location fireballLoc = dragonLoc.clone().add(dragonLoc.getDirection().multiply(5));
-                            dragon.getWorld().spawn(fireballLoc, org.bukkit.entity.DragonFireball.class, fireball -> {
-                                fireball.setDirection(playerLoc.toVector().subtract(fireballLoc.toVector()).normalize());
-                                fireball.setShooter(dragon);
-                            });
-                        }
-                    } else {
-                        dragon.setPhase(EnderDragon.Phase.CIRCLING);
-                    }
-                } else {
-                    dragon.setPhase(EnderDragon.Phase.CIRCLING);
-                }
-            }
-        }.runTaskTimer(plugin, 0L, 10L);
-    }
-    
+
     private void executeGameEnd() {
         BroadcastManager.getInstance().gameDraw();
         
@@ -391,39 +306,8 @@ public class EventManager {
         GameManager.getInstance().setStatus(GameStatus.ENDING);
     }
     
-    private String getTeamChatColor(String team) {
-        return switch (team.toLowerCase()) {
-            case "red" -> "§c";
-            case "blue" -> "§9";
-            case "green" -> "§a";
-            case "yellow" -> "§e";
-            case "aqua" -> "§b";
-            case "white" -> "§f";
-            case "pink" -> "§d";
-            case "gray" -> "§7";
-            default -> "§7";
-        };
-    }
-    
-    private String getTablistTeamName(String team) {
-        if (chattingConfig != null) {
-            String configPath = "tablist.team_names." + team.toLowerCase();
-            if (chattingConfig.contains(configPath)) {
-                return chattingConfig.getString(configPath);
-            }
-        }
-        
-        return switch (team.toLowerCase()) {
-            case "red" -> "红";
-            case "blue" -> "蓝";
-            case "green" -> "绿";
-            case "yellow" -> "黄";
-            case "aqua" -> "青";
-            case "white" -> "白";
-            case "pink" -> "粉";
-            case "gray" -> "灰";
-            default -> team;
-        };
+    public DragonManager getDragonManager() {
+        return dragonManager;
     }
 
     public static class NextEvent {
