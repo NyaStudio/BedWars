@@ -61,7 +61,7 @@ public class BroadcastManager {
         BedManager bedManager = GameManager.getInstance().getBedManager();
         String teamColor = bedManager.getTeamChatColor(team);
         String playerName = teamColor + player.getName();
-        Bukkit.broadcastMessage(playerName + " §f重新连接");
+        Bukkit.broadcastMessage(playerName + " §7重新连接");
     }
 
     public void playerJoinInGame(Player player, String team) {
@@ -75,7 +75,7 @@ public class BroadcastManager {
         BedManager bedManager = GameManager.getInstance().getBedManager();
         String teamColor = bedManager.getTeamChatColor(team);
         String playerName = teamColor + player.getName();
-        Bukkit.broadcastMessage(playerName + " §f断开连接");
+        Bukkit.broadcastMessage(playerName + " §7断开连接");
     }
     
     public void playerFellIntoVoid(Player player, String team) {
@@ -98,7 +98,7 @@ public class BroadcastManager {
         if (messages.isEmpty()) {
             String defaultMessage = victimName + " §7被 " + killerName + " §7丢下虚空。";
             if (isFinalKill) {
-                defaultMessage += " §b§l最终击杀！";
+                defaultMessage += "§b§l最终击杀！";
             }
             Bukkit.broadcastMessage(defaultMessage);
             return;
@@ -109,7 +109,7 @@ public class BroadcastManager {
         message = message.replace("{killer}", killerName);
         
         if (isFinalKill) {
-            message += " §b§l最终击杀！";
+            message += "§b§l最终击杀！";
         }
         
         Bukkit.broadcastMessage(message);
@@ -128,7 +128,7 @@ public class BroadcastManager {
         if (messages.isEmpty()) {
             String defaultMessage = victimName + " §7被 " + killerName + " §7击杀！";
             if (isFinalKill) {
-                defaultMessage += " §b§l最终击杀！";
+                defaultMessage += "§b§l最终击杀！";
             }
             Bukkit.broadcastMessage(defaultMessage);
             return;
@@ -139,7 +139,7 @@ public class BroadcastManager {
         message = message.replace("{killer}", killerName);
         
         if (isFinalKill) {
-            message += " §b§l最终击杀！";
+            message += "§b§l最终击杀！";
         }
         
         Bukkit.broadcastMessage(message);
