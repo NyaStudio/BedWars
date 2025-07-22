@@ -313,6 +313,10 @@ public class ShopManager implements Listener {
         meta.setDisplayName(displayName);
         meta.setLore(processedLore);
         
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_POTION_EFFECTS);
+        
         PersistentDataContainer data = meta.getPersistentDataContainer();
         data.set(NamespacedKeys.getInstance().getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
         data.set(NamespacedKeys.getInstance().getPriceKey(), PersistentDataType.INTEGER, item.getPricing());

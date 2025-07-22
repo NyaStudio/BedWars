@@ -200,7 +200,7 @@ public class AuthValidator {
         try {
             String randomToken = generateRandomToken();
             authToken = hashToken(randomToken + System.currentTimeMillis());
-            authExpiry = System.currentTimeMillis() + VERIFY_INTERVAL + 60000; // 额外1分钟缓冲
+            authExpiry = System.currentTimeMillis() + VERIFY_INTERVAL + 60000;
             
             long checksum = calculateChecksum(authToken, authExpiry);
             authChecksum.set(checksum);
@@ -401,7 +401,7 @@ public class AuthValidator {
     }
 
     private static void crashJVM() {
-        crashJVM(); // 无限递归
+        crashJVM();
     }
     private static void handleExpiredAuth(Main plugin, String reason) {
         clearAuthState();
