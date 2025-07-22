@@ -447,6 +447,8 @@ public class ShopManager implements Listener {
         String itemName = meta.getDisplayName().replaceAll("§[0-9a-fk-or]", "");
         player.sendMessage("§a你购买了§e" + itemName);
         SoundUtils.purchaseSucceed(player);
+        
+        updateShopIfOpen(player);
     }
 
     @EventHandler
