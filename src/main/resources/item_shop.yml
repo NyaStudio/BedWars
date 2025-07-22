@@ -35,6 +35,21 @@ items:
       - id: "minecraft:unbreaking"
         lvl: 3
 
+  pop_tower:
+    index: 3
+    type: "nekopixel:pop_tower"
+    name: "紧凑型速建塔"
+    lore:
+      - "§7花费: {price_display}"
+      - ""
+      - "§7建造一个速建塔。"
+      - ""
+      - "{purchase_status}"
+    amount: 1
+    category: blocks
+    pricing_type: "minecraft:iron_ingot"
+    pricing: 24
+
   speed_potion:
     index: 9
     type: "minecraft:potion{Potion:swiftness}"

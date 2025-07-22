@@ -45,6 +45,25 @@ public class PurchaseUtils {
                 }
             }
             
+            if (shopMeta != null) {
+                PersistentDataContainer shopContainer = shopMeta.getPersistentDataContainer();
+                PersistentDataContainer rewardContainer = rewardMeta.getPersistentDataContainer();
+                
+                if (shopContainer.has(NamespacedKeys.getInstance().getPopTowerKey(), PersistentDataType.BYTE)) {
+                    rewardContainer.set(
+                        NamespacedKeys.getInstance().getPopTowerKey(),
+                        PersistentDataType.BYTE,
+                        shopContainer.get(NamespacedKeys.getInstance().getPopTowerKey(), PersistentDataType.BYTE)
+                    );
+                    
+                    rewardContainer.set(
+                        NamespacedKeys.getInstance().getShopTypeKey(),
+                        PersistentDataType.STRING,
+                        "pop_tower"
+                    );
+                }
+            }
+            
             if (shopMeta instanceof PotionMeta && rewardMeta instanceof PotionMeta) {
                 PotionMeta shopPotionMeta = (PotionMeta) shopMeta;
                 PotionMeta rewardPotionMeta = (PotionMeta) rewardMeta;

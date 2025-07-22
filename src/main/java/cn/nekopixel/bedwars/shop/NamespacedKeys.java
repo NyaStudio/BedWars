@@ -18,6 +18,8 @@ public class NamespacedKeys {
     private final NamespacedKey customPotionDuration;
     private final NamespacedKey customPotionType;
     
+    private final NamespacedKey popTowerKey;
+    
     private NamespacedKeys(Plugin plugin) {
         this.shopItemKey = new NamespacedKey(plugin, "shop_item");
         this.priceKey = new NamespacedKey(plugin, "price");
@@ -28,6 +30,7 @@ public class NamespacedKeys {
         this.customPotionLevel = new NamespacedKey(plugin, "custom_potion_level");
         this.customPotionDuration = new NamespacedKey(plugin, "custom_potion_duration");
         this.customPotionType = new NamespacedKey(plugin, "custom_potion_type");
+        this.popTowerKey = new NamespacedKey(plugin, "pop_tower");
     }
     
     public static void initialize(Plugin plugin) {
@@ -77,5 +80,9 @@ public class NamespacedKeys {
     
     public NamespacedKey getCustomPotionType() {
         return customPotionType;
+    }
+    
+    public NamespacedKey getPopTowerKey() {
+        return popTowerKey;
     }
 } 

@@ -200,7 +200,18 @@ public class ShopManager implements Listener {
             return itemStack;
         }
         
-        if (type.startsWith("minecraft:potion{")) {
+        if (type.equals("pop_tower")) {
+            itemStack = new ItemStack(Material.TRAPPED_CHEST);
+        } else if (type.startsWith("nekopixel:")) {
+            String customType = type.substring(10);
+            switch (customType) {
+                case "pop_tower" -> itemStack = new ItemStack(Material.TRAPPED_CHEST);
+                default -> {
+                    plugin.getLogger().warning("未知的自定义物品类型: " + customType);
+                    itemStack = new ItemStack(Material.BARRIER);
+                }
+            }
+        } else if (type.startsWith("minecraft:potion{")) {
             itemStack = new ItemStack(Material.POTION);
         } else if (type.startsWith("minecraft:")) {
             String materialName = type.substring(10).toUpperCase();
@@ -211,7 +222,12 @@ public class ShopManager implements Listener {
                 itemStack = new ItemStack(material);
             }
         } else {
-            itemStack = new ItemStack(material);
+            try {
+                Material materialType = Material.valueOf(type.toUpperCase());
+                itemStack = new ItemStack(materialType);
+            } catch (IllegalArgumentException e) {
+                itemStack = new ItemStack(material);
+            }
         }
 
         itemStack.setAmount(item.getAmount());
@@ -321,7 +337,13 @@ public class ShopManager implements Listener {
         data.set(NamespacedKeys.getInstance().getShopItemKey(), PersistentDataType.BYTE, (byte) 1);
         data.set(NamespacedKeys.getInstance().getPriceKey(), PersistentDataType.INTEGER, item.getPricing());
         data.set(NamespacedKeys.getInstance().getCurrencyKey(), PersistentDataType.STRING, item.getPricingType());
-        data.set(NamespacedKeys.getInstance().getShopTypeKey(), PersistentDataType.STRING, "item");
+        
+        String shopType = "item";
+        if (type.equals("pop_tower") || (type.startsWith("nekopixel:") && type.substring(10).equals("pop_tower"))) {
+            shopType = "pop_tower";
+            data.set(NamespacedKeys.getInstance().getPopTowerKey(), PersistentDataType.BYTE, (byte) 1);
+        }
+        data.set(NamespacedKeys.getInstance().getShopTypeKey(), PersistentDataType.STRING, shopType);
 
         itemStack.setItemMeta(meta);
         return itemStack;

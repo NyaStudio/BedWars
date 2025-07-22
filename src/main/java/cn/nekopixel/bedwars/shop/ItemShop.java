@@ -99,15 +99,32 @@ public class ItemShop {
                 try {
                     if (type.equals("quick_buy:empty_slot")) {
                         material = Material.RED_STAINED_GLASS_PANE;
+                    } else if (type.equals("pop_tower")) {
+                        material = Material.TRAPPED_CHEST;
+                    } else if (type.startsWith("nekopixel:")) {
+                        String customType = type.substring(10);
+                        switch (customType) {
+                            case "pop_tower" -> material = Material.TRAPPED_CHEST;
+                            default -> {
+                                plugin.getLogger().warning("未知的自定义物品类型: " + customType);
+                                material = Material.BARRIER;
+                            }
+                        }
                     } else if (type.startsWith("minecraft:potion{")) {
                         material = Material.POTION;
                     } else if (type.startsWith("minecraft:")) {
                         String materialName = type.substring(10).toUpperCase();
                         material = Material.valueOf(materialName);
                     } else {
-                        material = Material.valueOf(type.toUpperCase());
+                        try {
+                            material = Material.valueOf(type.toUpperCase());
+                        } catch (IllegalArgumentException e) {
+                            plugin.getLogger().warning("未知物品类型: " + type);
+                            material = Material.BARRIER;
+                        }
                     }
                 } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("解析物品类型错误: " + type + ", 跳过");
                     continue;
                 }
 
@@ -214,15 +231,32 @@ public class ItemShop {
                 try {
                     if (type.equals("quick_buy:empty_slot")) {
                         material = Material.RED_STAINED_GLASS_PANE;
+                    } else if (type.equals("pop_tower")) {
+                        material = Material.TRAPPED_CHEST;
+                    } else if (type.startsWith("nekopixel:")) {
+                        String customType = type.substring(10);
+                        switch (customType) {
+                            case "pop_tower" -> material = Material.TRAPPED_CHEST;
+                            default -> {
+                                plugin.getLogger().warning("未知的自定义物品类型: " + customType);
+                                material = Material.BARRIER;
+                            }
+                        }
                     } else if (type.startsWith("minecraft:potion{")) {
                         material = Material.POTION;
                     } else if (type.startsWith("minecraft:")) {
                         String materialName = type.substring(10).toUpperCase();
                         material = Material.valueOf(materialName);
                     } else {
-                        material = Material.valueOf(type.toUpperCase());
+                        try {
+                            material = Material.valueOf(type.toUpperCase());
+                        } catch (IllegalArgumentException e) {
+                            plugin.getLogger().warning("未知物品类型: " + type);
+                            material = Material.BARRIER;
+                        }
                     }
                 } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("解析物品类型错误: " + type + ", 跳过");
                     continue;
                 }
 
