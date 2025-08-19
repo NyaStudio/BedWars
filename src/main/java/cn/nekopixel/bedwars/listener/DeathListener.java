@@ -463,39 +463,39 @@ public class DeathListener implements Listener {
         GameManager.getInstance().setStatus(GameStatus.ENDING);
     }
 
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
-            event.setCancelled(true);
-            Player player = event.getPlayer();
-            player.sendBlockChange(event.getBlock().getLocation(), event.getBlock().getBlockData());
-            return;
-        }
-
-        if (spectatorManager.isSpectator(event.getPlayer())) {
-            event.setCancelled(true);
-            Player player = event.getPlayer();
-            
-            final org.bukkit.block.data.BlockData blockData = event.getBlock().getBlockData();
-            final Location blockLoc = event.getBlock().getLocation();
-            
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                player.sendBlockChange(blockLoc, blockData);
-            }, 1L);
-        }
-    }
+//    @EventHandler
+//    public void onBlockBreak(BlockBreakEvent event) {
+//        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
+//            event.setCancelled(true);
+//            Player player = event.getPlayer();
+//            player.sendBlockChange(event.getBlock().getLocation(), event.getBlock().getBlockData());
+//            return;
+//        }
+//
+//        if (spectatorManager.isSpectator(event.getPlayer())) {
+//            event.setCancelled(true);
+//            Player player = event.getPlayer();
+//
+//            final org.bukkit.block.data.BlockData blockData = event.getBlock().getBlockData();
+//            final Location blockLoc = event.getBlock().getLocation();
+//
+//            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+//                player.sendBlockChange(blockLoc, blockData);
+//            }, 1L);
+//        }
+//    }
     
-    @EventHandler
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
-            event.setCancelled(true);
-            return;
-        }
-        
-        if (spectatorManager.isSpectator(event.getPlayer())) {
-            event.setCancelled(true);
-        }
-    }
+//    @EventHandler
+//    public void onBlockPlace(BlockPlaceEvent event) {
+//        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
+//            event.setCancelled(true);
+//            return;
+//        }
+//
+//        if (spectatorManager.isSpectator(event.getPlayer())) {
+//            event.setCancelled(true);
+//        }
+//    }
     
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {

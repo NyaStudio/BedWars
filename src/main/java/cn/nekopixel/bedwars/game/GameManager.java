@@ -51,6 +51,7 @@ public class GameManager {
         
         Bukkit.getPluginManager().registerEvents(spawnerManager, plugin);
         Bukkit.getPluginManager().registerEvents(new WaitingListener(plugin), plugin);
+        Bukkit.getPluginManager().registerEvents(foodLock, plugin);
         
         // 注册其他事件监听器
         Bukkit.getPluginManager().registerEvents(bedManager, plugin);
@@ -93,6 +94,14 @@ public class GameManager {
             tabListManager.onGameStatusChange();
         }
 
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (status == GameStatus.INGAME) {
+                player.setGameMode(GameMode.SURVIVAL);
+            } else {
+                player.setGameMode(GameMode.ADVENTURE);
+            }
+        }
+
         if (status == GameStatus.INGAME) {
             if (eventManager == null) {
                 Diamond diamondSpawner = spawnerManager.getDiamondSpawner();
@@ -105,10 +114,6 @@ public class GameManager {
             nameTag.startUpdateTask();
 
             PlayerStats.clearAll();
-            
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                player.setGameMode(GameMode.SURVIVAL);
-            }
         } else if (status == GameStatus.ENDING) {
             if (eventManager != null) {
                 eventManager.stop();

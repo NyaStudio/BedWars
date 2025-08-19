@@ -2,7 +2,6 @@ package cn.nekopixel.bedwars.map;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
-import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.GameStatusChange;
 import org.bukkit.Location;
@@ -100,13 +99,13 @@ public class MapManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent event) {
-        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
-            event.setCancelled(true);
-            Block block = event.getBlock();
-            Player player = event.getPlayer();
-            player.sendBlockChange(block.getLocation(), block.getBlockData());
-            return;
-        }
+//        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
+//            event.setCancelled(true);
+//            Block block = event.getBlock();
+//            Player player = event.getPlayer();
+//            player.sendBlockChange(block.getLocation(), block.getBlockData());
+//            return;
+//        }
         
         if (!enabled) return;
         
@@ -129,11 +128,11 @@ public class MapManager implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
-            event.setCancelled(true);
-            event.getPlayer().sendMessage("§c游戏已结束，无法放置方块！");
-            return;
-        }
+//        if (GameManager.getInstance().isStatus(GameStatus.ENDING)) {
+//            event.setCancelled(true);
+//            event.getPlayer().sendMessage("§c游戏已结束，无法放置方块！");
+//            return;
+//        }
         
         if (!enabled) return;
         

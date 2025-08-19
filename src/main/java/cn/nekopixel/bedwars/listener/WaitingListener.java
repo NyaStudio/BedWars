@@ -15,8 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -36,7 +35,7 @@ public class WaitingListener implements Listener {
         
         if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
             Player player = event.getPlayer();
-            player.setGameMode(GameMode.SURVIVAL);
+            player.setGameMode(GameMode.ADVENTURE);
             player.setHealth(20.0);
             player.setFoodLevel(20);
             player.setLevel(0);
@@ -126,21 +125,21 @@ public class WaitingListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
-            event.setCancelled(true);
-            Player player = event.getPlayer();
-            player.sendBlockChange(event.getBlock().getLocation(), event.getBlock().getBlockData());
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
-            event.setCancelled(true);
-        }
-    }
+//    @EventHandler(priority = EventPriority.HIGHEST)
+//    public void onBlockBreak(BlockBreakEvent event) {
+//        if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
+//            event.setCancelled(true);
+//            Player player = event.getPlayer();
+//            player.sendBlockChange(event.getBlock().getLocation(), event.getBlock().getBlockData());
+//        }
+//    }
+//
+//    @EventHandler(priority = EventPriority.HIGHEST)
+//    public void onBlockPlace(BlockPlaceEvent event) {
+//        if (GameManager.getInstance().isStatus(GameStatus.WAITING)) {
+//            event.setCancelled(true);
+//        }
+//    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
