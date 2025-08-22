@@ -8,6 +8,7 @@ import cn.nekopixel.bedwars.player.FoodLock;
 import cn.nekopixel.bedwars.player.RemoveItems;
 import cn.nekopixel.bedwars.player.PlayerStats;
 import cn.nekopixel.bedwars.player.Connection;
+import cn.nekopixel.bedwars.player.AttackSpeed;
 import cn.nekopixel.bedwars.spawner.Diamond;
 import cn.nekopixel.bedwars.spawner.Emerald;
 import cn.nekopixel.bedwars.spawner.SpawnerManager;
@@ -35,6 +36,7 @@ public class GameManager {
     private final BedManager bedManager;
     private final PlayerDeathManager playerDeathManager;
     private final SpectatorManager spectatorManager;
+    private final AttackSpeed attackSpeed;
 
     private GameManager(Main plugin) {
         this.plugin = plugin;
@@ -49,11 +51,13 @@ public class GameManager {
         this.bedManager = new BedManager(plugin);
         this.playerDeathManager = new PlayerDeathManager(plugin);
         this.spectatorManager = new SpectatorManager(plugin);
+        this.attackSpeed = new AttackSpeed(plugin);
         
         Bukkit.getPluginManager().registerEvents(spawnerManager, plugin);
         Bukkit.getPluginManager().registerEvents(new WaitingListener(plugin), plugin);
         Bukkit.getPluginManager().registerEvents(foodLock, plugin);
         Bukkit.getPluginManager().registerEvents(bedManager, plugin);
+        Bukkit.getPluginManager().registerEvents(attackSpeed, plugin);
     }
 
     public static GameManager getInstance() {

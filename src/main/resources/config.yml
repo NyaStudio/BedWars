@@ -24,6 +24,8 @@ game:
   respawn_invulnerable_time: 3
   # 是否允许友伤
   friendly_fire: false
+  # 是否移除攻击间隔（1.9+）
+  remove_attack_cooldown: true
 
 # 资源生成器设置
 spawner:
