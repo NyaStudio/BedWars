@@ -4,6 +4,7 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.packet.RespawnPacketHandler;
 import cn.nekopixel.bedwars.tab.TabListManager;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -39,6 +40,7 @@ public class PlayerDeathManager {
     
     public void setRespawning(Player player, boolean respawning) {
         if (respawning) {
+            player.setGameMode(GameMode.ADVENTURE);
             respawningPlayers.add(player.getUniqueId());
             player.setAllowFlight(true);
             player.setFlying(true);
@@ -49,6 +51,7 @@ public class PlayerDeathManager {
                 tabListManager.setTemporarySpectator(player, true);
             }
         } else {
+            player.setGameMode(GameMode.SURVIVAL);
             respawningPlayers.remove(player.getUniqueId());
             player.setFlying(false);
             player.setAllowFlight(false);

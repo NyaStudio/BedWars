@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.game;
 
 import cn.nekopixel.bedwars.Main;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -17,9 +18,11 @@ public class SpectatorManager {
     
     public void setSpectator(Player player, boolean spectator) {
         if (spectator) {
+            player.setGameMode(GameMode.ADVENTURE);
             spectatorPlayers.add(player.getUniqueId());
         } else {
             spectatorPlayers.remove(player.getUniqueId());
+            player.setGameMode(GameMode.SURVIVAL);
         }
     }
     
