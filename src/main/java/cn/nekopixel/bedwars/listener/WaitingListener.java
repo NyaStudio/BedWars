@@ -8,6 +8,7 @@ import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.tab.TabListManager;
+import cn.nekopixel.bedwars.player.Connection;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -19,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -27,6 +29,11 @@ public class WaitingListener implements Listener {
 
     public WaitingListener(Main plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerLogin(PlayerLoginEvent event) {
+        Connection.getInstance().canPlayerJoin(event);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -63,7 +70,7 @@ public class WaitingListener implements Listener {
         event.setQuitMessage(null);
         
         Player player = event.getPlayer();
-        
+
         TabListManager tabListManager = Plugin.getInstance().getTabListManager();
         if (tabListManager != null) {
             tabListManager.cleanupPlayer(player);
@@ -106,14 +113,7 @@ public class WaitingListener implements Listener {
     
     private int getMaxPlayers() {
         String mode = plugin.getConfig().getString("game.mode", "4s").toLowerCase();
-        return switch (mode) {
-            case "solo" -> 8;
-            case "double" -> 16;
-            case "3s" -> 12;
-            case "4s" -> 16;
-            case "4v4" -> 8;
-            default -> 16;
-        };
+        return plugin.getConfig().getInt("game.max_players." + mode, 16);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -7,6 +7,7 @@ import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.player.FoodLock;
 import cn.nekopixel.bedwars.player.RemoveItems;
 import cn.nekopixel.bedwars.player.PlayerStats;
+import cn.nekopixel.bedwars.player.Connection;
 import cn.nekopixel.bedwars.spawner.Diamond;
 import cn.nekopixel.bedwars.spawner.Emerald;
 import cn.nekopixel.bedwars.spawner.SpawnerManager;
@@ -52,8 +53,6 @@ public class GameManager {
         Bukkit.getPluginManager().registerEvents(spawnerManager, plugin);
         Bukkit.getPluginManager().registerEvents(new WaitingListener(plugin), plugin);
         Bukkit.getPluginManager().registerEvents(foodLock, plugin);
-        
-        // 注册其他事件监听器
         Bukkit.getPluginManager().registerEvents(bedManager, plugin);
     }
 
@@ -68,6 +67,7 @@ public class GameManager {
         if (instance != null) {
             throw new IllegalStateException("GameManager 初始化过了");
         }
+        Connection.initialize(plugin);
         instance = new GameManager(plugin);
     }
 
@@ -103,6 +103,8 @@ public class GameManager {
         }
 
         if (status == GameStatus.INGAME) {
+            Connection.getInstance().recordGamePlayers();
+            
             if (eventManager == null) {
                 Diamond diamondSpawner = spawnerManager.getDiamondSpawner();
                 Emerald emeraldSpawner = spawnerManager.getEmeraldSpawner();
@@ -140,6 +142,8 @@ public class GameManager {
             }.runTaskTimer(plugin, 0L, 20L);
 
         } else if (status == GameStatus.RESETTING) {
+            Connection.getInstance().clearAuthorizedPlayers();
+            
             playerDeathManager.clearAll();
             spectatorManager.clearAll();
             PlayerStats.clearAll();

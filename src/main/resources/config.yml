@@ -7,6 +7,13 @@ game:
   mode: 4s
   # 游戏开始前等待时间（秒）
   waiting_time: 60
+  # 最大玩家数量
+  max_players:
+    solo: 8
+    double: 16
+    3s: 12
+    4s: 16
+    4v4: 8
   # 游戏开始倒计时（秒）
   countdown_time: 10
   # 游戏结束倒计时（秒）
