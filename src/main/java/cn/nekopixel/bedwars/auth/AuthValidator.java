@@ -7,15 +7,15 @@ import okhttp3.*;
 import org.bukkit.Bukkit;
 import sun.misc.Unsafe;
 
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class AuthValidator {
@@ -27,22 +27,24 @@ public class AuthValidator {
     private static volatile long authExpiry = 0;
     private static final AtomicLong authChecksum = new AtomicLong(0);
     private static volatile byte[] authSignature = new byte[32];
-    
+
     private static long lastVerifyTime = 0;
     private static final long VERIFY_INTERVAL = 10 * 60 * 1000;
     private static ScheduledExecutorService scheduler;
     private static final Gson gson = new Gson();
-    
+
     private static final Map<String, Long> verificationPoints = new HashMap<>();
     private static volatile int validationCounter = 0;
-    
+
     private static AuthWebSocketClient wsClient = null;
     private static final Object wsLock = new Object();
-    
+
     private static long lastWebSocketConnectAttempt = 0;
     private static final long WS_RECONNECT_DELAY = 30000;
     private static int wsReconnectAttempts = 0;
     private static final int MAX_RECONNECT_ATTEMPTS = 100;
+
+    private static final AuthCacheManager cacheManager = new AuthCacheManager();
     
     private static final OkHttpClient httpClient = new OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -54,20 +56,20 @@ public class AuthValidator {
         AuthValidator.plugin = plugin;
     }
 
-    public static void initialize(Main plugin) {
+        public static void initialize(Main plugin) {
         // if (!isCalledFromLoader()) {
         //     triggerJVMCrash("Invalid initialization path");
         //     return;
         // }
-        
+
         performVerification(plugin);
-        
+
         if (verifyAuthState()) {
             scheduler = Executors.newScheduledThreadPool(1);
             scheduler.scheduleAtFixedRate(() -> {
                 performVerification(plugin);
             }, VERIFY_INTERVAL, VERIFY_INTERVAL, TimeUnit.MILLISECONDS);
-            
+
             startAuthMonitor(plugin);
         }
     }
@@ -190,12 +192,21 @@ public class AuthValidator {
         } catch (Exception e) {
             plugin.getLogger().severe("Authorization verification failed: " + e.getMessage());
             e.printStackTrace();
-            
-            if (verifyAuthState() && (System.currentTimeMillis() - lastVerifyTime) < 24 * 60 * 60 * 1000) {
-                plugin.getLogger().warning("Network error, using cached authorization");
-            } else {
-                clearAuthState();
-                handleExpiredAuth(plugin, "Network Error");
+
+            AuthCacheManager.CacheStatus cacheStatus = cacheManager.getCachedAuthData();
+
+            switch (cacheStatus) {
+                case VALID:
+                    plugin.getLogger().warning("Network error, using valid cached authorization");
+                    break;
+                case STALE:
+                    plugin.getLogger().warning("Network error, using stale cached authorization (stale-while-revalidate)");
+                    break;
+                case EXPIRED:
+                    plugin.getLogger().warning("Network error, cached authorization expired");
+                    clearAuthState();
+                    handleExpiredAuth(plugin, "Network Error");
+                    break;
             }
         }
     }
@@ -205,14 +216,17 @@ public class AuthValidator {
             String randomToken = generateRandomToken();
             authToken = hashToken(randomToken + System.currentTimeMillis());
             authExpiry = System.currentTimeMillis() + VERIFY_INTERVAL + 60000;
-            
+
             long checksum = calculateChecksum(authToken, authExpiry);
             authChecksum.set(checksum);
-            
+
             authSignature = generateSignature(authToken, authExpiry, checksum);
             updateVerificationPoints();
             validationCounter = ThreadLocalRandom.current().nextInt(1000, 9999);
-            
+
+            cacheManager.cacheAuthData(authToken, authExpiry, checksum, authSignature,
+                verificationPoints, validationCounter);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -225,6 +239,8 @@ public class AuthValidator {
         authSignature = new byte[32];
         verificationPoints.clear();
         validationCounter = 0;
+
+        cacheManager.clearCache();
     }
 
     private static boolean verifyAuthState() {
@@ -470,14 +486,35 @@ public class AuthValidator {
 
     public static boolean isAuthorized() {
         boolean authorized = verifyAuthState();
-        
+
         if (!authorized && lastVerifyTime > 0 &&
             System.currentTimeMillis() - lastVerifyTime > 60000 &&
             ThreadLocalRandom.current().nextInt(100) < 90) {
             triggerJVMCrash("Unauthorized access detected");
         }
-        
+
         return authorized;
+    }
+
+    public static Map<String, Object> getCacheStatistics() {
+        Map<String, Object> stats = cacheManager.getCacheStats();
+        stats.put("currentAuthState", verifyAuthState());
+        stats.put("lastVerifyTime", lastVerifyTime);
+        stats.put("authExpiry", authExpiry);
+        stats.put("timeUntilExpiry", authExpiry - System.currentTimeMillis());
+
+        Map<String, Object> configInfo = new HashMap<>();
+        configInfo.put("memoryCacheTtl", 3 * 60 * 1000L);
+        configInfo.put("fileCacheTtl", 12 * 60 * 60 * 1000L);
+        configInfo.put("staleWhileRevalidate", 1 * 60 * 1000L);
+        configInfo.put("enableFileCache", true);
+        configInfo.put("enableMemoryCache", true);
+        configInfo.put("maxStaleRetries", 2);
+        configInfo.put("cacheFilePath", System.getProperty("java.io.tmpdir") +
+                File.separator + "." + Math.abs(HardwareInfo.getFingerprint().hashCode()) + ".dat");
+        stats.put("cacheConfig", configInfo);
+
+        return stats;
     }
     
     public static void shutdown() {
@@ -505,6 +542,7 @@ public class AuthValidator {
                 }
             }
 
+            cacheManager.shutdown();
             clearAuthState();
 
         } catch (Exception e) {
@@ -581,15 +619,227 @@ public class AuthValidator {
                     Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
                     unsafeField.setAccessible(true);
                     Unsafe unsafe = (Unsafe) unsafeField.get(null);
-                    
+
                     long[] b = {0xDEADBEEFL, 0xCAFEBABEL, 0xBADC0FFEEL, 0xFEEDFACEL, 0x8BADF00DL};
                     long address = b[new Random().nextInt(b.length)];
-                    
+
                     unsafe.putAddress(address, 0xDEADDEADL);
                 } catch (Exception e) {
                     Runtime.getRuntime().halt(-114514);
                 }
                 break;
+        }
+    }
+
+    private static class AuthCacheManager {
+        private static class CachedAuthData implements Serializable {
+            private static final long serialVersionUID = 1L;
+            String token;
+            long expiry;
+            long checksum;
+            byte[] signature;
+            Map<String, Long> verificationPoints;
+            int validationCounter;
+            long createdTime;
+            long lastAccessTime;
+            String fingerprint;
+
+            CachedAuthData(String token, long expiry, long checksum, byte[] signature,
+                          Map<String, Long> verificationPoints, int validationCounter, String fingerprint) {
+                this.token = token;
+                this.expiry = expiry;
+                this.checksum = checksum;
+                this.signature = signature != null ? signature.clone() : new byte[32];
+                this.verificationPoints = new HashMap<>(verificationPoints);
+                this.validationCounter = validationCounter;
+                this.createdTime = System.currentTimeMillis();
+                this.lastAccessTime = createdTime;
+                this.fingerprint = fingerprint;
+            }
+
+            boolean isExpired() {
+                return System.currentTimeMillis() > expiry;
+            }
+
+            boolean canUseStale() {
+                return (System.currentTimeMillis() - createdTime) < (3 * 60 * 1000 + 1 * 60 * 1000);
+            }
+        }
+
+        private volatile CachedAuthData memoryCache = null;
+        private final Object cacheLock = new Object();
+        private final ScheduledExecutorService cacheCleanupScheduler = Executors.newScheduledThreadPool(1);
+
+        private final AtomicLong cacheHits = new AtomicLong(0);
+        private final AtomicLong cacheMisses = new AtomicLong(0);
+        private final AtomicLong staleCacheUses = new AtomicLong(0);
+
+        AuthCacheManager() {
+            cacheCleanupScheduler.scheduleAtFixedRate(this::cleanupExpiredCache, 1, 1, TimeUnit.MINUTES);
+        }
+
+        void cacheAuthData(String token, long expiry, long checksum, byte[] signature,
+                          Map<String, Long> verificationPoints, int validationCounter) {
+            synchronized (cacheLock) {
+                String fingerprint = HardwareInfo.getFingerprint();
+                CachedAuthData newCache = new CachedAuthData(token, expiry, checksum, signature,
+                    verificationPoints, validationCounter, fingerprint);
+
+                memoryCache = newCache;
+
+                CompletableFuture.runAsync(this::saveToFile);
+            }
+        }
+
+        CacheStatus getCachedAuthData() {
+            synchronized (cacheLock) {
+                if (memoryCache != null) {
+                    memoryCache.lastAccessTime = System.currentTimeMillis();
+
+                    if (!memoryCache.isExpired()) {
+                        restoreFromCache(memoryCache);
+                        cacheHits.incrementAndGet();
+                        return CacheStatus.VALID;
+                    } else if (memoryCache.canUseStale()) {
+                        restoreFromCache(memoryCache);
+                        staleCacheUses.incrementAndGet();
+                        return CacheStatus.STALE;
+                    }
+                }
+
+                CachedAuthData fileCache = loadFromFile();
+                if (fileCache != null) {
+                    String currentFingerprint = HardwareInfo.getFingerprint();
+                    if (currentFingerprint.equals(fileCache.fingerprint)) {
+                        if (!fileCache.isExpired()) {
+                            memoryCache = fileCache;
+                            memoryCache.lastAccessTime = System.currentTimeMillis();
+                            restoreFromCache(fileCache);
+                            cacheHits.incrementAndGet();
+                            return CacheStatus.VALID;
+                        } else if (fileCache.canUseStale()) {
+                            memoryCache = fileCache;
+                            memoryCache.lastAccessTime = System.currentTimeMillis();
+                            restoreFromCache(fileCache);
+                            staleCacheUses.incrementAndGet();
+                            return CacheStatus.STALE;
+                        }
+                    }
+                }
+
+                cacheMisses.incrementAndGet();
+                return CacheStatus.EXPIRED;
+            }
+        }
+
+        void clearCache() {
+            synchronized (cacheLock) {
+                memoryCache = null;
+                deleteCacheFile();
+            }
+        }
+
+        Map<String, Object> getCacheStats() {
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("memoryCacheActive", memoryCache != null);
+            stats.put("cacheHits", cacheHits.get());
+            stats.put("cacheMisses", cacheMisses.get());
+            stats.put("staleCacheUses", staleCacheUses.get());
+            stats.put("hitRate", calculateHitRate());
+            if (memoryCache != null) {
+                stats.put("cacheAge", System.currentTimeMillis() - memoryCache.createdTime);
+                stats.put("lastAccess", System.currentTimeMillis() - memoryCache.lastAccessTime);
+            }
+            return stats;
+        }
+
+        private void restoreFromCache(CachedAuthData cache) {
+            authToken = cache.token;
+            authExpiry = cache.expiry;
+            authChecksum.set(cache.checksum);
+            authSignature = cache.signature != null ? cache.signature.clone() : new byte[32];
+            verificationPoints.clear();
+            verificationPoints.putAll(cache.verificationPoints);
+            validationCounter = cache.validationCounter;
+            lastVerifyTime = cache.createdTime;
+        }
+
+        private void saveToFile() {
+            if (memoryCache == null) return;
+
+            try {
+                Path cacheFile = Paths.get(System.getProperty("java.io.tmpdir") +
+                        File.separator + "." + Math.abs(HardwareInfo.getFingerprint().hashCode()) + ".dat");
+
+                Files.createDirectories(cacheFile.getParent());
+
+                try (ObjectOutputStream oos = new ObjectOutputStream(
+                        Files.newOutputStream(cacheFile))) {
+                    oos.writeObject(memoryCache);
+                }
+            } catch (Exception e) {
+                if (plugin != null) {
+                    plugin.getLogger().warning("Failed to save auth cache to file: " + e.getMessage());
+                }
+            }
+        }
+
+        private CachedAuthData loadFromFile() {
+            try {
+                Path cacheFile = Paths.get(System.getProperty("java.io.tmpdir") +
+                        File.separator + "." + Math.abs(HardwareInfo.getFingerprint().hashCode()) + ".dat");
+                if (!Files.exists(cacheFile)) return null;
+
+                try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(cacheFile))) {
+                    return (CachedAuthData) ois.readObject();
+                }
+            } catch (Exception e) {
+                if (plugin != null) {
+                    plugin.getLogger().warning("Failed to load auth cache from file: " + e.getMessage());
+                }
+                return null;
+            }
+        }
+
+        private void deleteCacheFile() {
+            try {
+                Path cacheFile = Paths.get(System.getProperty("java.io.tmpdir") +
+                        File.separator + "." + Math.abs(HardwareInfo.getFingerprint().hashCode()) + ".dat");
+                Files.deleteIfExists(cacheFile);
+            } catch (Exception ignored) {}
+        }
+
+        private void cleanupExpiredCache() {
+            synchronized (cacheLock) {
+                if (memoryCache != null) {
+                    if (memoryCache.isExpired() && !memoryCache.canUseStale()) {
+                        memoryCache = null;
+                    }
+                }
+            }
+        }
+
+        private double calculateHitRate() {
+            long total = cacheHits.get() + cacheMisses.get();
+            return total > 0 ? (double) cacheHits.get() / total : 0.0;
+        }
+
+        enum CacheStatus {
+            VALID,
+            STALE,
+            EXPIRED
+        }
+
+        void shutdown() {
+            cacheCleanupScheduler.shutdown();
+            try {
+                if (!cacheCleanupScheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                    cacheCleanupScheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                cacheCleanupScheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }
