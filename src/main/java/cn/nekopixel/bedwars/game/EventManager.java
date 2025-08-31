@@ -3,19 +3,20 @@ package cn.nekopixel.bedwars.game;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.broadcast.BroadcastManager;
+import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.spawner.Diamond;
 import cn.nekopixel.bedwars.spawner.Emerald;
+import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.utils.INGameTitle;
 import cn.nekopixel.bedwars.utils.SoundUtils;
-import cn.nekopixel.bedwars.team.TeamManager;
-import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import java.util.*;
+
+import java.util.Set;
 
 public class EventManager {
     private final Main plugin;

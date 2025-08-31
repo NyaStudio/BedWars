@@ -1,6 +1,8 @@
 package cn.nekopixel.bedwars.listener;
 
 import cn.nekopixel.bedwars.shop.NamespacedKeys;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,8 +13,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.Material;
-import org.bukkit.Bukkit;
 
 public class PotionDrinkListener implements Listener {
 

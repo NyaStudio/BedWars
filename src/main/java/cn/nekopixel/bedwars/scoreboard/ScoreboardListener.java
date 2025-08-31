@@ -1,14 +1,12 @@
 package cn.nekopixel.bedwars.scoreboard;
 
 import cn.nekopixel.bedwars.Main;
-import cn.nekopixel.bedwars.api.Plugin;
-import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.GameStatusChange;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.entity.Player;
 
 public class ScoreboardListener implements Listener {
     private final Main plugin;

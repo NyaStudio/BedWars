@@ -1,9 +1,9 @@
 package cn.nekopixel.bedwars.commands;
 
-import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.Loader;
-import org.bukkit.command.Command;
+import cn.nekopixel.bedwars.Main;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 

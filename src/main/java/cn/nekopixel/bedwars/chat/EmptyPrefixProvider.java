@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.chat;
 
 import org.bukkit.entity.Player;
+
 import java.util.UUID;
 
 public class EmptyPrefixProvider implements PrefixProvider {

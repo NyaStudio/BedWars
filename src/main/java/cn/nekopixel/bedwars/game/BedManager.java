@@ -4,9 +4,9 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.listener.DeathListener;
+import cn.nekopixel.bedwars.player.PlayerStats;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.team.TeamManager;
-import cn.nekopixel.bedwars.player.PlayerStats;
 import cn.nekopixel.bedwars.utils.INGameTitle;
 import cn.nekopixel.bedwars.utils.SoundUtils;
 import org.bukkit.Bukkit;
@@ -21,7 +21,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class BedManager implements Listener {

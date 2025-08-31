@@ -1,11 +1,7 @@
 package cn.nekopixel.bedwars.player;
 
 import cn.nekopixel.bedwars.Main;
-import cn.nekopixel.bedwars.game.GameManager;
-import cn.nekopixel.bedwars.game.GameStatus;
-import cn.nekopixel.bedwars.game.GameStatusChange;
-import cn.nekopixel.bedwars.game.PlayerDeathManager;
-import cn.nekopixel.bedwars.game.SpectatorManager;
+import cn.nekopixel.bedwars.game.*;
 import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;

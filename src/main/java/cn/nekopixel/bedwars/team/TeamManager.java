@@ -1,12 +1,14 @@
 package cn.nekopixel.bedwars.team;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.config.ConfigLoader;
 import cn.nekopixel.bedwars.setup.Map;
-import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.utils.LocationUtils;
 import cn.nekopixel.bedwars.utils.team.TeamEquipments;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.*;

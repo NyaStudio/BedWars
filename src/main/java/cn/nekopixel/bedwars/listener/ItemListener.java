@@ -3,8 +3,8 @@ package cn.nekopixel.bedwars.listener;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.shop.NamespacedKeys;
-import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.shop.utils.PopTower;
+import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

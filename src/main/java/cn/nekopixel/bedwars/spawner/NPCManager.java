@@ -1,10 +1,10 @@
 package cn.nekopixel.bedwars.spawner;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.GameStatusChange;
 import cn.nekopixel.bedwars.setup.Map;
-import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.utils.LocationUtils;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;

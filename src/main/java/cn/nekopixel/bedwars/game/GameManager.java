@@ -4,21 +4,16 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.auth.AuthInterceptor;
 import cn.nekopixel.bedwars.chat.ChatManager;
-import cn.nekopixel.bedwars.player.FoodLock;
-import cn.nekopixel.bedwars.player.RemoveItems;
-import cn.nekopixel.bedwars.player.PlayerStats;
-import cn.nekopixel.bedwars.player.Connection;
-import cn.nekopixel.bedwars.player.AttackSpeed;
+import cn.nekopixel.bedwars.listener.WaitingListener;
+import cn.nekopixel.bedwars.player.*;
 import cn.nekopixel.bedwars.spawner.Diamond;
 import cn.nekopixel.bedwars.spawner.Emerald;
 import cn.nekopixel.bedwars.spawner.SpawnerManager;
-import cn.nekopixel.bedwars.team.TeamManager;
-import cn.nekopixel.bedwars.player.NameTag;
-import cn.nekopixel.bedwars.listener.WaitingListener;
 import cn.nekopixel.bedwars.tab.TabListManager;
+import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.GameMode;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameManager {

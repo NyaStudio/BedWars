@@ -2,11 +2,11 @@ package cn.nekopixel.bedwars.chat;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
-import cn.nekopixel.bedwars.team.TeamManager;
-import cn.nekopixel.bedwars.game.GameStatus;
-import cn.nekopixel.bedwars.game.SpectatorManager;
-import cn.nekopixel.bedwars.game.PlayerDeathManager;
 import cn.nekopixel.bedwars.game.GameManager;
+import cn.nekopixel.bedwars.game.GameStatus;
+import cn.nekopixel.bedwars.game.PlayerDeathManager;
+import cn.nekopixel.bedwars.game.SpectatorManager;
+import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;

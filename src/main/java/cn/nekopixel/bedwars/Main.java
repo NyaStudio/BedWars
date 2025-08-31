@@ -1,14 +1,14 @@
 package cn.nekopixel.bedwars;
 
 import cn.nekopixel.bedwars.api.Plugin;
-import cn.nekopixel.bedwars.setup.Init;
-import cn.nekopixel.bedwars.utils.WorldBackup;
-import cn.nekopixel.bedwars.utils.INGameTitle;
 import cn.nekopixel.bedwars.packet.PotionPacketHandler;
 import cn.nekopixel.bedwars.packet.RespawnPacketHandler;
-import org.bukkit.plugin.java.JavaPlugin;
+import cn.nekopixel.bedwars.setup.Init;
+import cn.nekopixel.bedwars.utils.INGameTitle;
+import cn.nekopixel.bedwars.utils.WorldBackup;
 import com.github.retrooper.packetevents.PacketEvents;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
     private static Main instance;

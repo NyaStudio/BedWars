@@ -6,7 +6,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class RespawnPacketHandler {
     private static final Set<UUID> hiddenPlayers = new HashSet<>();

@@ -1,17 +1,17 @@
 package cn.nekopixel.bedwars.listener;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.map.MapManager;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-import cn.nekopixel.bedwars.api.Plugin;
 
 import java.util.Iterator;
 

@@ -1,18 +1,18 @@
 package cn.nekopixel.bedwars.utils.shop;
 
+import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.shop.NamespacedKeys;
+import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import cn.nekopixel.bedwars.api.Plugin;
-import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
-import cn.nekopixel.bedwars.shop.NamespacedKeys;
 
 import java.util.Map;
 

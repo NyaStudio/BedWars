@@ -1,12 +1,13 @@
 package cn.nekopixel.bedwars.utils;
 
 import cn.nekopixel.bedwars.auth.AuthValidator;
+
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.List;
-import java.util.ArrayList;
 
 public class SecurityUtils {
     
