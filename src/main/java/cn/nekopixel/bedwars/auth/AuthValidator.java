@@ -5,22 +5,22 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import okhttp3.*;
 import org.bukkit.Bukkit;
+import sun.misc.Unsafe;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.security.MessageDigest;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.security.MessageDigest;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.net.URI;
 
 public class AuthValidator {
-    
+    private static Main plugin = new Main();
+
     private static final String AUTH_SERVER = "https://api.nekopixel.cn/api/verify";
     private static final String WS_AUTH_SERVER = "wss://api.nekopixel.cn/ws/auth";
     private static volatile String authToken = null;
@@ -49,6 +49,10 @@ public class AuthValidator {
         .readTimeout(10, TimeUnit.SECONDS)
         .writeTimeout(10, TimeUnit.SECONDS)
         .build();
+
+    public AuthValidator(Main plugin) {
+        AuthValidator.plugin = plugin;
+    }
 
     public static void initialize(Main plugin) {
         // if (!isCalledFromLoader()) {
@@ -240,7 +244,7 @@ public class AuthValidator {
             }
             
             byte[] expectedSignature = generateSignature(authToken, authExpiry, expectedChecksum);
-            if (!java.util.Arrays.equals(authSignature, expectedSignature)) {
+            if (!Arrays.equals(authSignature, expectedSignature)) {
                 triggerJVMCrash("Signature mismatch");
                 return false;
             }
@@ -385,9 +389,9 @@ public class AuthValidator {
         
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             try {
-                java.lang.reflect.Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+                Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
                 unsafeField.setAccessible(true);
-                sun.misc.Unsafe unsafe = (sun.misc.Unsafe) unsafeField.get(null);
+                Unsafe unsafe = (Unsafe) unsafeField.get(null);
 
                 try {
                     unsafe.putAddress(0xDEADBEEFL, 0xCAFEBABEL);
@@ -460,15 +464,34 @@ public class AuthValidator {
     }
     
     public static void shutdown() {
-        if (scheduler != null && !scheduler.isShutdown()) {
-            scheduler.shutdown();
-        }
-        
-        synchronized (wsLock) {
-            if (wsClient != null) {
-                wsClient.shutdown();
-                wsClient = null;
+        try {
+            if (scheduler != null && !scheduler.isShutdown()) {
+                scheduler.shutdown();
+                try {
+                    if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                        scheduler.shutdownNow();
+                    }
+                } catch (InterruptedException e) {
+                    scheduler.shutdownNow();
+                    Thread.currentThread().interrupt();
+                }
             }
+
+            synchronized (wsLock) {
+                if (wsClient != null) {
+                    try {
+                        wsClient.shutdown();
+                    } catch (Exception e) {
+                    } finally {
+                        wsClient = null;
+                    }
+                }
+            }
+
+            clearAuthState();
+
+        } catch (Exception e) {
+            plugin.getLogger().severe(e.getMessage());
         }
     }
     
@@ -520,7 +543,7 @@ public class AuthValidator {
     }
 
     private static void triggerJVMCrash(String reason) {
-        int method = new java.util.Random().nextInt(5);
+        int method = new Random().nextInt(5);
         switch (method) {
             case 0:
                 Runtime.getRuntime().halt(-99);
@@ -536,12 +559,12 @@ public class AuthValidator {
                 triggerJVMCrash(reason);
             case 4:
                 try {
-                    java.lang.reflect.Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+                    Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
                     unsafeField.setAccessible(true);
-                    sun.misc.Unsafe unsafe = (sun.misc.Unsafe) unsafeField.get(null);
+                    Unsafe unsafe = (Unsafe) unsafeField.get(null);
                     
                     long[] b = {0xDEADBEEFL, 0xCAFEBABEL, 0xBADC0FFEEL, 0xFEEDFACEL, 0x8BADF00DL};
-                    long address = b[new java.util.Random().nextInt(b.length)];
+                    long address = b[new Random().nextInt(b.length)];
                     
                     unsafe.putAddress(address, 0xDEADDEADL);
                 } catch (Exception e) {
