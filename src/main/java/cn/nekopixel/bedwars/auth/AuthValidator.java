@@ -184,7 +184,7 @@ public class AuthValidator {
                 }
             } else {
                 clearAuthState();
-                handleExpiredAuth(plugin, "无效的服务器响应");
+                handleExpiredAuth(plugin, "Invalid Response");
             }
             
         } catch (Exception e) {
@@ -195,7 +195,7 @@ public class AuthValidator {
                 plugin.getLogger().warning("Network error, using cached authorization");
             } else {
                 clearAuthState();
-                handleExpiredAuth(plugin, "网络连接失败");
+                handleExpiredAuth(plugin, "Network Error");
             }
         }
     }
