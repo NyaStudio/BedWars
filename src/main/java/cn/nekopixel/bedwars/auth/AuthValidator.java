@@ -151,7 +151,7 @@ public class AuthValidator {
                     );
                     
                     if (!signatureValid) {
-                        unauthorized(plugin, "签名验证失败");
+                        unauthorized(plugin, "Signature verification failed");
                         return;
                     }
                 }
@@ -188,11 +188,11 @@ public class AuthValidator {
             }
             
         } catch (Exception e) {
-            plugin.getLogger().severe("授权验证失败: " + e.getMessage());
+            plugin.getLogger().severe("Authorization verification failed: " + e.getMessage());
             e.printStackTrace();
             
             if (verifyAuthState() && (System.currentTimeMillis() - lastVerifyTime) < 24 * 60 * 60 * 1000) {
-                plugin.getLogger().warning("网络错误，使用缓存授权");
+                plugin.getLogger().warning("Network error, using cached authorization");
             } else {
                 clearAuthState();
                 handleExpiredAuth(plugin, "网络连接失败");
@@ -333,8 +333,8 @@ public class AuthValidator {
 
     private static void handleMissingLicense(Main plugin) {
         plugin.getLogger().severe("==============================================");
-        plugin.getLogger().severe("未配置授权密钥！");
-        plugin.getLogger().severe("请在 config.yml 中配置 license_key");
+        plugin.getLogger().severe("Authorization key not configured!");
+        plugin.getLogger().severe("Please configure license_key in config.yml");
         plugin.getLogger().severe("==============================================");
         
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -360,14 +360,14 @@ public class AuthValidator {
         
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new IOException("HTTP响应码: " + response.code());
+                throw new IOException("HTTP response code: " + response.code());
             }
             
             ResponseBody responseBody = response.body();
             if (responseBody != null) {
                 return responseBody.string();
             } else {
-                throw new IOException("响应体为空");
+                throw new IOException("Response body is empty");
             }
         }
     }
@@ -375,7 +375,7 @@ public class AuthValidator {
     private static void unauthorized(Main plugin, String reason) {
         clearAuthState();
         plugin.getLogger().severe("==============================================");
-        plugin.getLogger().severe("授权验证失败!");
+        plugin.getLogger().severe("Authorization verification failed!");
         plugin.getLogger().severe(reason);
         plugin.getLogger().severe("==============================================");
         
@@ -410,8 +410,8 @@ public class AuthValidator {
     private static void handleExpiredAuth(Main plugin, String reason) {
         clearAuthState();
         plugin.getLogger().severe("==============================================");
-        plugin.getLogger().severe("授权已失效！");
-        plugin.getLogger().severe("原因: " + reason);
+        plugin.getLogger().severe("Authorization has expired!");
+        plugin.getLogger().severe("Reason: " + reason);
         plugin.getLogger().severe("==============================================");
         
         Bukkit.getScheduler().runTaskLater(plugin, () -> {

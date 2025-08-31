@@ -37,7 +37,7 @@ public class ItemCategory {
 
     public static ItemCategory getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("ItemCategory 未初始化");
+            throw new IllegalStateException("ItemCategory not initialized");
         }
         return instance;
     }
@@ -54,7 +54,7 @@ public class ItemCategory {
         categories.clear();
         ConfigurationSection categoriesSection = sortConfig.getConfigurationSection("categories");
         if (categoriesSection == null) {
-            plugin.getLogger().warning("categories.yml 中缺少 categories 配置项");
+            plugin.getLogger().warning("Missing categories configuration in categories.yml");
             return;
         }
 
@@ -99,7 +99,7 @@ public class ItemCategory {
                 material = Material.BARRIER;
             }
         } catch (IllegalArgumentException e) {
-            plugin.getLogger().warning("无效的物品类型: " + type);
+            plugin.getLogger().warning("Invalid item type: " + type);
             material = Material.BARRIER;
         }
         

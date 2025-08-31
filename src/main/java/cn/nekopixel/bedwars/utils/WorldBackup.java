@@ -35,25 +35,25 @@ public class WorldBackup {
     public boolean backupWorld() {
         try {
             if (!Files.exists(backupDir)) {
-                logger.info("正在创建备份目录...");
+                logger.info("Creating backup directory...");
                 Files.createDirectory(backupDir);
             }
 
             if (!Files.exists(backupWorldDir)) {
                 if (Files.exists(worldDir)) {
-                    logger.info("正在备份当前世界...");
+                    logger.info("Backing up current world...");
                     copyWorld(worldDir, backupWorldDir);
                     saveWorldHash(backupWorldDir);
-                    logger.info("世界备份完成");
+                    logger.info("World backup completed");
                     return true;
                 } else {
-                    logger.severe("当前服务端没有 world 目录");
+                    logger.severe("Current server does not have world directory");
                     return false;
                 }
             }
             return true;
         } catch (Exception e) {
-            logger.severe("处理备份时发生错误：" + e.getMessage());
+            logger.severe("Error occurred while processing backup: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -62,26 +62,26 @@ public class WorldBackup {
     public boolean restoreWorldOnLoad() {
         try {
             if (!Files.exists(backupWorldDir)) {
-                logger.info("备份世界不存在，跳过还原");
+                logger.info("Backup world does not exist, skipping restoration");
                 return false;
             }
             
             if (!verifyWorldIntegrity(backupWorldDir)) {
-                logger.severe("备份完整性验证失败");
+                logger.severe("Backup integrity verification failed");
                 return false;
             }
 
-            logger.info("完整性验证通过，正在还原世界文件...");
+            logger.info("Integrity verification passed, restoring world files...");
             
             if (Files.exists(worldDir)) {
                 deleteWorld(worldDir);
             }
 
             copyWorld(backupWorldDir, worldDir);
-            logger.info("世界文件还原完成！");
+            logger.info("World files restoration completed!");
             return true;
         } catch (Exception e) {
-            logger.severe("还原世界文件时发生错误：" + e.getMessage());
+            logger.severe("Error occurred while restoring world files: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -131,7 +131,7 @@ public class WorldBackup {
             }
             return hexString.toString();
         } catch (Exception e) {
-            throw new IOException("计算失败：" + e.getMessage());
+            throw new IOException("Calculation failed: " + e.getMessage());
         }
     }
 
@@ -173,7 +173,7 @@ public class WorldBackup {
     private boolean verifyWorldIntegrity(Path world) {
         try {
             if (!Files.exists(hashFile)) {
-                logger.warning("找不到哈希值文件，无法验证完整性");
+                logger.warning("Hash file not found, unable to verify integrity");
                 return false;
             }
 
@@ -189,13 +189,13 @@ public class WorldBackup {
             TreeMap<String, String> currentHashes = calculateDirectoryHash(world);
 
             if (!storedHashes.equals(currentHashes)) {
-                logger.warning("世界文件哈希值不匹配，当前备份可能已损坏");
+                logger.warning("World file hash mismatch, current backup may be corrupted");
                 return false;
             }
 
             return true;
         } catch (Exception e) {
-            logger.severe("验证时发生错误：" + e.getMessage());
+            logger.severe("Error occurred during verification: " + e.getMessage());
             return false;
         }
     }

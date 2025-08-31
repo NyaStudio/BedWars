@@ -185,7 +185,7 @@ public class DeathListener implements Listener {
         String team = teamManager.getPlayerTeam(player);
         
         if (team == null) {
-            plugin.getLogger().warning("玩家 " + player.getName() + " 没有队伍！");
+            plugin.getLogger().warning("Player " + player.getName() + " has no team!");
             return;
         }
         

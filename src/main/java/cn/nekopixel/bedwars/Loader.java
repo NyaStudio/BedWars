@@ -219,9 +219,9 @@ public class Loader {
                 bedWarsPlugin.getScoreboardManager().reloadConfig();
             }
             
-            plugin.getLogger().info("所有配置文件已重新加载！");
+            plugin.getLogger().info("All configuration files have been reloaded!");
         } catch (Exception e) {
-            plugin.getLogger().severe("重载配置文件时发生错误: " + e.getMessage());
+            plugin.getLogger().severe("Error occurred while reloading configuration: " + e.getMessage());
             ensureSystemValid();
 //            e.printStackTrace();
         }

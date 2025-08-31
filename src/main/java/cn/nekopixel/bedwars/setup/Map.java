@@ -52,9 +52,9 @@ public class Map implements CommandExecutor, TabCompleter {
     private void saveMapConfig() {
         try {
             mapConfig.save(mapFile);
-            plugin.getLogger().info("地图配置文件已保存");
+            plugin.getLogger().info("Map configuration file saved");
         } catch (IOException e) {
-            plugin.getLogger().severe("无法保存 map.yml 文件: " + e.getMessage());
+            plugin.getLogger().severe("Unable to save map.yml file: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -63,25 +63,25 @@ public class Map implements CommandExecutor, TabCompleter {
         try {
             loadMapConfig();
             validateConfig();
-            plugin.getLogger().info("地图配置文件已重新加载");
+            plugin.getLogger().info("Map configuration file reloaded");
         } catch (Exception e) {
-            plugin.getLogger().severe("重新加载地图配置文件时发生错误: " + e.getMessage());
+            plugin.getLogger().severe("Error occurred while reloading map configuration: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private void validateConfig() {
         if (!mapConfig.contains("spawnpoints")) {
-            plugin.getLogger().warning("配置文件中缺少 spawnpoints 配置项");
+            plugin.getLogger().warning("Missing spawnpoints configuration in config file");
         }
         if (!mapConfig.contains("npcs")) {
-            plugin.getLogger().warning("配置文件中缺少 npcs 配置项");
+            plugin.getLogger().warning("Missing npcs configuration in config file");
         }
         if (!mapConfig.contains("spawners")) {
-            plugin.getLogger().warning("配置文件中缺少 spawners 配置项");
+            plugin.getLogger().warning("Missing spawners configuration in config file");
         }
         if (!mapConfig.contains("join")) {
-            plugin.getLogger().warning("配置文件中缺少 join 配置项");
+            plugin.getLogger().warning("Missing join configuration in config file");
         }
     }
 

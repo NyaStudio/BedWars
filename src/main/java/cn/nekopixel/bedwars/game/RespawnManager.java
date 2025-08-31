@@ -52,7 +52,7 @@ public class RespawnManager {
         String team = teamManager.getPlayerTeam(player);
         
         if (team == null) {
-            plugin.getLogger().warning("玩家 " + player.getName() + " 没有队伍！");
+            plugin.getLogger().warning("Player " + player.getName() + " has no team!");
             return;
         }
         
@@ -74,7 +74,7 @@ public class RespawnManager {
             player.sendMessage("§e你已经重生！");
             INGameTitle.show(player, "§a已重生！", "", 3, 10, 20);
         } else {
-            plugin.getLogger().warning("队伍 " + team + " 没有设置出生点！");
+            plugin.getLogger().warning("Team " + team + " has no spawn point set!");
         }
     }
     

@@ -44,7 +44,7 @@ public class BedManager implements Listener {
                     teamBeds.put(team.toLowerCase(), true);
                 } else {
                     teamBeds.put(team.toLowerCase(), false);
-                    plugin.getLogger().warning("队伍 " + team + " 的床位置已配置但床不存在！");
+                    plugin.getLogger().warning("Team " + team + " bed location is configured but bed does not exist!");
                 }
             }
         }

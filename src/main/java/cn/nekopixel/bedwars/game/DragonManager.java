@@ -34,7 +34,7 @@ public class DragonManager {
         RespawnManager respawnManager = new RespawnManager(plugin, GameManager.getInstance().getPlayerDeathManager());
         
         if (baseLocation == null) {
-            plugin.getLogger().warning("未找到 respawning 位置，无法生成末影龙");
+            plugin.getLogger().warning("Respawning location not found, unable to spawn Ender Dragon");
             return;
         }
         

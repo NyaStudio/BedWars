@@ -25,7 +25,7 @@ public class Plugin implements API {
 
     public static Plugin getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("插件未初始化");
+            throw new IllegalStateException("Plugin not initialized");
         }
         return instance;
     }

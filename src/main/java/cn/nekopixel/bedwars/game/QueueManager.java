@@ -35,13 +35,13 @@ public class QueueManager implements Listener {
     private void loadJoinLocation() {
         Map mapSetup = Plugin.getInstance().getMapSetup();
         if (mapSetup == null) {
-            plugin.getLogger().warning("地图配置未加载，无法设置等待位置");
+            plugin.getLogger().warning("Map configuration not loaded, unable to set waiting position");
             return;
         }
 
         ConfigurationSection joinSection = mapSetup.getMapConfig().getConfigurationSection("join");
         if (joinSection == null) {
-            plugin.getLogger().warning("地图配置中未找到等待位置");
+            plugin.getLogger().warning("Waiting position not found in map configuration");
             return;
         }
 

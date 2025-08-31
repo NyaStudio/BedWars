@@ -37,7 +37,7 @@ public class MapManager implements Listener {
         
         ConfigurationSection areasSection = config.getConfigurationSection("protection");
         if (areasSection == null) {
-            plugin.getLogger().info("未找到保护区域配置，跳过加载");
+            plugin.getLogger().info("Protected area configuration not found, skipping loading");
             return;
         }
 
@@ -49,7 +49,7 @@ public class MapManager implements Listener {
                 String worldName = areaSection.getString("world", "world");
                 World world = plugin.getServer().getWorld(worldName);
                 if (world == null) {
-                    plugin.getLogger().warning("世界 '" + worldName + "' 不存在，跳过保护区域: " + areaName);
+                    plugin.getLogger().warning("World '" + worldName + "' does not exist, skipping protected area: " + areaName);
                     continue;
                 }
 
@@ -70,11 +70,11 @@ public class MapManager implements Listener {
                 protectedAreas.add(area);
 
             } catch (Exception e) {
-                plugin.getLogger().warning("加载保护区域 '" + areaName + "' 时出错: " + e.getMessage());
+                plugin.getLogger().warning("Error loading protected area '" + areaName + "': " + e.getMessage());
             }
         }
 
-        plugin.getLogger().info("共加载了 " + protectedAreas.size() + " 个保护区域");
+        plugin.getLogger().info("Loaded " + protectedAreas.size() + " protected areas in total");
     }
 
     public boolean isPlaceProtected(Location location) {

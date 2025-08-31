@@ -44,7 +44,7 @@ public class ChatManager {
             try {
                 Class<?> clazz = Class.forName("cn.nekopixel.bedwars.chat.LuckPermsPrefixProvider");
                 this.prefixProvider = (PrefixProvider) clazz.getConstructor(Main.class).newInstance(plugin);
-                plugin.getLogger().info("检测到 LuckPerms，将与其一起工作！");
+                plugin.getLogger().info("LuckPerms detected, will work with them!");
             } catch (Exception e) {
                 this.prefixProvider = new EmptyPrefixProvider();
             }

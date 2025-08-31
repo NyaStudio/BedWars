@@ -23,7 +23,7 @@ public class LuckPermsPrefixProvider implements PrefixProvider {
         try {
             this.luckPerms = LuckPermsProvider.get();
         } catch (Exception e) {
-            plugin.getLogger().warning("无法获取LuckPerms API: " + e.getMessage());
+            plugin.getLogger().warning("Failed to get LuckPerms API: " + e.getMessage());
         }
     }
     
@@ -61,7 +61,7 @@ public class LuckPermsPrefixProvider implements PrefixProvider {
         } catch (Exception e) {
             Player player = Bukkit.getPlayer(playerId);
             String playerName = player != null ? player.getName() : playerId.toString();
-            plugin.getLogger().warning("获取玩家 " + playerName + " 的 LuckPerms 前缀时出错: " + e.getMessage());
+            plugin.getLogger().warning("Error while getting " + playerName + " LuckPerms prefix: " + e.getMessage());
         }
         
         prefixCache.put(playerId, "");
@@ -84,7 +84,7 @@ public class LuckPermsPrefixProvider implements PrefixProvider {
         try {
             this.luckPerms = LuckPermsProvider.get();
         } catch (Exception e) {
-            plugin.getLogger().warning("重载时无法获取 LuckPerms API: " + e.getMessage());
+            plugin.getLogger().warning("Failed to get LuckPerms API when reloading: " + e.getMessage());
         }
     }
 } 

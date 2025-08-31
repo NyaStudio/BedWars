@@ -106,7 +106,7 @@ public class ItemShop {
                         switch (customType) {
                             case "pop_tower" -> material = Material.TRAPPED_CHEST;
                             default -> {
-                                plugin.getLogger().warning("未知的自定义物品类型: " + customType);
+                                plugin.getLogger().warning("Unknown custom item type: " + customType);
                                 material = Material.BARRIER;
                             }
                         }
@@ -119,12 +119,12 @@ public class ItemShop {
                         try {
                             material = Material.valueOf(type.toUpperCase());
                         } catch (IllegalArgumentException e) {
-                            plugin.getLogger().warning("未知物品类型: " + type);
+                            plugin.getLogger().warning("Unknown item type: " + type);
                             material = Material.BARRIER;
                         }
                     }
                 } catch (IllegalArgumentException e) {
-                    plugin.getLogger().warning("解析物品类型错误: " + type + ", 跳过");
+                    plugin.getLogger().warning("Failed to parse item type: " + type + ", skipping");
                     continue;
                 }
 
@@ -238,7 +238,7 @@ public class ItemShop {
                         switch (customType) {
                             case "pop_tower" -> material = Material.TRAPPED_CHEST;
                             default -> {
-                                plugin.getLogger().warning("未知的自定义物品类型: " + customType);
+                                plugin.getLogger().warning("Unknown custom item type: " + customType);
                                 material = Material.BARRIER;
                             }
                         }
@@ -251,12 +251,12 @@ public class ItemShop {
                         try {
                             material = Material.valueOf(type.toUpperCase());
                         } catch (IllegalArgumentException e) {
-                            plugin.getLogger().warning("未知物品类型: " + type);
+                            plugin.getLogger().warning("Unknown item type: " + type);
                             material = Material.BARRIER;
                         }
                     }
                 } catch (IllegalArgumentException e) {
-                    plugin.getLogger().warning("解析物品类型错误: " + type + ", 跳过");
+                    plugin.getLogger().warning("Failed to parse item type: " + type + ", skipping");
                     continue;
                 }
 

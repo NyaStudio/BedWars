@@ -57,14 +57,14 @@ public class GameManager {
 
     public static GameManager getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("GameManager 未初始化");
+            throw new IllegalStateException("GameManager not initialized");
         }
         return instance;
     }
 
     public static void initialize(Main plugin) {
         if (instance != null) {
-            throw new IllegalStateException("GameManager 初始化过了");
+            throw new IllegalStateException("GameManager already initialized");
         }
         Connection.initialize(plugin);
         instance = new GameManager(plugin);
@@ -86,8 +86,7 @@ public class GameManager {
         GameStatus oldStatus = this.currentStatus;
         this.currentStatus = status;
         Bukkit.getPluginManager().callEvent(new GameStatusChange(oldStatus, status));
-//        Bukkit.broadcastMessage(ChatColor.GREEN + "状态已更改为: " + status.name());
-        
+
         TabListManager tabListManager = Plugin.getInstance().getTabListManager();
         if (tabListManager != null) {
             tabListManager.onGameStatusChange();
@@ -122,8 +121,8 @@ public class GameManager {
             removeItems.stop();
             nameTag.stop();
             
-            plugin.getLogger().info("游戏结束，即将关闭服务器...");
-            
+            plugin.getLogger().info("Game ended, shutting down...");
+
             new BukkitRunnable() {
                 int countdown = 60;
                 

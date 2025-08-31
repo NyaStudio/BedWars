@@ -40,7 +40,7 @@ public class TeamManager {
         playerTeams.clear();
 
         if (availableTeams.isEmpty()) {
-            plugin.getLogger().warning("没有可用的队伍！请先设置队伍出生点");
+            plugin.getLogger().warning("No available teams! Please set team spawn points first");
             return;
         }
 
@@ -80,7 +80,7 @@ public class TeamManager {
             Location safeLocation = LocationUtils.findSafeLocation(spawnPoint, 3);
             player.teleport(safeLocation);
         } else {
-            plugin.getLogger().warning("队伍 " + team + " 没有设置出生点！请检查配置文件");
+            plugin.getLogger().warning("Team " + team + " has no spawn point set! Please check configuration file");
             // 我不知道这里怎么写合适，自求多福吧
         }
     }

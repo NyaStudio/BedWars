@@ -69,7 +69,7 @@ public abstract class ResourceSpawner implements Listener {
                 this.resourceName = "绿宝石";
                 this.resourceColor = "§2";
             } else {
-                throw new IllegalArgumentException("不支持的资源类型");
+                throw new IllegalArgumentException("Unsupported resource type");
             }
         }
     }

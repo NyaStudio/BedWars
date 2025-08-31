@@ -20,11 +20,11 @@ public final class Main extends JavaPlugin {
         saveDefaultConfig();
         worldBackup = new WorldBackup(this);
         if (!worldBackup.backupWorld()) {
-            getLogger().severe("世界备份失败！");
+            getLogger().severe("World backup failed!");
         }
 
         if (!worldBackup.restoreWorldOnLoad()) {
-            getLogger().warning("世界还原失败，可能是首次运行或备份不存在");
+            getLogger().warning("World restoration failed, possibly first run or backup does not exist");
         }
 
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
@@ -53,7 +53,7 @@ public final class Main extends JavaPlugin {
         
         PacketEvents.getAPI().getEventManager().registerListener(new PotionPacketHandler(this));
         
-        getLogger().info("加载完成！");
+        getLogger().info("Loading completed!");
     }
 
     @Override
@@ -61,7 +61,7 @@ public final class Main extends JavaPlugin {
         cn.nekopixel.bedwars.auth.AuthValidator.shutdown();
         
         PacketEvents.getAPI().terminate();
-        getLogger().info("卸载完成！");
+        getLogger().info("Unloading completed!");
     }
 
     public static Main getInstance() {

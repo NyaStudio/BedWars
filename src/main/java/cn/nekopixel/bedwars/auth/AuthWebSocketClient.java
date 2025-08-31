@@ -38,16 +38,12 @@ public class AuthWebSocketClient extends WebSocketClient {
         
         this.setConnectionLostTimeout(120);
         
-        // 设置TCP无延迟，提高响应速度
         this.setTcpNoDelay(true);
-        
-        // 设置重用地址
         this.setReuseAddr(true);
     }
 
     @Override
     public void onOpen(ServerHandshake handshake) {
-//        plugin.getLogger().info("已建立 WebSocket 连接");
 
         Map<String, Object> authData = new HashMap<>();
         authData.put("type", "auth");
@@ -65,7 +61,6 @@ public class AuthWebSocketClient extends WebSocketClient {
             
             switch (type) {
                 case "connected":
-//                    plugin.getLogger().info("收到服务器确认");
                     break;
                     
                 case "auth_success":
@@ -85,27 +80,23 @@ public class AuthWebSocketClient extends WebSocketClient {
                     break;
                     
                 default:
-//                    plugin.getLogger().warning("收到未知类型的消息: " + type);
             }
         } catch (Exception e) {
-//            plugin.getLogger().severe("处理 WebSocket 消息失败: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private void handleAuthSuccess(JsonObject response) {
-//        plugin.getLogger().info("WebSocket认证成功: " + response.get("message").getAsString());
         authenticated.set(true);
         lastHeartbeatAck.set(System.currentTimeMillis());
 
-        // 通知AuthValidator重置重连计数
         AuthValidator.onWebSocketConnected();
         
         startHeartbeat();
     }
 
     private void handleAuthFailed(JsonObject response) {
-        plugin.getLogger().severe("认证失败: " + response.get("message").getAsString());
+        plugin.getLogger().severe("Authentication failed: " + response.get("message").getAsString());
         authenticated.set(false);
 
         if (plugin.isEnabled()) {
@@ -122,7 +113,6 @@ public class AuthWebSocketClient extends WebSocketClient {
     }
 
     private void handleError(JsonObject response) {
-//        plugin.getLogger().severe("WebSocket错误: " + response.get("message").getAsString());
     }
 
     private void startHeartbeat() {
@@ -144,11 +134,10 @@ public class AuthWebSocketClient extends WebSocketClient {
     private void checkHeartbeatTimeout() {
         long lastAck = lastHeartbeatAck.get();
         if (lastAck > 0 && System.currentTimeMillis() - lastAck > HEARTBEAT_TIMEOUT) {
-            plugin.getLogger().severe("心跳超时，连接可能已断开");
-            
+
             if (plugin.isEnabled()) {
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    AuthValidator.handleWebSocketDisconnection(plugin, "心跳超时");
+                    AuthValidator.handleWebSocketDisconnection(plugin, "Timed out");
                 });
             }
             
@@ -158,7 +147,6 @@ public class AuthWebSocketClient extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-//        plugin.getLogger().warning("WebSocket连接关闭: " + reason + " (code: " + code + ")");
         authenticated.set(false);
         
         if (heartbeatScheduler != null && !heartbeatScheduler.isShutdown()) {
@@ -167,14 +155,13 @@ public class AuthWebSocketClient extends WebSocketClient {
         
         if (remote && plugin.isEnabled()) {
             Bukkit.getScheduler().runTask(plugin, () -> {
-                AuthValidator.handleWebSocketDisconnection(plugin, "连接意外断开");
+                AuthValidator.handleWebSocketDisconnection(plugin, "Disconnected unexpectedly");
             });
         }
     }
 
     @Override
     public void onError(Exception ex) {
-//        plugin.getLogger().severe("WebSocket错误: " + ex.getMessage());
         ex.printStackTrace();
         
         if (plugin.isEnabled()) {

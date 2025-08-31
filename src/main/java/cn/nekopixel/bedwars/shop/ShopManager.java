@@ -203,7 +203,7 @@ public class ShopManager implements Listener {
             switch (customType) {
                 case "pop_tower" -> itemStack = new ItemStack(Material.TRAPPED_CHEST);
                 default -> {
-                    plugin.getLogger().warning("未知的自定义物品类型: " + customType);
+                    plugin.getLogger().warning("Unknown custom item type: " + customType);
                     itemStack = new ItemStack(Material.BARRIER);
                 }
             }
@@ -310,7 +310,7 @@ public class ShopManager implements Listener {
                             boolean upgraded = item.getPotionLevel() > 1;
                             
                             if (upgraded && !isUpgradeable(potionTypeEnum)) {
-                                plugin.getLogger().warning("药水类型 " + potionTypeEnum + " 不支持升级，但配置中设置了 potion_level: " + item.getPotionLevel() + "。物品：" + item.getName());
+                                plugin.getLogger().warning("Potion type " + potionTypeEnum + " does not support upgrade, but potion_level is set to: " + item.getPotionLevel() + ". Item: " + item.getName());
                             }
                             
                             potionMeta.setBasePotionData(new PotionData(potionTypeEnum, extended, upgraded));
@@ -428,7 +428,6 @@ public class ShopManager implements Listener {
 
         lastPurchaseTime.put(player.getUniqueId(), currentTime);
 
-        // 检查背包空间
         int maxStackSize = plugin.getConfig().getInt(CONFIG_MAX_STACK_PATH, MAX_STACK_SIZE);
         if (!PurchaseUtils.hasEnoughSpace(player, clickedItem, maxStackSize)) {
             player.sendMessage("§c背包空间不足！");
