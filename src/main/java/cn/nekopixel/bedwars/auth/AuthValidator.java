@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class AuthValidator {
-    private static Main plugin = new Main();
+    private static Main plugin = null;
 
     private static final String AUTH_SERVER = "https://api.nekopixel.cn/api/verify";
     private static final String WS_AUTH_SERVER = "wss://api.nekopixel.cn/ws/auth";
@@ -332,14 +332,16 @@ public class AuthValidator {
     }
 
     private static void handleMissingLicense(Main plugin) {
+        if (plugin == null) return;
+
         plugin.getLogger().severe("==============================================");
         plugin.getLogger().severe("Authorization key not configured!");
         plugin.getLogger().severe("Please configure license_key in config.yml");
         plugin.getLogger().severe("==============================================");
-        
+
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             Bukkit.getPluginManager().disablePlugin(plugin);
-            
+
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 Bukkit.shutdown();
             }, 100L);
@@ -374,34 +376,40 @@ public class AuthValidator {
 
     private static void unauthorized(Main plugin, String reason) {
         clearAuthState();
-        plugin.getLogger().severe("==============================================");
-        plugin.getLogger().severe("Authorization verification failed!");
-        plugin.getLogger().severe(reason);
-        plugin.getLogger().severe("==============================================");
-        
+        if (plugin != null) {
+            plugin.getLogger().severe("==============================================");
+            plugin.getLogger().severe("Authorization verification failed!");
+            plugin.getLogger().severe(reason);
+            plugin.getLogger().severe("==============================================");
+        }
+
         executeAntiPiracy(plugin);
     }
 
     private static void executeAntiPiracy(Main plugin) {
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            Bukkit.getPluginManager().disablePlugin(plugin);
-        });
-        
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            try {
-                Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-                unsafeField.setAccessible(true);
-                Unsafe unsafe = (Unsafe) unsafeField.get(null);
+        if (plugin != null) {
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                Bukkit.getPluginManager().disablePlugin(plugin);
+            });
+        }
 
+        if (plugin != null) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 try {
-                    unsafe.putAddress(0xDEADBEEFL, 0xCAFEBABEL);
-                } catch (Exception ex) {
-                    unsafe.putAddress(0, 0);
+                    Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+                    unsafeField.setAccessible(true);
+                    Unsafe unsafe = (Unsafe) unsafeField.get(null);
+
+                    try {
+                        unsafe.putAddress(0xDEADBEEFL, 0xCAFEBABEL);
+                    } catch (Exception ex) {
+                        unsafe.putAddress(0, 0);
+                    }
+                } catch (Exception e) {
+                    crashJVM();
                 }
-            } catch (Exception e) {
-                crashJVM();
-            }
-        }, 20L);
+            }, 20L);
+        }
     }
 
     private static void crashJVM() {
@@ -409,20 +417,24 @@ public class AuthValidator {
     }
     private static void handleExpiredAuth(Main plugin, String reason) {
         clearAuthState();
-        plugin.getLogger().severe("==============================================");
-        plugin.getLogger().severe("Authorization has expired!");
-        plugin.getLogger().severe("Reason: " + reason);
-        plugin.getLogger().severe("==============================================");
-        
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        if (plugin != null) {
+            plugin.getLogger().severe("==============================================");
+            plugin.getLogger().severe("Authorization has expired!");
+            plugin.getLogger().severe("Reason: " + reason);
+            plugin.getLogger().severe("==============================================");
+        }
+
+        if (plugin != null) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    Bukkit.shutdown();
-                }, 200L);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        Bukkit.shutdown();
+                    }, 200L);
+                }, 100L);
+
+                Bukkit.getPluginManager().disablePlugin(plugin);
             }, 100L);
-            
-            Bukkit.getPluginManager().disablePlugin(plugin);
-        }, 100L);
+        }
     }
 
     private static void startAuthMonitor(Main plugin) {
@@ -491,7 +503,9 @@ public class AuthValidator {
             clearAuthState();
 
         } catch (Exception e) {
-            plugin.getLogger().severe(e.getMessage());
+            if (plugin != null) {
+                plugin.getLogger().severe(e.getMessage());
+            }
         }
     }
     
