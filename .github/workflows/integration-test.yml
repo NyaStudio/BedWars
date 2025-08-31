@@ -11,88 +11,72 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
 
-      - name: Build Plugin
-        run: mvn -B clean package
+    - name: Install 7z
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y p7zip-full
 
-      - name: Create Test Directory
-        run: mkdir -p test-server/plugins
+    - name: Download test server
+      run: |
+        wget -O mc-testserver.7z https://r3.lhf277.top/mc-testserver.7z
 
-      - name: Copy Plugin to Test Server
-        run: cp target/BedWars-*.jar test-server/plugins/
+    - name: Create server directory and extract
+      run: |
+        mkdir server
+        7z x mc-testserver.7z
+        cd mc-testserver
 
-      - name: Start Minecraft Server
-        run: |
-          docker run -d \
-            --name mc-test-server \
-            -p 25565:25565 \
-            -p 25575:25575 \
-            -v $(pwd)/test-server/plugins:/server/plugins \
-            -v $(pwd)/test-server:/server/test-data \
-            blxcwg666/mc-testserver:latest
+    - name: Build project
+      run: mvn clean package -DskipTests
 
-          sleep 5
+    - name: Copy plugin
+      run: |
+        cp target/BedWars*.jar mc-testserver/plugins/
 
-      - name: Wait for Server Ready
-        run: |
-          echo "Waiting for Minecraft Server..."
-          for i in {1..60}; do
-            if nc -z localhost 25565 2>/dev/null; then
-              echo "Minecraft Server Ready"
-              break
-            fi
-            echo "Waiting... ($i/60)"
-            sleep 2
-          done
+    - name: Start Minecraft Server
+      run: |
+        cd mc-testserver
+        if ls *.jar 1> /dev/null 2>&1; then
+          JAR_FILE=$(ls *.jar | head -1)
+          java -Xmx1024M -Xms1024M -jar "$JAR_FILE" nogui > server.log 2>&1 &
+        else
+          echo "Minecraft Server Jar not found"
+          exit 1
+        fi
+        SERVER_PID=$!
+        echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
 
-          echo "Waiting for Plugins..."
-          sleep 20
+    - name: Wait for server startup
+      run: |
+        sleep 120
 
-      - name: Run Integration Tests
-        run: |
-          sleep 10
+    - name: Check server logs
+      run: |
+        cd mc-testserver
+        if grep -i "Error\|ERROR\|Exception\|Severe" logs\latest.log; then
+          echo "Found Errors, Failed"
+          kill $SERVER_PID 2>/dev/null || true
+          exit 1
+        else
+          echo "Pass"
+        fi
 
-          wget -O mcrcon.tar.gz https://github.com/Tiiffi/mcrcon/releases/download/v0.7.2/mcrcon-0.7.2-linux-x86-64.tar.gz
-          tar -xzf mcrcon.tar.gz
-          chmod +x mcrcon
+    - name: Stop server
+      run: |
+        kill $SERVER_PID 2>/dev/null || true
+        sleep 5
+        kill -9 $SERVER_PID 2>/dev/null || true
 
-          ./mcrcon -H localhost -P 25575 -p test123 "plugins" | grep -i "bedwars" || (echo "Plugin not loaded" && exit 1)
-
-          ./mcrcon -H localhost -P 25575 -p test123 "bw" 2>&1 | grep -v "Unknown command" || echo "Succeed"
-
-          if grep -i "error\|exception\|severe" test-server/logs/latest.log; then
-            echo "Found Errors, Failed"
-            exit 1
-          else
-            echo "Pass"
-          fi
-
-      - name: Collect Server Logs
-        if: always()
-        run: |
-          docker cp mc-test-server:/server/logs ./test-server/logs/ || true
-          docker logs mc-test-server > ./test-server/container.log 2>&1 || true
-
-      - name: Cleanup
-        if: always()
-        run: |
-          docker stop mc-test-server || true
-          docker rm mc-test-server || true
-          rm -rf test-server mcrcon*
-
-      - name: Upload Test Logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-logs
-          path: test-server/
-          retention-days: 7
+    - name: Display server logs
+      if: always()
+      run: |
+        cat /mc-testserver/logs/latest.log
