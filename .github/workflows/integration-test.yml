@@ -27,11 +27,10 @@ jobs:
 
     - name: Download test server
       run: |
-        wget -O mc-testserver.7z https://r3.lhf277.top/mc-testserver.7z
+        wget -O mc-testserver.7z --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" https://r3.lhf277.top/mc-testserver.7z
 
     - name: Create server directory and extract
       run: |
-        mkdir server
         7z x mc-testserver.7z
         cd mc-testserver
 
@@ -79,4 +78,4 @@ jobs:
     - name: Display server logs
       if: always()
       run: |
-        cat /mc-testserver/logs/latest.log
+        cat mc-testserver/logs/latest.log
