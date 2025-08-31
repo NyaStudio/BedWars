@@ -1,5 +1,6 @@
 package cn.nekopixel.bedwars.utils.team;
 
+import cn.nekopixel.bedwars.language.LanguageManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -47,7 +48,7 @@ public class TeamEquipments {
 
         ItemStack compass = new ItemStack(Material.COMPASS);
         ItemMeta compassMeta = compass.getItemMeta();
-        compassMeta.setDisplayName(ChatColor.GOLD + "这是啥来着");
+        compassMeta.setDisplayName(ChatColor.GOLD + LanguageManager.getInstance().getMessage("item.unknown"));
         compass.setItemMeta(compassMeta);
         player.getInventory().setItem(8, compass);
     }

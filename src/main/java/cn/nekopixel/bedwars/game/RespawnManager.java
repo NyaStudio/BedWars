@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.game;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.config.ConfigLoader;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.team.TeamManager;
 import cn.nekopixel.bedwars.utils.INGameTitle;
@@ -24,8 +25,8 @@ public class RespawnManager {
     
     public void startRespawnCountdown(Player player, int seconds) {
         INGameTitle.showDynamic(player,
-            remainingSeconds -> "§c你死了！", 
-            remainingSeconds -> "§e你将在§c" + remainingSeconds + "§e秒后重生！", 
+            remainingSeconds -> LanguageManager.getInstance().getMessage("respawn.death_title"),
+            remainingSeconds -> LanguageManager.getInstance().getMessage("respawn.countdown_title", "seconds", String.valueOf(remainingSeconds)),
             seconds, 0, 0);
         
         new BukkitRunnable() {
@@ -36,7 +37,7 @@ public class RespawnManager {
                 countdown--;
                 
                 if (countdown > 0) {
-                    player.sendMessage("§e你将在§c" + countdown + "§e秒后重生！");
+                    player.sendMessage(LanguageManager.getInstance().getMessage("respawn.countdown_message", "seconds", String.valueOf(countdown)));
                 } else {
                     INGameTitle.cancel(player);
                     respawnPlayer(player);
@@ -71,8 +72,8 @@ public class RespawnManager {
                 deathManager.setRespawnInvulnerable(player, invulnerableTime);
             }
             
-            player.sendMessage("§e你已经重生！");
-            INGameTitle.show(player, "§a已重生！", "", 3, 10, 20);
+            player.sendMessage(LanguageManager.getInstance().getMessage("respawn.respawn_message"));
+            INGameTitle.show(player, LanguageManager.getInstance().getMessage("respawn.respawn_title"), "", 3, 10, 20);
         } else {
             plugin.getLogger().warning("Team " + team + " has no spawn point set!");
         }

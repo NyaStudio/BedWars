@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.utils.shop;
 
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.shop.NamespacedKeys;
 import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Material;
@@ -162,10 +163,10 @@ public class PurchaseUtils {
         }
 
         return switch (currency.toLowerCase()) {
-            case "iron_ingot" -> "铁锭";
-            case "gold_ingot" -> "金锭";
-            case "diamond" -> "钻石";
-            case "emerald" -> "绿宝石";
+            case "iron_ingot" -> LanguageManager.getInstance().getMessage("currency.iron");
+            case "gold_ingot" -> LanguageManager.getInstance().getMessage("currency.gold");
+            case "diamond" -> LanguageManager.getInstance().getMessage("currency.diamond");
+            case "emerald" -> LanguageManager.getInstance().getMessage("currency.emerald");
             default -> currency;
         };
     }

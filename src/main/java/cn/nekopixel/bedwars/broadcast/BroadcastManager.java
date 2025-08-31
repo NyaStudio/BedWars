@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.broadcast;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.game.BedManager;
 import cn.nekopixel.bedwars.game.GameManager;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -48,12 +49,13 @@ public class BroadcastManager {
     }
 
     public void playerJoinWaiting(String coloredName, int currentPlayers, int maxPlayers) {
-        String joinMessage = coloredName + " §e加入了游戏 (§b" + currentPlayers + "§e/§b" + maxPlayers + "§e)！";
+        String joinMessage = LanguageManager.getInstance().getMessage("broadcast.join_waiting",
+            "player", coloredName, "current", String.valueOf(currentPlayers), "max", String.valueOf(maxPlayers));
         Bukkit.broadcastMessage(joinMessage);
     }
 
     public void playerQuitWaiting(String coloredName) {
-        String quitMessage = coloredName + " §e离开了游戏！";
+        String quitMessage = LanguageManager.getInstance().getMessage("broadcast.quit_waiting", "player", coloredName);
         Bukkit.broadcastMessage(quitMessage);
     }
 
@@ -61,28 +63,32 @@ public class BroadcastManager {
         BedManager bedManager = GameManager.getInstance().getBedManager();
         String teamColor = bedManager.getTeamChatColor(team);
         String playerName = teamColor + player.getName();
-        Bukkit.broadcastMessage(playerName + " §7重新连接");
+        String message = LanguageManager.getInstance().getMessage("broadcast.reconnect", "player", playerName);
+        Bukkit.broadcastMessage(message);
     }
 
     public void playerJoinInGame(Player player, String team) {
         BedManager bedManager = GameManager.getInstance().getBedManager();
         String teamColor = bedManager.getTeamChatColor(team);
         String playerName = teamColor + player.getName();
-        Bukkit.broadcastMessage(playerName + " §e加入游戏！");
+        String message = LanguageManager.getInstance().getMessage("broadcast.join_ingame", "player", playerName);
+        Bukkit.broadcastMessage(message);
     }
 
     public void playerDisconnect(Player player, String team) {
         BedManager bedManager = GameManager.getInstance().getBedManager();
         String teamColor = bedManager.getTeamChatColor(team);
         String playerName = teamColor + player.getName();
-        Bukkit.broadcastMessage(playerName + " §7断开连接");
+        String message = LanguageManager.getInstance().getMessage("broadcast.disconnect", "player", playerName);
+        Bukkit.broadcastMessage(message);
     }
-    
+
     public void playerFellIntoVoid(Player player, String team) {
         BedManager bedManager = GameManager.getInstance().getBedManager();
         String teamColor = bedManager.getTeamChatColor(team);
         String playerName = teamColor + player.getName();
-        Bukkit.broadcastMessage(playerName + " §7失足跌入虚空。");
+        String message = LanguageManager.getInstance().getMessage("broadcast.fell_void", "player", playerName);
+        Bukkit.broadcastMessage(message);
     }
     
     public void playerKilledIntoVoid(Player victim, String victimTeam, Player killer, String killerTeam, boolean isFinalKill) {
@@ -96,9 +102,9 @@ public class BroadcastManager {
         List<String> messages = broadcastConfig.getStringList("void_kill_messages");
         
         if (messages.isEmpty()) {
-            String defaultMessage = victimName + " §7被 " + killerName + " §7丢下虚空。";
+            String defaultMessage = LanguageManager.getInstance().getMessage("broadcast.killed_void", "victim", victimName, "killer", killerName);
             if (isFinalKill) {
-                defaultMessage += "§b§l最终击杀！";
+                defaultMessage += LanguageManager.getInstance().getMessage("broadcast.final_kill");
             }
             Bukkit.broadcastMessage(defaultMessage);
             return;
@@ -109,7 +115,7 @@ public class BroadcastManager {
         message = message.replace("{killer}", killerName);
         
         if (isFinalKill) {
-            message += "§b§l最终击杀！";
+            message += LanguageManager.getInstance().getMessage("broadcast.final_kill");
         }
         
         Bukkit.broadcastMessage(message);
@@ -126,9 +132,9 @@ public class BroadcastManager {
         List<String> messages = broadcastConfig.getStringList("kill_messages");
         
         if (messages.isEmpty()) {
-            String defaultMessage = victimName + " §7被 " + killerName + " §7击杀！";
+            String defaultMessage = LanguageManager.getInstance().getMessage("broadcast.killed", "victim", victimName, "killer", killerName);
             if (isFinalKill) {
-                defaultMessage += "§b§l最终击杀！";
+                defaultMessage += LanguageManager.getInstance().getMessage("broadcast.final_kill");
             }
             Bukkit.broadcastMessage(defaultMessage);
             return;
@@ -139,7 +145,7 @@ public class BroadcastManager {
         message = message.replace("{killer}", killerName);
         
         if (isFinalKill) {
-            message += "§b§l最终击杀！";
+            message += LanguageManager.getInstance().getMessage("broadcast.final_kill");
         }
         
         Bukkit.broadcastMessage(message);
@@ -152,7 +158,10 @@ public class BroadcastManager {
         
         if (messages.isEmpty()) {
             Bukkit.broadcastMessage("");
-            Bukkit.broadcastMessage("§f§l床被破坏了 > " + teamColor + teamName + " §7的床被 " + destroyerColor + destroyerName + " §7破坏！");
+            String team = teamColor + teamName;
+            String destroyer = destroyerColor + destroyerName;
+            String message = LanguageManager.getInstance().getMessage("broadcast.bed_destroyed", "team", team, "destroyer", destroyer);
+            Bukkit.broadcastMessage(message);
             Bukkit.broadcastMessage("");
             return;
         }
@@ -168,37 +177,43 @@ public class BroadcastManager {
 
     public void teamEliminated(String teamColor, String teamName) {
         Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§f§l团灭 > " + teamColor + teamName + " §7已被淘汰！");
+        String team = teamColor + teamName;
+        String message = LanguageManager.getInstance().getMessage("broadcast.team_eliminated", "team", team);
+        Bukkit.broadcastMessage(message);
         Bukkit.broadcastMessage("");
     }
 
     public void gameVictory(String teamColor, String teamName) {
         Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§e游戏结束！");
+        Bukkit.broadcastMessage(LanguageManager.getInstance().getMessage("broadcast.game_victory"));
         Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§f获胜队伍 - " + teamColor + teamName);
+        String team = teamColor + teamName;
+        String message = LanguageManager.getInstance().getMessage("broadcast.game_winner", "team", team);
+        Bukkit.broadcastMessage(message);
         Bukkit.broadcastMessage("");
     }
 
     public void gameDraw() {
         Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§6§l游戏结束！");
+        Bukkit.broadcastMessage(LanguageManager.getInstance().getMessage("broadcast.game_draw"));
         Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§e本局游戏平局！");
+        Bukkit.broadcastMessage(LanguageManager.getInstance().getMessage("broadcast.game_draw_message"));
         Bukkit.broadcastMessage("");
     }
 
     public void diamondUpgrade(String romanLevel) {
-        Bukkit.broadcastMessage("§b钻石生成点§e已经升至§c" + romanLevel + "§e级。");
+        String message = LanguageManager.getInstance().getMessage("broadcast.diamond_upgrade", "level", romanLevel);
+        Bukkit.broadcastMessage(message);
     }
 
     public void emeraldUpgrade(String romanLevel) {
-        Bukkit.broadcastMessage("§2绿宝石生成点§e已经升至§c" + romanLevel + "§e级。");
+        String message = LanguageManager.getInstance().getMessage("broadcast.emerald_upgrade", "level", romanLevel);
+        Bukkit.broadcastMessage(message);
     }
 
     public void allBedsDestroyed() {
         Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§f§l床自毁 > §7所有的床均已被破坏！");
+        Bukkit.broadcastMessage(LanguageManager.getInstance().getMessage("broadcast.all_beds_destroyed"));
         Bukkit.broadcastMessage("");
     }
     

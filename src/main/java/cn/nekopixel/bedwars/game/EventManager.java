@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.game;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.broadcast.BroadcastManager;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.spawner.Diamond;
 import cn.nekopixel.bedwars.spawner.Emerald;
@@ -202,34 +203,34 @@ public class EventManager {
         int elapsedMinutes = gameTimeSeconds / 60;
         
         if (bedDestructionStarted && !suddenDeathStarted) {
-            return new NextEvent("床自毁", bedDestructionCountdown);
+            return new NextEvent(LanguageManager.getInstance().getMessage("event.bed_destruction"), bedDestructionCountdown);
         }
-        
+
         if (suddenDeathStarted && !gameEndingStarted) {
-            return new NextEvent("绝杀模式", suddenDeathCountdown);
+            return new NextEvent(LanguageManager.getInstance().getMessage("event.sudden_death"), suddenDeathCountdown);
         }
-        
+
         if (gameEndingStarted) {
-            return new NextEvent("游戏结束", gameEndingCountdown);
+            return new NextEvent(LanguageManager.getInstance().getMessage("event.game_end"), gameEndingCountdown);
         }
-        
+
         if (!diamondLevel2Upgraded && elapsedMinutes < 5) {
-            return new NextEvent("钻石生成点II级", 5 * 60 - gameTimeSeconds);
+            return new NextEvent(LanguageManager.getInstance().getMessage("event.diamond_upgrade_2"), 5 * 60 - gameTimeSeconds);
         }
-        
+
         if (!emeraldLevel2Upgraded && elapsedMinutes < 10) {
-            return new NextEvent("绿宝石生成点II级", 10 * 60 - gameTimeSeconds);
+            return new NextEvent(LanguageManager.getInstance().getMessage("event.emerald_upgrade_2"), 10 * 60 - gameTimeSeconds);
         }
         
         if (!diamondLevel3Upgraded && elapsedMinutes < 12) {
-            return new NextEvent("钻石生成点III级", 12 * 60 - gameTimeSeconds);
-        }
-        
-        if (!emeraldLevel3Upgraded && elapsedMinutes < 15) {
-            return new NextEvent("绿宝石生成点III级", 15 * 60 - gameTimeSeconds);
+            return new NextEvent(LanguageManager.getInstance().getMessage("event.diamond_upgrade_3"), 12 * 60 - gameTimeSeconds);
         }
 
-        return new NextEvent("游戏结束", -1);
+        if (!emeraldLevel3Upgraded && elapsedMinutes < 15) {
+            return new NextEvent(LanguageManager.getInstance().getMessage("event.emerald_upgrade_3"), 15 * 60 - gameTimeSeconds);
+        }
+
+        return new NextEvent(LanguageManager.getInstance().getMessage("event.game_end"), -1);
     }
     
     private void executeAllBedsDestruction() {
@@ -269,7 +270,8 @@ public class EventManager {
         BroadcastManager.getInstance().allBedsDestroyed();
         
         for (Player player : Bukkit.getOnlinePlayers()) {
-            INGameTitle.show(player, "§c床已被破坏！", "§7所有的床均已被破坏！", 5, 10, 20);
+            INGameTitle.show(player, LanguageManager.getInstance().getMessage("event.all_beds_destroyed_title"),
+                LanguageManager.getInstance().getMessage("event.all_beds_destroyed_subtitle"), 5, 10, 20);
             SoundUtils.yourBedDestroyed(player);
         }
     }
@@ -285,7 +287,7 @@ public class EventManager {
         BroadcastManager.getInstance().gameDraw();
         
         for (Player player : Bukkit.getOnlinePlayers()) {
-            INGameTitle.show(player, "§c游戏结束！", "", 5, 0, 0);
+            INGameTitle.show(player, LanguageManager.getInstance().getMessage("event.game_end_title"), "", 5, 0, 0);
         }
         
         GameManager.getInstance().setStatus(GameStatus.ENDING);

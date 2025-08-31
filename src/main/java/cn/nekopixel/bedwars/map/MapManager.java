@@ -4,6 +4,7 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.GameStatusChange;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -122,7 +123,7 @@ public class MapManager implements Listener {
             Player player = event.getPlayer();
             player.sendBlockChange(block.getLocation(), block.getBlockData());
             
-            player.sendMessage("§c你不能在这里破坏方块！");
+            player.sendMessage(LanguageManager.getInstance().getMessage("map.cannot_break_block"));
         }
     }
 
@@ -140,7 +141,7 @@ public class MapManager implements Listener {
         
         if (isPlaceProtected(location)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("§c你不能在这里放置方块！");
+            event.getPlayer().sendMessage(LanguageManager.getInstance().getMessage("map.cannot_place_block"));
             return;
         }
         

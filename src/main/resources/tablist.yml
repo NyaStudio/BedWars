@@ -3,8 +3,8 @@ tablist:
   # 更新间隔（tick）
   update_interval: 20
   header:
-    - "&b你正在游玩的是 &cN&6e&ek&ao&bP&9i&5x&de&cl &eNetwork &b喵~"
+    - "%tablist.header%"
 
   footer:
-    - "&b击杀数: &e%kills% &b最终击杀数: &e%final_kills% &b破坏床数: &e%beds_broken%"
-    - "&aRank, Booster 以及更多! &c请访问 STORE.NEKOPIXEL.CN"
+    - "%tablist.footer%"
+    - "%tablist.rank_info%"

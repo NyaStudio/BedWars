@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.shop;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.auth.AuthInterceptor;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.utils.SoundUtils;
 import cn.nekopixel.bedwars.utils.shop.PurchaseUtils;
@@ -182,10 +183,10 @@ public class ShopManager implements Listener {
         if (type.equals("quick_buy:empty_slot")) {
             itemStack = new ItemStack(Material.RED_STAINED_GLASS_PANE);
             ItemMeta meta = itemStack.getItemMeta();
-            meta.setDisplayName("§c空的槽位！");
+            meta.setDisplayName(LanguageManager.getInstance().getMessage("shop.item.empty_slot"));
             List<String> lore = new ArrayList<>();
-            lore.add("§7这是一个快速购买插槽！§b潜行点击");
-            lore.add("§7商店中的任意商品即可将其添加到此处。");
+            lore.add(LanguageManager.getInstance().getMessage("shop.item.quick_buy_slot_description1"));
+            lore.add(LanguageManager.getInstance().getMessage("shop.item.quick_buy_slot_description2"));
             meta.setLore(lore);
             
             PersistentDataContainer data = meta.getPersistentDataContainer();
@@ -430,13 +431,13 @@ public class ShopManager implements Listener {
 
         int maxStackSize = plugin.getConfig().getInt(CONFIG_MAX_STACK_PATH, MAX_STACK_SIZE);
         if (!PurchaseUtils.hasEnoughSpace(player, clickedItem, maxStackSize)) {
-            player.sendMessage("§c背包空间不足！");
+            player.sendMessage(LanguageManager.getInstance().getMessage("shop.message.inventory_full"));
             SoundUtils.purchaseFailed(player);
             return;
         }
         
         if (!PurchaseUtils.canPurchaseArmor(player, clickedItem)) {
-            player.sendMessage("§c你已经有比这个更好的了！");
+            player.sendMessage(LanguageManager.getInstance().getMessage("shop.message.better_item_owned"));
             SoundUtils.purchaseFailed(player);
             return;
         }
@@ -444,7 +445,7 @@ public class ShopManager implements Listener {
         Material costMaterial = PurchaseUtils.parseCurrency(currency);
 
         if (costMaterial == null) {
-            player.sendMessage("§c未知的货币类型: " + currency);
+            player.sendMessage(LanguageManager.getInstance().getMessage("shop.message.unknown_currency", "currency", currency));
             SoundUtils.purchaseFailed(player);
             return;
         }
@@ -452,7 +453,9 @@ public class ShopManager implements Listener {
         int playerAmount = PurchaseUtils.countMaterial(player, costMaterial);
         if (playerAmount < price) {
             int needed = price - playerAmount;
-            player.sendMessage("§c" + PurchaseUtils.translateCurrency(currency) + "不足！还需要" + PurchaseUtils.translateCurrency(currency) + "x" + needed + "！");
+            String currencyName = PurchaseUtils.translateCurrency(currency);
+            player.sendMessage(LanguageManager.getInstance().getMessage("shop.message.insufficient_currency",
+                "currency", currencyName, "amount", String.valueOf(needed)));
             SoundUtils.purchaseFailed(player);
             return;
         }
@@ -462,7 +465,7 @@ public class ShopManager implements Listener {
 
         PurchaseUtils.giveItemToPlayer(player, reward);
         String itemName = meta.getDisplayName().replaceAll("§[0-9a-fk-or]", "");
-        player.sendMessage("§a你购买了§e" + itemName);
+        player.sendMessage(LanguageManager.getInstance().getMessage("shop.message.purchase_success", "item", itemName));
         SoundUtils.purchaseSucceed(player);
         
         updateShopIfOpen(player);
@@ -501,7 +504,7 @@ public class ShopManager implements Listener {
         Inventory openInventory = player.getOpenInventory().getTopInventory();
         String title = player.getOpenInventory().getTitle();
         
-        if (title.equals("§8物品商店")) {
+        if (title.equals(LanguageManager.getInstance().getMessage("shop.item.shop_title"))) {
             itemShop.updateInventory(openInventory, player);
         }
     }

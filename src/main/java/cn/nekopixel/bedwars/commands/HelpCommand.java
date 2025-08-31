@@ -1,40 +1,40 @@
 package cn.nekopixel.bedwars.commands;
 
-import org.bukkit.ChatColor;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import org.bukkit.command.CommandSender;
 
 public class HelpCommand {
     public static void sendMainHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "=== Bedwars 命令帮助 ===");
-        sender.sendMessage(ChatColor.YELLOW + "/bw version " + ChatColor.GRAY + "- 显示插件版本信息");
-        sender.sendMessage(ChatColor.YELLOW + "/bw switch <status> " + ChatColor.GRAY + "- 切换游戏状态");
-        sender.sendMessage(ChatColor.YELLOW + "/bw reload " + ChatColor.GRAY + "- 重新加载配置文件");
-        sender.sendMessage(ChatColor.YELLOW + "/bw save " + ChatColor.GRAY + "- 保存配置文件");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setmode <solo|double|3s|4s|4v4> " + ChatColor.GRAY + "- 设置游戏模式");
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.title"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.version"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.switch"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.reload"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.save"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.setmode"));
         sender.sendMessage("");
-        sender.sendMessage(ChatColor.GOLD + "=== 地图配置命令 ===");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setjoin [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置加入时位置");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setrespawning [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置等待重生位置");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setbed <team> [x] [y] [z] " + ChatColor.GRAY + "- 设置队伍床位置");
-        sender.sendMessage(ChatColor.YELLOW + "/bw removebed <team> " + ChatColor.GRAY + "- 移除队伍床位置");
-        sender.sendMessage(ChatColor.YELLOW + "/bw listbeds " + ChatColor.GRAY + "- 列出所有床位置");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setspawn <team> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置队伍出生点");
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.map_title"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.setjoin"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.setrespawning"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.setbed"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.removebed"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.listbeds"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.setspawn"));
         sender.sendMessage("");
-        sender.sendMessage(ChatColor.GOLD + "=== NPC管理命令 ===");
-        sender.sendMessage(ChatColor.YELLOW + "/bw addnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 添加商店/升级NPC");
-        sender.sendMessage(ChatColor.YELLOW + "/bw listnpcs" + ChatColor.WHITE + " - 列出所有NPC位置");
-        sender.sendMessage(ChatColor.YELLOW + "/bw removenpc <shop|upgrade> <index>" + ChatColor.WHITE + " - 移除指定NPC");
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.npc_title"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.addnpc"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.listnpcs"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.removenpc"));
         sender.sendMessage("");
-        sender.sendMessage(ChatColor.GOLD + "=== 资源点管理命令 ===");
-        sender.sendMessage(ChatColor.YELLOW + "/bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch] " + ChatColor.GRAY + "- 设置资源生成点");
-        sender.sendMessage(ChatColor.YELLOW + "/bw listspawners" + ChatColor.WHITE + " - 列出所有资源生成点");
-        sender.sendMessage(ChatColor.YELLOW + "/bw removespawner <iron|gold|diamond|emerald> <index>" + ChatColor.WHITE + " - 移除指定资源生成点");
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.spawner_title"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.setspawner"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.listspawners"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.removespawner"));
         sender.sendMessage("");
-        sender.sendMessage(ChatColor.GOLD + "=== 保护区域命令 ===");
-        sender.sendMessage(ChatColor.YELLOW + "/bw pos1 [x] [y] [z]" + ChatColor.WHITE + " - 设置第一个坐标点");
-        sender.sendMessage(ChatColor.YELLOW + "/bw pos2 [x] [y] [z]" + ChatColor.WHITE + " - 设置第二个坐标点");
-        sender.sendMessage(ChatColor.YELLOW + "/bw addprotect <name>" + ChatColor.WHITE + " - 添加保护区域");
-        sender.sendMessage(ChatColor.YELLOW + "/bw removeprotect <name>" + ChatColor.WHITE + " - 移除保护区域");
-        sender.sendMessage(ChatColor.YELLOW + "/bw listprotect" + ChatColor.WHITE + " - 列出所有保护区域");
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.protect_title"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.pos1"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.pos2"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.addprotect"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.removeprotect"));
+        sender.sendMessage(LanguageManager.getInstance().getMessage("help.listprotect"));
     }
 }

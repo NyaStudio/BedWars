@@ -1,5 +1,6 @@
 package cn.nekopixel.bedwars.shop;
 
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.utils.shop.PurchaseUtils;
 import org.bukkit.entity.Player;
 
@@ -16,9 +17,9 @@ public class Placeholders {
             
             if (processedLine.contains("{purchase_status}")) {
                 if (canAfford) {
-                    processedLine = processedLine.replace("{purchase_status}", "§e点击购买！");
+                    processedLine = processedLine.replace("{purchase_status}", LanguageManager.getInstance().getMessage("shop.purchase_status_can_afford"));
                 } else {
-                    processedLine = processedLine.replace("{purchase_status}", "§c你没有足够的" + currencyName + "！");
+                    processedLine = processedLine.replace("{purchase_status}", LanguageManager.getInstance().getMessage("shop.purchase_status_insufficient", "currency", currencyName));
                 }
             }
             
@@ -39,7 +40,7 @@ public class Placeholders {
         }
         
         if (item.getCategory().equals("quick_buy") && processedLore.size() > 0) {
-            processedLore.add(processedLore.size() - 1, "§bShift + 左键从快速购买中移除！");
+            processedLore.add(processedLore.size() - 1, LanguageManager.getInstance().getMessage("shop.quick_buy_remove_hint"));
         }
         
         return processedLore;

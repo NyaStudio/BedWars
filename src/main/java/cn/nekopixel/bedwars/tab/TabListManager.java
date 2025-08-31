@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.tab;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.GameStatus;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.player.PlayerStats;
 import cn.nekopixel.bedwars.team.TeamManager;
 import org.bukkit.Bukkit;
@@ -146,7 +147,7 @@ public class TabListManager {
         }
 
         String teamColor = teamColors.getOrDefault(team.toLowerCase(), "&7");
-        String teamName = teamNames.getOrDefault(team.toLowerCase(), "未知队伍");
+        String teamName = teamNames.getOrDefault(team.toLowerCase(), LanguageManager.getInstance().getMessage("team.unknown"));
 
         String formattedName = tabFormat
                 .replace("%team_color%", teamColor)
@@ -276,7 +277,7 @@ public class TabListManager {
     }
     
     public String getTeamName(String team) {
-        return teamNames.getOrDefault(team.toLowerCase(), "未知");
+        return teamNames.getOrDefault(team.toLowerCase(), LanguageManager.getInstance().getMessage("team.unknown_short"));
     }
     
     public void onPlayerJoin(Player player) {

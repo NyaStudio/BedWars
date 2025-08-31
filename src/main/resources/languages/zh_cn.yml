@@ -1,0 +1,238 @@
+# 中文(简体)语言文件
+# BedWars 插件本地化配置
+
+# 商店相关
+shop:
+  item:
+    empty_slot: "§c空的槽位！"
+    shop_title: "§8物品商店"
+    quick_buy_slot_description1: "§7这是一个快速购买插槽！§b潜行点击"
+    quick_buy_slot_description2: "§7商店中的任意商品即可将其添加到此处。"
+  upgrade:
+    title: "§b队伍升级"
+    sharpness: "§b锋利"
+    protection: "§b防护"
+    price: "§7价格: §e{price} {currency}"
+  message:
+    inventory_full: "§c背包空间不足！"
+    better_item_owned: "§c你已经有比这个更好的了！"
+    unknown_currency: "§c未知的货币类型: {currency}"
+    insufficient_currency: "§c{currency}不足！还需要{currency}x{amount}！"
+    purchase_success: "§a你购买了§e{item}"
+  shop_title: "§8物品商店"
+  purchase_status_can_afford: "§e点击购买！"
+  purchase_status_insufficient: "§c你没有足够的{currency}！"
+  quick_buy_remove_hint: "§bShift + 左键从快速购买中移除！"
+
+# 货币翻译
+currency:
+  iron: "铁锭"
+  gold: "金锭"
+  diamond: "钻石"
+  emerald: "绿宝石"
+
+# NPC相关
+npc:
+  shop:
+    title: "§b道具商店"
+    subtitle: "§e右键点击"
+  upgrade:
+    title: "§b升级"
+    subtitle: "§e右键点击"
+  mode:
+    solo: "§b单挑模式"
+    team: "§b团队模式"
+
+# 资源生成器
+spawner:
+  diamond: "钻石"
+  emerald: "绿宝石"
+  level: "§e等级 {level}"
+  countdown: "§e将在 {seconds} 秒后产出"
+
+# 队伍相关
+team:
+  unknown: "未知队伍"
+  unknown_short: "未知"
+
+# 物品相关
+item:
+  unknown: "这是啥来着"
+
+# 游戏状态相关
+game:
+  waiting: "等待中....."
+  starting: "即将开始: {seconds}秒"
+
+# 队列管理相关
+queue:
+  countdown_message: "§e游戏将在 §c{seconds}§e 秒后开始!"
+  insufficient_players: "§c玩家数量不足，等待更多玩家....."
+  waiting_for_more: "§c等待更多玩家加入....."
+
+# 重生相关
+respawn:
+  death_title: "§c你死了！"
+  countdown_title: "§e你将在§c{seconds}§e秒后重生！"
+  countdown_message: "§e你将在§c{seconds}§e秒后重生！"
+  respawn_message: "§e你已经重生！"
+  respawn_title: "§a已重生！"
+
+# 死亡相关
+death:
+  respawn_countdown_5: "§e你将在§c5§e秒后重生！"
+  death_title: "§c你死了！"
+  death_subtitle: "§7你现在是观察者！"
+  eliminated: "§c你已被淘汰！"
+  respawn_countdown_10: "§e你将在§c10§e秒后重生！"
+  resource_iron: "§f+{amount}铁锭"
+  resource_gold: "§6+{amount}金锭"
+  resource_diamond: "§b+{amount}钻石"
+  resource_emerald: "§2+{amount}绿宝石"
+
+# 床相关
+bed:
+  cannot_break_own: "§c你不能破坏自己的床！"
+  destroyed_title: "§c床已被破坏！"
+  destroyed_subtitle: "§7你将无法重生！"
+
+# 帮助命令相关
+help:
+  title: "§6=== Bedwars 命令帮助 ==="
+  version: "§e/bw version §7- 显示插件版本信息"
+  switch: "§e/bw switch <status> §7- 切换游戏状态"
+  reload: "§e/bw reload §7- 重新加载配置文件"
+  save: "§e/bw save §7- 保存配置文件"
+  setmode: "§e/bw setmode <solo|double|3s|4s|4v4> §7- 设置游戏模式"
+  map_title: "§6=== 地图配置命令 ==="
+  setjoin: "§e/bw setjoin [x] [y] [z] [yaw] [pitch] §7- 设置加入时位置"
+  setrespawning: "§e/bw setrespawning [x] [y] [z] [yaw] [pitch] §7- 设置等待重生位置"
+  setbed: "§e/bw setbed <team> [x] [y] [z] §7- 设置队伍床位置"
+  removebed: "§e/bw removebed <team> §7- 移除队伍床位置"
+  listbeds: "§e/bw listbeds §7- 列出所有床位置"
+  setspawn: "§e/bw setspawn <team> [x] [y] [z] [yaw] [pitch] §7- 设置队伍出生点"
+  npc_title: "§6=== NPC管理命令 ==="
+  addnpc: "§e/bw addnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch] §7- 添加商店/升级NPC"
+  listnpcs: "§e/bw listnpcs §f- 列出所有NPC位置"
+  removenpc: "§e/bw removenpc <shop|upgrade> <index> §f- 移除指定NPC"
+  spawner_title: "§6=== 资源点管理命令 ==="
+  setspawner: "§e/bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch] §7- 设置资源生成点"
+  listspawners: "§e/bw listspawners §f- 列出所有资源生成点"
+  removespawner: "§e/bw removespawner <iron|gold|diamond|emerald> <index> §f- 移除指定资源生成点"
+  protect_title: "§6=== 保护区域命令 ==="
+  pos1: "§e/bw pos1 [x] [y] [z] §f- 设置第一个坐标点"
+  pos2: "§e/bw pos2 [x] [y] [z] §f- 设置第二个坐标点"
+  addprotect: "§e/bw addprotect <name> §f- 添加保护区域"
+  removeprotect: "§e/bw removeprotect <name> §f- 移除保护区域"
+  listprotect: "§e/bw listprotect §f- 列出所有保护区域"
+
+# 广播消息相关
+broadcast:
+  join_waiting: "{player} §e加入了游戏 (§b{current}§e/§b{max}§e)！"
+  quit_waiting: "{player} §e离开了游戏！"
+  reconnect: "{player} §7重新连接"
+  join_ingame: "{player} §e加入游戏！"
+  disconnect: "{player} §7断开连接"
+  fell_void: "{player} §7失足跌入虚空。"
+  killed_void: "{victim} §7被 {killer} §7丢下虚空。"
+  killed: "{victim} §7被 {killer} §7击杀！"
+  final_kill: "§b§l最终击杀！"
+  bed_destroyed: "§f§l床被破坏了 > {team} §7的床被 {destroyer} §7破坏！"
+  team_eliminated: "§f§l团灭 > {team} §7已被淘汰！"
+  game_victory: "§e游戏结束！"
+  game_winner: "§f获胜队伍 - {team}"
+  game_draw: "§6§l游戏结束！"
+  game_draw_message: "§e本局游戏平局！"
+  diamond_upgrade: "§b钻石生成点§e已经升至§c{level}§e级。"
+  emerald_upgrade: "§2绿宝石生成点§e已经升至§c{level}§e级。"
+  all_beds_destroyed: "§f§l床自毁 > §7所有的床均已被破坏！"
+
+# 事件相关
+event:
+  bed_destruction: "床破坏"
+  diamond_upgrade_2: "钻石生成点II级"
+  emerald_upgrade_2: "绿宝石生成点II级"
+  diamond_upgrade_3: "钻石生成点III级"
+  emerald_upgrade_3: "绿宝石生成点III级"
+  sudden_death: "突然死亡"
+  game_end: "游戏结束"
+  all_beds_destroyed_title: "§c床已被破坏！"
+  all_beds_destroyed_subtitle: "§7所有的床均已被破坏！"
+  game_end_title: "§c游戏结束！"
+
+# 命令相关
+command:
+  error:
+    player_only: "§c这个命令只能玩家执行。"
+    usage:
+      setjoin: "§c用法: /bw setjoin [x] [y] [z] [yaw] [pitch]"
+      setrespawning: "§c用法: /bw setrespawning [x] [y] [z] [yaw] [pitch]"
+      setbed: "§c用法: /bw setbed <team> [x] [y] [z]"
+      removebed: "§c用法: /bw removebed <team>"
+      addnpc: "§c用法: /bw addnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch]"
+      setspawner: "§c用法: /bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch]"
+      removespawner: "§c用法: /bw removespawner <iron|gold|diamond|emerald> <index>"
+      removenpc: "§c用法: /bw removenpc <shop|upgrade> <index>"
+      pos1: "§c用法: /bw pos1 [x] [y] [z]"
+      pos2: "§c用法: /bw pos2 [x] [y] [z]"
+      addprotect: "§c用法: /bw addprotect <name>"
+      removeprotect: "§c用法: /bw removeprotect <name>"
+      setmode: "§c用法: /bw setmode <solo|double|3s|4s|4v4>"
+    invalid_team: "§c无效的队伍颜色！可用颜色: {teams}"
+    invalid_bed_location: "§c错误：指定位置必须是床方块"
+    no_bed_set: "§c该队伍还没有设置床位置！"
+    invalid_mode: "§c无效的模式！可选: solo, double, 3s, 4s, 4v4"
+  success:
+    setjoin: "§a已设置加入时位置"
+    setrespawning: "§a已设置等待重生位置"
+    setbed: "§a已设置 {team} 队的床位置"
+    removebed: "§a已移除 {team} 队的床位置"
+    addshop: "§a已添加一个商店NPC位置"
+    addupgrade: "§a已添加一个升级NPC位置"
+    invalid_npc_type: "§c无效的NPC类型！可用类型: shop, upgrade"
+    invalid_resource_type: "§c无效的资源类型！可用类型: iron, gold, diamond, emerald"
+    setspawner: "§a已添加一个 {type} 生成点"
+    config_saved: "§a配置文件已保存！"
+    setmode: "§a已设置游戏模式为: {mode}"
+    pos1: "已设置第一个坐标点:"
+    pos2: "已设置第二个坐标点:"
+  list:
+    no_protect_areas: "§e当前没有配置任何保护区域"
+    protect_areas_header: "§6=== 保护区域列表 ==="
+    protect_area_format: "§e{area}: §7({x1}, {y1}, {z1}) 到 ({x2}, {y2}, {z2})"
+    remove_protect_success: "§a成功移除保护区域: {area}"
+    no_spawners: "§c没有找到任何 {type} 生成点"
+    spawner_index_error: "§c无效的索引！有效范围: 0-{max}"
+    remove_spawner_success: "§a成功移除 {type} 生成点 #{index}"
+    invalid_index: "§c无效的索引号"
+    spawners_header: "§6=== 资源生成点列表 ==="
+    spawner_empty: "§e{type}: 无"
+    no_npcs: "§c没有找到任何 {type} NPC"
+    remove_npc_success: "§a成功移除 {type} NPC #{index}"
+    npcs_header: "§6=== NPC位置列表 ==="
+    npc_empty: "§e{type}: 无"
+    no_beds: "§e当前没有设置任何床位置"
+
+# 地图管理相关
+map:
+  cannot_break_block: "§c你不能在这里破坏方块！"
+  cannot_place_block: "§c你不能在这里放置方块！"
+  cannot_place_liquid: "§c你不能在这里放置液体！"
+  cannot_collect_liquid: "§c你不能在这里收集液体！"
+
+# 计分板相关
+scoreboard:
+  title: "§e§l起床战争"
+  map: "§f地图: §a{map_name}"
+  players: "§f玩家: §a{players}/{max_players}"
+  mode: "§f模式: §a{mode_display}"
+  version: "§f版本: §7{version}"
+  kills: "§f击杀数: §a{kills}"
+  final_kills: "§f最终击杀数: §a{final_kills}"
+  beds_broken: "§f破坏床数: §a{beds_broken}"
+
+# Tab列表相关
+tablist:
+  header: "§b你正在游玩的是 §cN§6e§ek§ao§bP§9i§5x§de§cl §eNetwork §b喵~"
+  footer: "§b击杀数: §e{kills} §b最终击杀数: §e{final_kills} §b破坏床数: §e{beds_broken}"
+  rank_info: "§aRank, Booster 以及更多! §c请访问 STORE.NEKOPIXEL.CN"

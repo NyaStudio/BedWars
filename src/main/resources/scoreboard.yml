@@ -3,40 +3,32 @@ scoreboard:
   date_format: "MM/dd/yy"
 
   waiting:
-    title: "&e&l起床战争"
+    title: "%scoreboard.title%"
     title_animation:
       enabled: true
       interval_ticks: 7
       frames:
-        - "&6&l起&e&l床战争"
-        - "&e&l起&6&l床&e&l战争"
-        - "&e&l起床&6&l战&e&l争"
-        - "&e&l起床战&6&l争"
-        - "&e&l起床战争"
-        - "&f&l起床战争"
-        - "&e&l起床战争"
-        - "&f&l起床战争"
-        - "&e&l起床战争"
+        - "%scoreboard.title%"
 
     lines:
       - "&7%date%  &8%server_id%"
       - ""
-      - "&f地图: &a%map_name%"
-      - "&f玩家: &a%players%/%max_players%"
+      - "%scoreboard.map%"
+      - "%scoreboard.players%"
       - ""
       - "%countdown_line%"
       - ""
-      - "&f模式: &a%mode_display%"
-      - "&f版本: &7%version%"
+      - "%scoreboard.mode%"
+      - "%scoreboard.version%"
       - ""
       - "&emc.nekopixel.cn"
 
     countdown:
-      waiting: "&f等待中....."
-      starting: "&f即将开始: &a%seconds%秒"
+      waiting: "%game.waiting%"
+      starting: "%game.starting%"
 
   ingame:
-    title: "&e&l起床战争"
+    title: "%scoreboard.title%"
     title_animation:
       enabled: false
       interval_ticks: 10
@@ -56,9 +48,9 @@ scoreboard:
       max_teams: 4
       lines:
         - ""
-        - "&f击杀数: &a%kills%"
-        - "&f最终击杀数: &a%final_kills%"
-        - "&f破坏床数: &a%beds_broken%"
+        - "%scoreboard.kills%"
+        - "%scoreboard.final_kills%"
+        - "%scoreboard.beds_broken%"
 
   mode_display:
     solo: "单挑"

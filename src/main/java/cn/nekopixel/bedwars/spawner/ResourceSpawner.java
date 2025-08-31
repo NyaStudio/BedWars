@@ -4,6 +4,7 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.GameManager;
 import cn.nekopixel.bedwars.game.GameStatus;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.setup.Map;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -62,11 +63,11 @@ public abstract class ResourceSpawner implements Listener {
         HologramConfig(Material material) {
             if (material == Material.DIAMOND) {
                 this.blockMaterial = Material.DIAMOND_BLOCK;
-                this.resourceName = "钻石";
+                this.resourceName = LanguageManager.getInstance().getMessage("spawner.diamond");
                 this.resourceColor = "§b";
             } else if (material == Material.EMERALD) {
                 this.blockMaterial = Material.EMERALD_BLOCK;
-                this.resourceName = "绿宝石";
+                this.resourceName = LanguageManager.getInstance().getMessage("spawner.emerald");
                 this.resourceColor = "§2";
             } else {
                 throw new IllegalArgumentException("Unsupported resource type");
@@ -364,13 +365,13 @@ public abstract class ResourceSpawner implements Listener {
 
     private void createHologramEntities(World world, Location hologramLoc, HologramConfig config, List<Entity> entities) {
         entities.add(createTextStand(world, hologramLoc.clone().add(0, 0.8, 0),
-                new HologramText("§e等级 ", "§c" + getRomanNumeral(level), "")));
+                new HologramText(LanguageManager.getInstance().getMessage("spawner.level", "level", getRomanNumeral(level)), "", "")));
 
         entities.add(createTextStand(world, hologramLoc.clone().add(0, 0.5, 0),
                 new HologramText(config.resourceColor, config.resourceName, "")));
 
         entities.add(createTextStand(world, hologramLoc.clone().add(0, 0.2, 0),
-                new HologramText("§e将在 ", "§c" + (interval / 20), "§e 秒后产出")));
+                new HologramText(LanguageManager.getInstance().getMessage("spawner.countdown", "seconds", String.valueOf(interval / 20)), "", "")));
 
         ArmorStand blockStand = (ArmorStand) world.spawnEntity(hologramLoc.clone().add(0, -1.0, 0), EntityType.ARMOR_STAND);
         blockStand.setVisible(false);
@@ -437,7 +438,7 @@ public abstract class ResourceSpawner implements Listener {
                     remainingTicks = currentInterval;
                 }
 
-                countdownStand.setCustomName(new HologramText("§e将在 ", "§c" + (remainingTicks / 20), "§e 秒后产出").getFullText());
+                countdownStand.setCustomName(LanguageManager.getInstance().getMessage("spawner.countdown", "seconds", String.valueOf(remainingTicks / 20)));
             }
         };
         countdownTask.runTaskTimer(plugin, 0L, 1L);

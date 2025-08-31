@@ -7,6 +7,7 @@ import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.commands.CommandManager;
 import cn.nekopixel.bedwars.commands.ShoutCommand;
 import cn.nekopixel.bedwars.game.GameManager;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.listener.*;
 import cn.nekopixel.bedwars.map.MapManager;
 import cn.nekopixel.bedwars.player.Damage;
@@ -53,7 +54,7 @@ public class Loader {
     
     private static void performSecurityValidation(Main plugin) {
         if (!AuthValidator.isAuthorized()) {
-            plugin.getLogger().severe("Hardware fingerprint: " + HardwareInfo.getFingerprint());
+            plugin.getLogger().severe("Hardware ID: " + HardwareInfo.getFingerprint());
             
             int method = ThreadLocalRandom.current().nextInt(5);
             switch (method) {
@@ -144,10 +145,12 @@ public class Loader {
     public static void initializeManagers(Main plugin) {
         ensureSystemValid();
         Plugin bedWarsPlugin = Plugin.getInstance();
-        
+
+        LanguageManager.initialize(plugin);
+
         mapSetup = new Map(plugin);
         bedWarsPlugin.setMapSetup(mapSetup);
-        
+
         BroadcastManager.initialize(plugin);
         GameManager.initialize(plugin);
         bedWarsPlugin.setGameManager(GameManager.getInstance());
@@ -200,7 +203,8 @@ public class Loader {
             if (bedWarsPlugin.getChatManager() != null) {
                 bedWarsPlugin.getChatManager().reloadConfig();
             }
-            
+
+            LanguageManager.getInstance().reload();
             BroadcastManager.getInstance().reloadConfig();
             
             if (bedWarsPlugin.getTabListManager() != null) {

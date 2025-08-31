@@ -4,6 +4,7 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.game.*;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.packet.RespawnPacketHandler;
 import cn.nekopixel.bedwars.player.PlayerStats;
 import cn.nekopixel.bedwars.tab.TabListManager;
@@ -249,13 +250,14 @@ public class DeathListener implements Listener {
                 player.teleport(respawningLocation);
             }
             
-            player.sendMessage("§e你将在§c5§e秒后重生！");
+            player.sendMessage(LanguageManager.getInstance().getMessage("death.respawn_countdown_5"));
             
             respawnManager.startRespawnCountdown(player, 5);
         } else {
             makeSpectator(player);
-            INGameTitle.show(player, "§c你死了！", "§7你现在是观察者！", 5);
-            player.sendMessage("§c你已被淘汰！");
+            INGameTitle.show(player, LanguageManager.getInstance().getMessage("death.death_title"),
+                LanguageManager.getInstance().getMessage("death.death_subtitle"), 5);
+            player.sendMessage(LanguageManager.getInstance().getMessage("death.eliminated"));
             
             if (Plugin.getInstance().getScoreboardManager() != null) {
                 Plugin.getInstance().getScoreboardManager().forceUpdateAll();
@@ -304,16 +306,16 @@ public class DeathListener implements Listener {
                 String resourceMessage = "";
                 switch (entry.getKey()) {
                     case IRON_INGOT:
-                        resourceMessage = "§f+" + entry.getValue() + "铁锭";
+                        resourceMessage = LanguageManager.getInstance().getMessage("death.resource_iron", "amount", String.valueOf(entry.getValue()));
                         break;
                     case GOLD_INGOT:
-                        resourceMessage = "§6+" + entry.getValue() + "金锭";
+                        resourceMessage = LanguageManager.getInstance().getMessage("death.resource_gold", "amount", String.valueOf(entry.getValue()));
                         break;
                     case DIAMOND:
-                        resourceMessage = "§b+" + entry.getValue() + "钻石";
+                        resourceMessage = LanguageManager.getInstance().getMessage("death.resource_diamond", "amount", String.valueOf(entry.getValue()));
                         break;
                     case EMERALD:
-                        resourceMessage = "§2+" + entry.getValue() + "绿宝石";
+                        resourceMessage = LanguageManager.getInstance().getMessage("death.resource_emerald", "amount", String.valueOf(entry.getValue()));
                         break;
                 }
                 if (!resourceMessage.isEmpty()) {
@@ -637,7 +639,7 @@ public class DeathListener implements Listener {
             player.teleport(respawningLocation);
         }
         
-        player.sendMessage("§e你将在§c10§e秒后重生！");
+        player.sendMessage(LanguageManager.getInstance().getMessage("death.respawn_countdown_10"));
         
         respawnManager.startRespawnCountdown(player, 10);
     }

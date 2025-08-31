@@ -4,6 +4,7 @@ import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.game.GameStatus;
 import cn.nekopixel.bedwars.game.GameStatusChange;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.utils.LocationUtils;
 import org.bukkit.Location;
@@ -79,7 +80,7 @@ public class NPCManager implements Listener {
                 String worldName = (String) locMap.get("world");
                 if (worldName != null && plugin.getServer().getWorld(worldName) != null) {
                     Location loc = Location.deserialize(locMap);
-                    spawnNPC(loc, "§b道具商店", "§e右键点击", true);
+                    spawnNPC(loc, LanguageManager.getInstance().getMessage("npc.shop.title"), LanguageManager.getInstance().getMessage("npc.shop.subtitle"), true);
                 }
             }
         }
@@ -93,9 +94,9 @@ public class NPCManager implements Listener {
                     Location loc = Location.deserialize(locMap);
                     
                     String mode = plugin.getConfig().getString("game.mode", "4s");
-                    String modeText = mode.equalsIgnoreCase("solo") ? "§b单挑模式" : "§b团队模式";
-                    
-                    spawnUpgradeNPC(loc, "§b升级", "§e右键点击", modeText);
+                    String modeText = mode.equalsIgnoreCase("solo") ? LanguageManager.getInstance().getMessage("npc.mode.solo") : LanguageManager.getInstance().getMessage("npc.mode.team");
+
+                    spawnUpgradeNPC(loc, LanguageManager.getInstance().getMessage("npc.upgrade.title"), LanguageManager.getInstance().getMessage("npc.upgrade.subtitle"), modeText);
                 }
             }
         }

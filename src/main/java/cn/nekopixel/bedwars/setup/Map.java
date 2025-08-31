@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.setup;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.commands.HelpCommand;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -88,7 +89,7 @@ public class Map implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player p)) {
-            sender.sendMessage(ChatColor.RED + "这个命令只能玩家执行。");
+            sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.player_only"));
             return true;
         }
 
@@ -104,67 +105,67 @@ public class Map implements CommandExecutor, TabCompleter {
 
             case "setjoin" -> {
                 if (args.length < 1) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw setjoin [x] [y] [z] [yaw] [pitch]");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.setjoin"));
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 1);
                 mapConfig.set("join", loc.serialize());
                 saveMapConfig();
-                sender.sendMessage(ChatColor.GREEN + "已设置加入时位置");
+                sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.setjoin"));
             }
 
             case "setrespawning" -> {
                 if (args.length < 1) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw setrespawning [x] [y] [z] [yaw] [pitch]");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.setrespawning"));
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 1);
                 mapConfig.set("respawning", loc.serialize());
                 saveMapConfig();
-                sender.sendMessage(ChatColor.GREEN + "已设置等待重生位置");
+                sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.setrespawning"));
             }
 
             case "setbed" -> {
                 if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw setbed <team> [x] [y] [z]");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.setbed"));
                     return true;
                 }
                 String team = args[1].toLowerCase();
                 if (!validTeams.contains(team)) {
-                    sender.sendMessage(ChatColor.RED + "无效的队伍颜色！可用颜色: " + String.join(", ", validTeams));
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.invalid_team", "teams", String.join(", ", validTeams)));
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
                 Block block = loc.getBlock();
                 if (!block.getType().name().endsWith("_BED")) {
-                    sender.sendMessage(ChatColor.RED + "错误：指定位置必须是床方块");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.invalid_bed_location"));
                     return true;
                 }
                 mapConfig.set("beds." + team, loc.serialize());
                 saveMapConfig();
-                
-                sender.sendMessage(ChatColor.GREEN + "已设置 " + ChatColor.YELLOW + team + ChatColor.GREEN + " 队的床位置");
+
+                sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.setbed", "team", team));
             }
 
             case "removebed" -> {
                 if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw removebed <team>");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.removebed"));
                     return true;
                 }
                 String team = args[1].toLowerCase();
                 if (!validTeams.contains(team)) {
-                    sender.sendMessage(ChatColor.RED + "无效的队伍颜色！可用颜色: " + String.join(", ", validTeams));
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.invalid_team", "teams", String.join(", ", validTeams)));
                     return true;
                 }
-                
+
                 if (!mapConfig.contains("beds." + team)) {
-                    sender.sendMessage(ChatColor.RED + "该队伍还没有设置床位置！");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.no_bed_set"));
                     return true;
                 }
-                
+
                 mapConfig.set("beds." + team, null);
                 saveMapConfig();
-                sender.sendMessage(ChatColor.GREEN + "已移除 " + ChatColor.YELLOW + team + ChatColor.GREEN + " 队的床位置");
+                sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.removebed", "team", team));
             }
             
             case "listbeds" -> {
@@ -173,23 +174,23 @@ public class Map implements CommandExecutor, TabCompleter {
 
             case "setspawn" -> {
                 if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw setspawn <team> [x] [y] [z] [yaw] [pitch]");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.setspawn"));
                     return true;
                 }
                 String team = args[1].toLowerCase();
                 if (!validTeams.contains(team)) {
-                    sender.sendMessage(ChatColor.RED + "无效的队伍颜色！可用颜色: " + String.join(", ", validTeams));
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.invalid_team", "teams", String.join(", ", validTeams)));
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
                 mapConfig.set("spawnpoints." + team, loc.serialize());
                 saveMapConfig();
-                sender.sendMessage(ChatColor.GREEN + "已设置 " + ChatColor.YELLOW + team + ChatColor.GREEN + " 队出生点");
+                sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.setspawn", "team", team));
             }
 
             case "addnpc" -> {
                 if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw addnpc <shop|upgrade> [x] [y] [z] [yaw] [pitch]");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.addnpc"));
                     return true;
                 }
                 String type = args[1].toLowerCase();
@@ -200,26 +201,26 @@ public class Map implements CommandExecutor, TabCompleter {
                     list.add(loc.serialize());
                     mapConfig.set("npcs.shop", list);
                     saveMapConfig();
-                    sender.sendMessage(ChatColor.GREEN + "已添加一个商店NPC位置");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.addshop"));
                 } else if (type.equals("upgrade")) {
                     List<java.util.Map<?, ?>> list = mapConfig.getMapList("npcs.upgrade");
                     list.add(loc.serialize());
                     mapConfig.set("npcs.upgrade", list);
                     saveMapConfig();
-                    sender.sendMessage(ChatColor.GREEN + "已添加一个升级NPC位置");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.addupgrade"));
                 } else {
-                    sender.sendMessage(ChatColor.RED + "无效的NPC类型！可用类型: shop, upgrade");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.invalid_npc_type"));
                 }
             }
 
             case "setspawner" -> {
                 if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw setspawner <iron|gold|diamond|emerald> [x] [y] [z] [yaw] [pitch]");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.setspawner"));
                     return true;
                 }
                 String type = args[1].toLowerCase();
                 if (!type.equals("iron") && !type.equals("gold") && !type.equals("diamond") && !type.equals("emerald")) {
-                    sender.sendMessage(ChatColor.RED + "无效的资源类型！可用类型: iron, gold, diamond, emerald");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.invalid_resource_type"));
                     return true;
                 }
                 Location loc = getLocationFromArgs(p, args, 2);
@@ -227,12 +228,12 @@ public class Map implements CommandExecutor, TabCompleter {
                 list.add(loc.serialize());
                 mapConfig.set("spawners." + type, list);
                 saveMapConfig();
-                sender.sendMessage(ChatColor.GREEN + "已添加一个 " + ChatColor.YELLOW + type + ChatColor.GREEN + " 生成点");
+                sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.setspawner", "type", type));
             }
 
             case "removespawner" -> {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw removespawner <iron|gold|diamond|emerald> <index>");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.removespawner"));
                     return true;
                 }
                 handleRemoveSpawner(p, args[1], args[2]);
@@ -244,7 +245,7 @@ public class Map implements CommandExecutor, TabCompleter {
 
             case "removenpc" -> {
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw removenpc <shop|upgrade> <index>");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.removenpc"));
                     return true;
                 }
                 handleRemoveNPC(p, args[1], args[2]);
@@ -256,29 +257,29 @@ public class Map implements CommandExecutor, TabCompleter {
 
             case "pos1" -> {
                 if (args.length < 1) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw pos1 [x] [y] [z]");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.pos1"));
                     return true;
                 }
                 Location pos1 = getLocationFromArgs(p, args, 1);
                 pos1Map.put(p, pos1);
-                sender.sendMessage(ChatColor.GREEN + "已设置第一个坐标点: " + 
+                sender.sendMessage(ChatColor.GREEN + LanguageManager.getInstance().getMessage("command.success.pos1") + " " +
                     String.format("(%.1f, %.1f, %.1f)", pos1.getX(), pos1.getY(), pos1.getZ()));
             }
 
             case "pos2" -> {
                 if (args.length < 1) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw pos2 [x] [y] [z]");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.pos2"));
                     return true;
                 }
                 Location pos2 = getLocationFromArgs(p, args, 1);
                 pos2Map.put(p, pos2);
-                sender.sendMessage(ChatColor.GREEN + "已设置第二个坐标点: " + 
+                sender.sendMessage(ChatColor.GREEN + LanguageManager.getInstance().getMessage("command.success.pos2") + " " +
                     String.format("(%.1f, %.1f, %.1f)", pos2.getX(), pos2.getY(), pos2.getZ()));
             }
 
             case "addprotect" -> {
                 if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw addprotect <name>");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.addprotect"));
                     return true;
                 }
                 handleAddProtectArea(p, args);
@@ -286,7 +287,7 @@ public class Map implements CommandExecutor, TabCompleter {
 
             case "removeprotect" -> {
                 if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw removeprotect <name>");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.removeprotect"));
                     return true;
                 }
                 handleRemoveProtectArea(p, args[1]);
@@ -298,25 +299,26 @@ public class Map implements CommandExecutor, TabCompleter {
 
             case "save" -> {
                 saveMapConfig();
-                sender.sendMessage(ChatColor.GREEN + "配置文件已保存！");
+                sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.config_saved"));
             }
 
             case "setmode" -> {
                 if (args.length < 2) {
-                    sender.sendMessage(ChatColor.RED + "用法: /bw setmode <solo|double|3s|4s|4v4>");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.usage.setmode"));
+                    // 保持原有的模式说明信息
                     sender.sendMessage(ChatColor.YELLOW + "solo = 单挑模式, double = 双人模式, 3s = 三人模式, 4s = 四人模式, 4v4 = 4v4模式");
                     return true;
                 }
-                
+
                 String mode = args[1].toLowerCase();
                 if (!mode.equals("solo") && !mode.equals("double") && !mode.equals("3s") && !mode.equals("4s") && !mode.equals("4v4")) {
-                    sender.sendMessage(ChatColor.RED + "无效的模式！可选: solo, double, 3s, 4s, 4v4");
+                    sender.sendMessage(LanguageManager.getInstance().getMessage("command.error.invalid_mode"));
                     return true;
                 }
-                
+
                 plugin.getConfig().set("game.mode", mode);
                 plugin.saveConfig();
-                
+
                 String modeName = switch (mode) {
                     case "solo" -> "单挑模式";
                     case "double" -> "双人模式";
@@ -325,7 +327,7 @@ public class Map implements CommandExecutor, TabCompleter {
                     case "4v4" -> "4v4模式";
                     default -> mode;
                 };
-                sender.sendMessage(ChatColor.GREEN + "已设置游戏模式为: " + ChatColor.YELLOW + modeName);
+                sender.sendMessage(LanguageManager.getInstance().getMessage("command.success.setmode", "mode", modeName));
             }
         }
 
@@ -391,7 +393,7 @@ public class Map implements CommandExecutor, TabCompleter {
                     Plugin.getInstance().getMapManager().loadProtectedAreas();
                 }
                 
-                player.sendMessage(ChatColor.GREEN + "成功移除保护区域: " + areaName);
+                player.sendMessage(LanguageManager.getInstance().getMessage("command.list.remove_protect_success", "area", areaName));
             } else {
                 player.sendMessage(ChatColor.RED + "保护区域不存在");
             }
@@ -403,11 +405,11 @@ public class Map implements CommandExecutor, TabCompleter {
     private void handleListProtectAreas(Player player) {
         var areasSection = mapConfig.getConfigurationSection("protection");
         if (areasSection == null || areasSection.getKeys(false).isEmpty()) {
-            player.sendMessage(ChatColor.YELLOW + "当前没有配置任何保护区域");
+            player.sendMessage(LanguageManager.getInstance().getMessage("command.list.no_protect_areas"));
             return;
         }
-        
-        player.sendMessage(ChatColor.GOLD + "=== 保护区域列表 ===");
+
+        player.sendMessage(LanguageManager.getInstance().getMessage("command.list.protect_areas_header"));
         for (String areaName : areasSection.getKeys(false)) {
             var areaSection = areasSection.getConfigurationSection(areaName);
             if (areaSection != null) {
@@ -438,12 +440,12 @@ public class Map implements CommandExecutor, TabCompleter {
             List<java.util.Map<?, ?>> list = mapConfig.getMapList("spawners." + type);
             
             if (list == null || list.isEmpty()) {
-                player.sendMessage(ChatColor.RED + "没有找到任何 " + type + " 生成点");
+                player.sendMessage(LanguageManager.getInstance().getMessage("command.list.no_spawners", "type", type));
                 return;
             }
-            
+
             if (index < 0 || index >= list.size()) {
-                player.sendMessage(ChatColor.RED + "无效的索引！有效范围: 0-" + (list.size() - 1));
+                player.sendMessage(LanguageManager.getInstance().getMessage("command.list.spawner_index_error", "max", String.valueOf(list.size() - 1)));
                 return;
             }
             
@@ -451,22 +453,22 @@ public class Map implements CommandExecutor, TabCompleter {
             mapConfig.set("spawners." + type, list);
             saveMapConfig();
             
-            player.sendMessage(ChatColor.GREEN + "成功移除 " + type + " 生成点 #" + index);
-            
+            player.sendMessage(LanguageManager.getInstance().getMessage("command.list.remove_spawner_success", "type", type, "index", String.valueOf(index)));
+
         } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "无效的索引号");
+            player.sendMessage(LanguageManager.getInstance().getMessage("command.list.invalid_index"));
         }
     }
 
     private void handleListSpawners(Player player) {
-        player.sendMessage(ChatColor.GOLD + "=== 资源生成点列表 ===");
+        player.sendMessage(LanguageManager.getInstance().getMessage("command.list.spawners_header"));
         String[] types = {"iron", "gold", "diamond", "emerald"};
-        
+
         for (String type : types) {
             List<java.util.Map<?, ?>> list = mapConfig.getMapList("spawners." + type);
-            
+
             if (list == null || list.isEmpty()) {
-                player.sendMessage(ChatColor.YELLOW + type + ": 无");
+                player.sendMessage(LanguageManager.getInstance().getMessage("command.list.spawner_empty", "type", type));
                 continue;
             }
             
@@ -486,35 +488,35 @@ public class Map implements CommandExecutor, TabCompleter {
             List<java.util.Map<?, ?>> list = mapConfig.getMapList("npcs." + type);
             
             if (list == null || list.isEmpty()) {
-                player.sendMessage(ChatColor.RED + "没有找到任何 " + type + " NPC");
+                player.sendMessage(LanguageManager.getInstance().getMessage("command.list.no_npcs", "type", type));
                 return;
             }
-            
+
             if (index < 0 || index >= list.size()) {
-                player.sendMessage(ChatColor.RED + "无效的索引！有效范围: 0-" + (list.size() - 1));
+                player.sendMessage(LanguageManager.getInstance().getMessage("command.list.spawner_index_error", "max", String.valueOf(list.size() - 1)));
                 return;
             }
-            
+
             list.remove(index);
             mapConfig.set("npcs." + type, list);
             saveMapConfig();
-            
-            player.sendMessage(ChatColor.GREEN + "成功移除 " + type + " NPC #" + index);
-            
+
+            player.sendMessage(LanguageManager.getInstance().getMessage("command.list.remove_npc_success", "type", type, "index", String.valueOf(index)));
+
         } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "无效的索引号");
+            player.sendMessage(LanguageManager.getInstance().getMessage("command.list.invalid_index"));
         }
     }
 
     private void handleListNPCs(Player player) {
-        player.sendMessage(ChatColor.GOLD + "=== NPC位置列表 ===");
+        player.sendMessage(LanguageManager.getInstance().getMessage("command.list.npcs_header"));
         String[] types = {"shop", "upgrade"};
-        
+
         for (String type : types) {
             List<java.util.Map<?, ?>> list = mapConfig.getMapList("npcs." + type);
-            
+
             if (list == null || list.isEmpty()) {
-                player.sendMessage(ChatColor.YELLOW + type + ": 无");
+                player.sendMessage(LanguageManager.getInstance().getMessage("command.list.npc_empty", "type", type));
                 continue;
             }
             
@@ -646,7 +648,7 @@ public class Map implements CommandExecutor, TabCompleter {
 
     private void handleListBeds(Player player) {
         player.sendMessage(ChatColor.GOLD + "=== 床位置列表 ===");
-        
+
         boolean hasAnyBed = false;
         for (String team : validTeams) {
             if (mapConfig.contains("beds." + team)) {
@@ -658,9 +660,9 @@ public class Map implements CommandExecutor, TabCompleter {
                 }
             }
         }
-        
+
         if (!hasAnyBed) {
-            player.sendMessage(ChatColor.YELLOW + "当前没有设置任何床位置");
+            player.sendMessage(LanguageManager.getInstance().getMessage("command.list.no_beds"));
         }
     }
 

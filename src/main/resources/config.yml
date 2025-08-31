@@ -1,6 +1,9 @@
 auth:
   license_key: ""
 
+# 语言设置
+language: zh_cn
+
 # 游戏设置
 game:
   # 游戏模式（可选：solo、double、3s、4s、4v4）

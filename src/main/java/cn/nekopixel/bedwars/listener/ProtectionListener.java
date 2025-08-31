@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.listener;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.map.MapManager;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -31,7 +32,7 @@ public class ProtectionListener implements Listener {
         Block block = event.getBlockClicked().getRelative(event.getBlockFace());
         if (mapManager.isPlaceProtected(block.getLocation())) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("§c你不能在这里放置液体！");
+            event.getPlayer().sendMessage(LanguageManager.getInstance().getMessage("map.cannot_place_liquid"));
         }
     }
 
@@ -41,7 +42,7 @@ public class ProtectionListener implements Listener {
         
         if (mapManager.isPlaceProtected(event.getBlock().getLocation())) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("§c你不能在这里收集液体！");
+            event.getPlayer().sendMessage(LanguageManager.getInstance().getMessage("map.cannot_collect_liquid"));
         }
     }
 

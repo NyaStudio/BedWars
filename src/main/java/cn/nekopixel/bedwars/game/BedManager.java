@@ -3,6 +3,7 @@ package cn.nekopixel.bedwars.game;
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
 import cn.nekopixel.bedwars.broadcast.BroadcastManager;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.listener.DeathListener;
 import cn.nekopixel.bedwars.player.PlayerStats;
 import cn.nekopixel.bedwars.setup.Map;
@@ -149,7 +150,7 @@ public class BedManager implements Listener {
                     }
                 }, 1L);
 
-                destroyer.sendMessage("§c你不能破坏自己的床！");
+                destroyer.sendMessage(LanguageManager.getInstance().getMessage("bed.cannot_break_own"));
                 return;
             }
 
@@ -175,7 +176,8 @@ public class BedManager implements Listener {
             for (UUID playerId : teamManager.getTeamPlayers(finalTeam)) {
                 Player teamPlayer = Bukkit.getPlayer(playerId);
                 if (teamPlayer != null && teamPlayer.isOnline()) {
-                    INGameTitle.show(teamPlayer, "§c床已被破坏！", "§7你将无法重生！", 4, 10, 20);
+                    INGameTitle.show(teamPlayer, LanguageManager.getInstance().getMessage("bed.destroyed_title"),
+                        LanguageManager.getInstance().getMessage("bed.destroyed_subtitle"), 4, 10, 20);
                 }
             }
 

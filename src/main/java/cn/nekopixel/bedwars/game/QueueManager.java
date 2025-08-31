@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.game;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.utils.INGameTitle;
 import cn.nekopixel.bedwars.utils.LocationUtils;
@@ -84,8 +85,7 @@ public class QueueManager implements Listener {
                 seconds = requiredSeconds;
                 if (seconds <= 5 || seconds == 10 || seconds == 15 || seconds == 30) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.sendMessage(ChatColor.YELLOW + "游戏将在 " + 
-                            ChatColor.RED + seconds + ChatColor.YELLOW + " 秒后开始!");
+                        player.sendMessage(LanguageManager.getInstance().getMessage("queue.countdown_message", "seconds", String.valueOf(seconds)));
                         SoundUtils.countDown(player);
                     }
                     
@@ -174,8 +174,7 @@ public class QueueManager implements Listener {
                 
                 if (seconds <= 5 || seconds == 10 || seconds == 15 || seconds == 30) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.sendMessage(ChatColor.YELLOW + "游戏将在 " + 
-                            ChatColor.RED + seconds + ChatColor.YELLOW + " 秒后开始!");
+                        player.sendMessage(LanguageManager.getInstance().getMessage("queue.countdown_message", "seconds", String.valueOf(seconds)));
                         
                         SoundUtils.countDown(player);
                     }
@@ -198,10 +197,10 @@ public class QueueManager implements Listener {
         }
         
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(ChatColor.RED + "玩家数量不足，等待更多玩家.....");
+            player.sendMessage(LanguageManager.getInstance().getMessage("queue.insufficient_players"));
             INGameTitle.cancel(player);
             
-            INGameTitle.show(player, ChatColor.RED + "等待更多玩家加入.....", "", 3, 0, 10);
+            INGameTitle.show(player, LanguageManager.getInstance().getMessage("queue.waiting_for_more"), "", 3, 0, 10);
             SoundUtils.countDown(player);
         }
     }

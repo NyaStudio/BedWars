@@ -1,6 +1,7 @@
 package cn.nekopixel.bedwars.shop;
 
 import cn.nekopixel.bedwars.Main;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -20,14 +21,14 @@ public class UpgradeShop {
 
     public UpgradeShop(Main plugin) {
         this.plugin = plugin;
-        this.title = "§b队伍升级";
+        this.title = LanguageManager.getInstance().getMessage("shop.upgrade.title");
         this.inventory = Bukkit.createInventory(null, 54, title);
         setupShop();
     }
 
     private void setupShop() {
-        inventory.setItem(0, createShopItem(Material.DIAMOND_SWORD, "§b锋利", 4, "diamond"));
-        inventory.setItem(1, createShopItem(Material.IRON_CHESTPLATE, "§b防护", 4, "diamond"));
+        inventory.setItem(0, createShopItem(Material.DIAMOND_SWORD, LanguageManager.getInstance().getMessage("shop.upgrade.sharpness"), 4, "diamond"));
+        inventory.setItem(1, createShopItem(Material.IRON_CHESTPLATE, LanguageManager.getInstance().getMessage("shop.upgrade.protection"), 4, "diamond"));
     }
 
     private ItemStack createShopItem(Material material, String name, int price, String currency) {
@@ -36,7 +37,7 @@ public class UpgradeShop {
         meta.setDisplayName(name);
 
         List<String> lore = new ArrayList<>();
-        lore.add("§7价格: §e" + price + " " + translateCurrency(currency));
+        lore.add(LanguageManager.getInstance().getMessage("shop.upgrade.price", "price", String.valueOf(price), "currency", translateCurrency(currency)));
         meta.setLore(lore);
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
@@ -51,10 +52,10 @@ public class UpgradeShop {
 
     private String translateCurrency(String currency) {
         return switch (currency.toLowerCase()) {
-            case "iron" -> "铁锭";
-            case "gold" -> "金锭";
-            case "diamond" -> "钻石";
-            case "emerald" -> "绿宝石";
+            case "iron" -> LanguageManager.getInstance().getMessage("currency.iron");
+            case "gold" -> LanguageManager.getInstance().getMessage("currency.gold");
+            case "diamond" -> LanguageManager.getInstance().getMessage("currency.diamond");
+            case "emerald" -> LanguageManager.getInstance().getMessage("currency.emerald");
             default -> currency;
         };
     }

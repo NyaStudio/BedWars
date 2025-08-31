@@ -2,6 +2,7 @@ package cn.nekopixel.bedwars.shop;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
+import cn.nekopixel.bedwars.language.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,7 +38,7 @@ public class ItemShop {
             itemCategory.setCurrentCategory(firstCategory);
         }
 
-        Inventory inv = Bukkit.createInventory(null, 54, "§8物品商店");
+        Inventory inv = Bukkit.createInventory(null, 54, LanguageManager.getInstance().getMessage("shop.shop_title"));
         
         int categoryIndex = 0;
         int selectedIndex = -1;
@@ -143,7 +144,7 @@ public class ItemShop {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player player)) return;
-        if (!event.getView().getTitle().equals("§8物品商店")) return;
+        if (!event.getView().getTitle().equals(LanguageManager.getInstance().getMessage("shop.shop_title"))) return;
     }
 
     public boolean isShopItem(ItemStack item) {
