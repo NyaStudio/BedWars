@@ -440,27 +440,32 @@ public class AuthValidator {
     private static void startAuthMonitor(Main plugin) {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!verifyAuthState()) {
-                handleExpiredAuth(plugin, "发现授权已失效");
+                handleExpiredAuth(plugin, "Authorization has expired");
                 return;
             }
             
             if (isPluginTampered()) {
-                unauthorized(plugin, "检测到插件被篡改");
+                unauthorized(plugin, "Detected plugin has been Tampered");
             }
         }, 600L, 600L);
     }
 
     private static boolean isPluginTampered() {
-        // try {
-        //     Class.forName("cn.nekopixel.bedwars.auth.AuthValidator");
-        //     Class.forName("cn.nekopixel.bedwars.auth.HardwareInfo");
-        //     Class.forName("cn.nekopixel.bedwars.auth.CryptoUtil");
-        //     
-        //     return false;
-        // } catch (ClassNotFoundException e) {
-        //     return true;
-        // }
-        return false;
+        try {
+            HardwareInfo.getFingerprint();
+            CryptoUtil.generateTimestamp();
+            AuthValidator.class.getSimpleName();
+
+            Class<?> wsClientClass = AuthWebSocketClient.class;
+            Class<?> interceptorClass = AuthInterceptor.class;
+
+            wsClientClass.getSimpleName();
+            interceptorClass.getSimpleName();
+
+            return false;
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     public static boolean isAuthorized() {
