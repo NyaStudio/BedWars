@@ -1,5 +1,5 @@
 name: BedWars
-version: 1.2.0
+version: 1.2.1
 main: cn.nekopixel.bedwars.Main
 api-version: 1.20
 authors: [BLxcwg666]
@@ -9,21 +9,21 @@ softdepend: [LuckPerms]
 
 commands:
   bw:
-    description: 管理 Bedwars 插件
+    description: Manage BedWars Plugin
     usage: /bw
     permission: bedwars.admin
     aliases: [bedwars]
   shout:
-    description: 向所有玩家喊话
+    description: Shout to all players
     usage: /shout <msg>
     aliases: [s]
 
 permissions:
   bedwars.admin:
-    description: 使用 Bedwars 管理命令
+    description: Use BedWars Admin Command
     default: op
     children:
       bedwars.status: true
   bedwars.status:
-    description: 允许切换游戏状态
+    description: Switch GameStatus
     default: op
