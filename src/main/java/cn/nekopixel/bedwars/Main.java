@@ -37,8 +37,6 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Loader.initializeSystemEnvironment(this);
-        
         Plugin.setInstance(new Plugin());
         PacketEvents.getAPI().init();
         
@@ -58,8 +56,6 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        cn.nekopixel.bedwars.auth.AuthValidator.shutdown();
-        
         PacketEvents.getAPI().terminate();
         getLogger().info("Unloading completed!");
     }

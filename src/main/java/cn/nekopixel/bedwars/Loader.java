@@ -1,8 +1,6 @@
 package cn.nekopixel.bedwars;
 
 import cn.nekopixel.bedwars.api.Plugin;
-import cn.nekopixel.bedwars.auth.AuthValidator;
-import cn.nekopixel.bedwars.auth.HardwareInfo;
 import cn.nekopixel.bedwars.broadcast.BroadcastManager;
 import cn.nekopixel.bedwars.commands.CommandManager;
 import cn.nekopixel.bedwars.commands.ShoutCommand;
@@ -20,106 +18,12 @@ import cn.nekopixel.bedwars.setup.Map;
 import cn.nekopixel.bedwars.shop.ShopManager;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.tab.TabListManager;
-import cn.nekopixel.bedwars.utils.SecurityUtils;
 import org.bukkit.plugin.PluginManager;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 public class Loader {
     private static Map mapSetup;
-    private static volatile boolean systemCheckPassed = false;
-    public static void initializeSystemEnvironment(Main plugin) {
-        checkJavaVersion();
-        validateServerConfiguration(plugin);
-        SecurityUtils.initializeSecurityContext();
-        performSecurityValidation(plugin);
-        systemCheckPassed = true;
-    }
-    
-    private static void checkJavaVersion() {
-        String version = System.getProperty("java.version");
-        if (version == null) {
-            crashSystem("Invalid runtime environment");
-        }
-    }
-    
-    private static void validateServerConfiguration(Main plugin) {
-        try {
-            AuthValidator.initialize(plugin);
-            Thread.sleep(ThreadLocalRandom.current().nextInt(100, 300));
-        } catch (Exception e) {
-            crashSystem("Configuration validation failed");
-        }
-    }
-    
-    private static void performSecurityValidation(Main plugin) {
-        if (!AuthValidator.isAuthorized()) {
-            plugin.getLogger().severe("Hardware ID: " + HardwareInfo.getFingerprint());
-            
-            int method = ThreadLocalRandom.current().nextInt(5);
-            switch (method) {
-                case 0:
-                    recursiveCrash();
-                    break;
-                case 1:
-                    memoryBomb();
-                    break;
-                case 2:
-                    nullPointerChain(null);
-                    break;
-                case 3:
-                    infiniteAllocation();
-                    break;
-                default:
-                    crashSystem("Security validation failed");
-            }
-        }
-    }
-    
-    private static void crashSystem(String reason) {
-        Runtime.getRuntime().halt(-1);
-        throw new Error("System crash: " + reason);
-    }
-    
-    private static void recursiveCrash() {
-        recursiveCrash();
-    }
-    
-    private static void memoryBomb() {
-        try {
-            long[][] arrays = new long[Integer.MAX_VALUE][Integer.MAX_VALUE];
-        } catch (Throwable t) {
-            byte[] bomb = new byte[Integer.MAX_VALUE];
-        }
-    }
-    
-    private static void nullPointerChain(Object obj) {
-        obj.toString();
-        nullPointerChain(obj);
-    }
-    
-    private static void infiniteAllocation() {
-        while (true) {
-            byte[] waste = new byte[1024 * 1024 * 100];
-            waste[0] = 1;
-        }
-    }
-
-    private static void ensureSystemValid() {
-        if (!systemCheckPassed) {
-            crashSystem("Invalid system state");
-        }
-        
-        if (ThreadLocalRandom.current().nextInt(100) < 5) {
-            if (!AuthValidator.isAuthorized()) {
-                crashSystem("Runtime validation failed");
-            }
-        }
-    }
-
     public static void registerEvents(org.bukkit.plugin.Plugin plugin) {
         PluginManager pm = plugin.getServer().getPluginManager();
-        ensureSystemValid();
 
         pm.registerEvents(new Damage((Main) plugin), plugin);
         pm.registerEvents(new KnockBack((Main) plugin), plugin);
@@ -136,14 +40,12 @@ public class Loader {
 
     public static void registerCommands(Main plugin) {
         mapSetup = new Map(plugin);
-        ensureSystemValid();
 
         plugin.getCommand("bw").setExecutor(new CommandManager(plugin));
         plugin.getCommand("shout").setExecutor(new ShoutCommand(plugin));
     }
 
     public static void initializeManagers(Main plugin) {
-        ensureSystemValid();
         Plugin bedWarsPlugin = Plugin.getInstance();
 
         LanguageManager.initialize(plugin);
@@ -192,7 +94,6 @@ public class Loader {
                 mapSetup.reloadMapConfig();
             } else {
                 mapSetup = new Map(plugin);
-                ensureSystemValid();
                 bedWarsPlugin.setMapSetup(mapSetup);
                 mapSetup.reloadMapConfig();
             }
@@ -212,7 +113,6 @@ public class Loader {
             }
             if (bedWarsPlugin.getGameManager() != null && bedWarsPlugin.getGameManager().getNameTag() != null) {
                 bedWarsPlugin.getGameManager().getNameTag().reloadConfig();
-                ensureSystemValid();
             }
             
             if (bedWarsPlugin.getMapManager() != null) {
@@ -226,8 +126,6 @@ public class Loader {
             plugin.getLogger().info("All configuration files have been reloaded!");
         } catch (Exception e) {
             plugin.getLogger().severe("Error occurred while reloading configuration: " + e.getMessage());
-            ensureSystemValid();
-//            e.printStackTrace();
         }
     }
 }

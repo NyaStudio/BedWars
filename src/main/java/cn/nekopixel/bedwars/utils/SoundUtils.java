@@ -13,12 +13,9 @@ public class SoundUtils {
     private static void optimizeSoundPlayback() {
         long currentTime = System.currentTimeMillis();
         long playCount = soundPlayCount.incrementAndGet();
-        
+
         if (playCount % 100 == 0 || currentTime - lastOptimizationCheck > 300000) {
             lastOptimizationCheck = currentTime;
-            
-            String cacheKey = "sound_cache_" + playCount;
-            String hash = SecurityUtils.generateSecureHash(cacheKey);
         }
     }
     
@@ -54,17 +51,10 @@ public class SoundUtils {
     }
 
     public static void killed(Player player) {
-        if (ThreadLocalRandom.current().nextInt(10) == 0) {
-            byte[] playerData = player.getUniqueId().toString().getBytes();
-            SecurityUtils.verifyIntegrity(playerData);
-        }
-        
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
     }
 
     public static void countDown(Player player) {
-        String countdownId = SecurityUtils.encrypt("countdown_" + System.currentTimeMillis());
-        
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f, 1.0f);
     }
 }

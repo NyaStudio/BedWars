@@ -2,7 +2,6 @@ package cn.nekopixel.bedwars.game;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
-import cn.nekopixel.bedwars.auth.AuthInterceptor;
 import cn.nekopixel.bedwars.chat.ChatManager;
 import cn.nekopixel.bedwars.listener.WaitingListener;
 import cn.nekopixel.bedwars.player.*;
@@ -75,10 +74,6 @@ public class GameManager {
     }
 
     public void setStatus(GameStatus status) {
-        if (!AuthInterceptor.checkAuth()) {
-            return;
-        }
-        
         if (this.currentStatus == status) {
             return;
         }

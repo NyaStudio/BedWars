@@ -2,7 +2,6 @@ package cn.nekopixel.bedwars.shop;
 
 import cn.nekopixel.bedwars.Main;
 import cn.nekopixel.bedwars.api.Plugin;
-import cn.nekopixel.bedwars.auth.AuthInterceptor;
 import cn.nekopixel.bedwars.language.LanguageManager;
 import cn.nekopixel.bedwars.spawner.NPCManager;
 import cn.nekopixel.bedwars.utils.SoundUtils;
@@ -396,12 +395,6 @@ public class ShopManager implements Listener {
 
         event.setCancelled(true);
         player.setItemOnCursor(null);
-
-        if (!AuthInterceptor.checkAuth()) {
-            player.closeInventory();
-            AuthInterceptor.obfuscatedCheck();
-            return;
-        }
 
         Inventory clickedInventory = event.getClickedInventory();
         Inventory topInventory = event.getView().getTopInventory();
