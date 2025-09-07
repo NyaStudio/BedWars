@@ -61,7 +61,7 @@ jobs:
     - name: Check server logs
       run: |
         cd mc-testserver
-        if grep -i "Error\|ERROR\|Exception\|Severe" logs\latest.log; then
+        if grep -i "Error\|ERROR\|Exception\|Severe" logs/latest.log; then
           echo "Found Errors, Failed"
           kill $SERVER_PID 2>/dev/null || true
           exit 1
